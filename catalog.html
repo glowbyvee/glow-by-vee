@@ -1,14 +1,106 @@
-<main class="p-10">
-    <h2 class="royal-font text-4xl text-[#FF007F] mb-10">Royal Collection</h2>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
-        <div class="border border-pink-100 rounded-3xl p-4 shadow-sm hover:border-[#D4AF37] transition-all">
-            <div class="h-48 bg-gray-50 rounded-2xl mb-4"></div>
-            <h3 class="font-bold">Radiance Elixir</h3>
-            <p class="text-sm text-gray-400">Skin Goals: Brightening</p>
-            <div class="flex justify-between items-center mt-4">
-                <span class="text-[#FF007F] font-black">KES 2,500</span>
-                <button onclick="addToCart()" class="bg-[#D4AF37] text-white px-4 py-2 rounded-lg font-bold">+</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Collection | Glow by Vee</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --fuchsia: #FF007F; --gold: #D4AF37; }
+        body { font-family: 'Inter', sans-serif; }
+        .royal-font { font-family: 'Cinzel', serif; }
+    </style>
+</head>
+<body class="bg-white">
+
+    <main class="p-6 md:p-10">
+        <h2 class="royal-font text-3xl md:text-4xl text-[#FF007F] mb-10 text-center md:text-left">Royal Collection</h2>
+        
+        <div id="loading-spinner" class="text-center py-20">
+            <p class="text-gray-400 animate-pulse">Fetching the latest glow essentials...</p>
+        </div>
+
+        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
             </div>
-        </div>
-        </div>
-</main>
+    </main>
+
+    <script>
+        // SUPABASE CONFIGURATION
+        const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function fetchCatalog() {
+            const grid = document.getElementById('product-grid');
+            const loader = document.getElementById('loading-spinner');
+
+            try {
+                // Fetch all products from Supabase
+                const { data: products, error } = await _supabase
+                    .from('products')
+                    .select('*');
+
+                if (error) throw error;
+
+                loader.classList.add('hidden');
+
+                if (products.length === 0) {
+                    grid.innerHTML = `<p class="col-span-full text-center text-gray-400">The vault is currently empty. Check back soon!</p>`;
+                    return;
+                }
+
+                // Generate HTML for each product
+                grid.innerHTML = products.map(product => {
+                    // Generate the public URL for the image stored in Supabase Storage
+                    const { data: imgData } = _supabase.storage
+                        .from('product-images')
+                        .getPublicUrl(product.img);
+
+                    return `
+                        <div class="group border border-pink-50 rounded-[32px] p-3 md:p-5 shadow-sm hover:shadow-xl hover:border-[#D4AF37] transition-all bg-white flex flex-col justify-between">
+                            <div>
+                                <div class="h-40 md:h-56 bg-gray-50 rounded-2xl mb-4 overflow-hidden">
+                                    <img src="${imgData.publicUrl}" 
+                                         alt="${product.name}" 
+                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                         onerror="this.src='https://via.placeholder.com/300?text=Glow+Coming+Soon'">
+                                </div>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] mb-1 block">${product.category}</span>
+                                <h3 class="font-bold text-gray-800 text-sm md:text-base leading-tight mb-1">${product.name}</h3>
+                                <p class="text-[11px] text-gray-400 line-clamp-2 mb-4">${product.description || 'No description available'}</p>
+                            </div>
+                            
+                            <div class="flex justify-between items-center pt-2">
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] text-gray-400 font-bold uppercase">Price</span>
+                                    <span class="text-[#FF007F] font-black text-sm md:text-lg">KES ${product.price.toLocaleString()}</span>
+                                </div>
+                                <button onclick="addToCart('${product.id}')" 
+                                        class="bg-[#D4AF37] hover:bg-[#FF007F] text-white w-10 h-10 rounded-xl font-bold transition-colors flex items-center justify-center shadow-lg shadow-yellow-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error("Catalog Fetch Error:", err);
+                loader.innerHTML = `<p class="text-red-400">Failed to load the collection. Please refresh.</p>`;
+            }
+        }
+
+        // Dummy Add to Cart Function
+        function addToCart(id) {
+            alert("Added product to your bag!");
+        }
+
+        // Initialize on load
+        window.onload = fetchCatalog;
+    </script>
+</body>
+</html>
