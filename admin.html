@@ -12,121 +12,104 @@
         body { font-family: 'Inter', sans-serif; }
         .royal-font { font-family: 'Cinzel', serif; }
         .bg-glow-gradient { background: linear-gradient(135deg, var(--fuchsia), var(--gold)); }
+        .hidden { display: none !important; }
     </style>
 </head>
-<body class="bg-gray-50 flex flex-col md:flex-row min-h-screen">
+<body class="bg-gray-50 min-h-screen">
 
-    <aside class="w-full md:w-64 bg-[#1A1A1B] text-white p-6 md:sticky md:top-0 md:h-screen">
-        <div class="flex items-center gap-2 mb-10">
-            <div class="h-10 w-10 bg-no-repeat bg-contain" style="background-image: url('logo.jpg'); filter: invert(1);"></div>
-            <h1 class="text-[#FF007F] font-bold text-xl royal-font">Vee's Portal</h1>
-        </div>
-        <nav class="space-y-2">
-            <a href="#" class="block p-3 rounded-xl bg-[#FF007F]/10 text-[#FF007F] font-bold">OVERVIEW</a>
-            <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all text-[#D4AF37]">ORDERS</a>
-            <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all">INVENTORY</a>
-            <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all">CUSTOMERS</a>
-            <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all">MARKETING</a>
-            <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all">FULFILLMENT</a>
-        </nav>
-    </aside>
+    <div id="auth-overlay" class="fixed inset-0 bg-[#1A1A1B] z-[100] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[40px] p-10 shadow-2xl text-center">
+            <div class="h-16 w-16 bg-no-repeat bg-contain mx-auto mb-6" style="background-image: url('logo.jpg');"></div>
+            <h2 class="royal-font text-2xl text-[#FF007F] mb-2" id="auth-title">Admin Login</h2>
+            <p class="text-gray-400 text-xs mb-8 uppercase tracking-widest">Access restricted to Glow Royalty</p>
 
-    <main class="flex-1 p-6 md:p-10">
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
-            <h2 class="text-3xl font-bold text-gray-800">Order Fulfillment</h2>
-            <div class="flex gap-3">
-                <button onclick="toggleModal('category-modal')" class="border-2 border-[#D4AF37] text-[#D4AF37] px-6 py-2 rounded-full font-bold text-sm">MANAGE CATEGORIES</button>
-                <button onclick="toggleModal('product-modal')" class="bg-[#FF007F] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg hover:scale-105 transition-transform">+ ADD PRODUCT</button>
-            </div>
-        </header>
-
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
-            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-blue-400">
-                <p class="text-xs text-gray-400 font-bold uppercase">Incoming</p>
-                <p id="stat-incoming" class="text-2xl font-bold">0</p>
-            </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-yellow-400">
-                <p class="text-xs text-gray-400 font-bold uppercase">Packed</p>
-                <p id="stat-packed" class="text-2xl font-bold">0</p>
-            </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-purple-400">
-                <p class="text-xs text-gray-400 font-bold uppercase">Ready</p>
-                <p id="stat-ready" class="text-2xl font-bold">0</p>
-            </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-orange-400">
-                <p class="text-xs text-gray-400 font-bold uppercase">Shipped</p>
-                <p id="stat-shipped" class="text-2xl font-bold">0</p>
-            </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-green-400">
-                <p class="text-xs text-gray-400 font-bold uppercase">Delivered</p>
-                <p id="stat-delivered" class="text-2xl font-bold">0</p>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-pink-50/50 border-b">
-                        <tr>
-                            <th class="p-5 text-[#FF007F] font-bold text-sm">Order ID</th>
-                            <th class="p-5 text-sm font-bold">Customer</th>
-                            <th class="p-5 text-sm font-bold">Date</th>
-                            <th class="p-5 text-sm font-bold">Status</th>
-                            <th class="p-5 text-sm font-bold">Payment</th>
-                            <th class="p-5 text-sm font-bold">Shipping Details</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orders-table-body" class="text-gray-600">
-                        <tr><td colspan="6" class="p-10 text-center">Loading Royal Orders...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-
-    <div id="product-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-2xl rounded-[40px] p-8 md:p-12 shadow-2xl overflow-y-auto max-h-[90vh]">
-            <h2 class="royal-font text-3xl text-[#FF007F] mb-8 text-center">Add New Product</h2>
-            <form id="add-product-form" class="space-y-6">
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div class="space-y-4">
-                        <label class="text-xs font-black uppercase text-gray-400">Product Title</label>
-                        <input id="prod-title" type="text" required placeholder="e.g. Skin Lightening" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
-                        <label class="text-xs font-black uppercase text-gray-400">Category</label>
-                        <select id="prod-category" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]"></select>
-                        <label class="text-xs font-black uppercase text-gray-400">Price (KES)</label>
-                        <input id="prod-price" type="number" required placeholder="3500" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
-                    </div>
-                    <div class="space-y-4">
-                        <label class="text-xs font-black uppercase text-gray-400">Description</label>
-                        <textarea id="prod-desc" required placeholder="Royal benefits..." class="w-full border-2 border-gray-100 rounded-2xl p-4 h-32 outline-none focus:border-[#FF007F]"></textarea>
-                        <label class="text-xs font-black uppercase text-gray-400">Upload Image</label>
-                        <div class="relative border-2 border-dashed border-[#D4AF37] rounded-2xl p-6 text-center bg-yellow-50/30">
-                            <input type="file" id="prod-image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                            <p id="file-status" class="text-[#D4AF37] text-sm font-bold">Click to Upload Image</p>
-                        </div>
-                    </div>
+            <form id="auth-form" class="space-y-4">
+                <input id="auth-email" type="email" placeholder="Email Address" required class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+                
+                <input id="auth-name" type="text" placeholder="Your Name" class="hidden w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+                
+                <input id="auth-password" type="password" placeholder="Password" required class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+                
+                <div class="relative">
+                    <input id="master-key" type="password" placeholder="Master Admin Secret Key" required class="w-full border-2 border-[#D4AF37] rounded-2xl p-4 outline-none bg-yellow-50/30">
+                    <p class="text-[10px] text-[#D4AF37] font-bold mt-1 text-left px-2">REQUIRED FOR ALL ADMINS</p>
                 </div>
-                <div class="flex gap-4 pt-6">
-                    <button type="button" onclick="toggleModal('product-modal')" class="flex-1 py-4 font-bold text-gray-400">DISCARD</button>
-                    <button type="submit" id="save-btn" class="flex-1 bg-glow-gradient py-4 rounded-2xl font-bold text-white shadow-lg">SAVE TO CATALOG</button>
-                </div>
+
+                <button type="submit" id="auth-btn" class="w-full bg-glow-gradient py-4 rounded-2xl font-bold text-white shadow-lg mt-4">ENTER PORTAL</button>
             </form>
+
+            <div class="mt-6 flex flex-col gap-2">
+                <button onclick="toggleAuthMode()" id="toggle-auth-btn" class="text-xs font-bold text-gray-400 hover:text-[#FF007F]">Need to register a new admin?</button>
+                <button onclick="logout()" id="logout-btn" class="hidden text-xs font-bold text-red-400">Logout</button>
+            </div>
         </div>
     </div>
 
-    <div id="category-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-[40px] p-8 shadow-2xl">
-            <h2 class="royal-font text-2xl text-[#D4AF37] mb-6">Manage Categories</h2>
-            <div class="space-y-4">
-                <div class="flex gap-2">
-                    <input type="text" id="new-category-name" placeholder="New category..." class="flex-1 border-2 border-gray-100 rounded-xl px-4 py-2 outline-none focus:border-[#FF007F]">
-                    <button onclick="addNewCategory()" class="bg-[#D4AF37] text-white px-4 py-2 rounded-xl font-bold hover:bg-[#FF007F] transition-all">+</button>
-                </div>
-                <div id="category-list" class="divide-y divide-gray-100 max-h-60 overflow-y-auto"></div>
+    <div id="dashboard-content" class="hidden flex flex-col md:flex-row min-h-screen">
+        <aside class="w-full md:w-64 bg-[#1A1A1B] text-white p-6 md:sticky md:top-0 md:h-screen">
+            <div class="flex items-center gap-2 mb-10">
+                <div class="h-10 w-10 bg-no-repeat bg-contain" style="background-image: url('logo.jpg'); filter: invert(1);"></div>
+                <h1 class="text-[#FF007F] font-bold text-xl royal-font">Vee's Portal</h1>
             </div>
-            <button onclick="toggleModal('category-modal')" class="w-full mt-6 py-3 font-bold text-gray-400 uppercase text-xs tracking-widest">Close</button>
-        </div>
+            <nav class="space-y-2">
+                <a href="#" class="block p-3 rounded-xl bg-[#FF007F]/10 text-[#FF007F] font-bold">OVERVIEW</a>
+                <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all text-[#D4AF37]">ORDERS</a>
+                <button onclick="logout()" class="w-full text-left p-3 rounded-xl hover:bg-red-500/10 text-red-400 transition-all">LOGOUT</button>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-6 md:p-10">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+                <h2 class="text-3xl font-bold text-gray-800">Order Fulfillment</h2>
+                <div class="flex gap-3">
+                    <button onclick="toggleModal('category-modal')" class="border-2 border-[#D4AF37] text-[#D4AF37] px-6 py-2 rounded-full font-bold text-sm">MANAGE CATEGORIES</button>
+                    <button onclick="toggleModal('product-modal')" class="bg-[#FF007F] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg hover:scale-105 transition-transform">+ ADD PRODUCT</button>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-blue-400">
+                    <p class="text-xs text-gray-400 font-bold uppercase">Incoming</p>
+                    <p id="stat-incoming" class="text-2xl font-bold">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-yellow-400">
+                    <p class="text-xs text-gray-400 font-bold uppercase">Packed</p>
+                    <p id="stat-packed" class="text-2xl font-bold">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-purple-400">
+                    <p class="text-xs text-gray-400 font-bold uppercase">Ready</p>
+                    <p id="stat-ready" class="text-2xl font-bold">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-orange-400">
+                    <p class="text-xs text-gray-400 font-bold uppercase">Shipped</p>
+                    <p id="stat-shipped" class="text-2xl font-bold">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-green-400">
+                    <p class="text-xs text-gray-400 font-bold uppercase">Delivered</p>
+                    <p id="stat-delivered" class="text-2xl font-bold">0</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-pink-50/50 border-b">
+                            <tr>
+                                <th class="p-5 text-[#FF007F] font-bold text-sm">Order ID</th>
+                                <th class="p-5 text-sm font-bold">Customer</th>
+                                <th class="p-5 text-sm font-bold">Date</th>
+                                <th class="p-5 text-sm font-bold">Status</th>
+                                <th class="p-5 text-sm font-bold">Payment</th>
+                                <th class="p-5 text-sm font-bold">Shipping Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body" class="text-gray-600">
+                            <tr><td colspan="6" class="p-10 text-center">Loading Royal Orders...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script>
@@ -134,146 +117,74 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function toggleModal(id) {
-            const modal = document.getElementById(id);
-            modal.classList.toggle('hidden');
-            if (!modal.classList.contains('hidden')) loadCategories();
+        // --- SECURITY SETTINGS ---
+        // Change this to your very unique password that only admins know
+        const MASTER_ADMIN_KEY = "GLOW_QUEEN_2026_SECURE"; 
+        
+        let isRegistering = false;
+
+        function toggleAuthMode() {
+            isRegistering = !isRegistering;
+            document.getElementById('auth-title').innerText = isRegistering ? "Register Admin" : "Admin Login";
+            document.getElementById('auth-name').classList.toggle('hidden', !isRegistering);
+            document.getElementById('auth-btn').innerText = isRegistering ? "CREATE ACCOUNT" : "ENTER PORTAL";
+            document.getElementById('toggle-auth-btn').innerText = isRegistering ? "Already have an account? Login" : "Need to register a new admin?";
         }
 
-        async function loadOrders() {
-            const { data: orders, error } = await _supabase.from('orders').select('*').order('created_at', { ascending: false });
-            if (error) return;
-            updateStats(orders);
-            const tbody = document.getElementById('orders-table-body');
-            if (!orders || orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-gray-400">No orders found.</td></tr>`;
+        async function handleAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const enteredMasterKey = document.getElementById('master-key').value;
+            const name = document.getElementById('auth-name').value;
+
+            // 1. Check the Master Key first
+            if (enteredMasterKey !== MASTER_ADMIN_KEY) {
+                alert("❌ INVALID MASTER SECRET KEY. Access Denied.");
                 return;
             }
-            tbody.innerHTML = orders.map(order => {
-                const date = new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-                return `
-                    <tr class="border-b hover:bg-gray-50 transition-all">
-                        <td class="p-5 font-mono font-bold text-gray-900">#GV-${order.id.toString().slice(-4).toUpperCase()}</td>
-                        <td class="p-5 font-semibold">${order.customer_name}</td>
-                        <td class="p-5 text-sm">${date}</td>
-                        <td class="p-5"><span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-black uppercase">${order.status || 'Incoming'}</span></td>
-                        <td class="p-5 text-sm">${order.payment_method || 'M-Pesa'}</td>
-                        <td class="p-5 text-xs text-gray-400">${order.shipping_address || 'Nairobi'}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
 
-        function updateStats(orders) {
-            const counts = { Incoming: 0, Packed: 0, Ready: 0, Shipped: 0, Delivered: 0 };
-            orders.forEach(o => { if(counts[o.status] !== undefined) counts[o.status]++; });
-            document.getElementById('stat-incoming').innerText = counts.Incoming.toString().padStart(2, '0');
-            document.getElementById('stat-packed').innerText = counts.Packed.innerText = counts.Packed.toString().padStart(2, '0');
-            document.getElementById('stat-ready').innerText = counts.Ready.toString().padStart(2, '0');
-            document.getElementById('stat-shipped').innerText = counts.Shipped.toString().padStart(2, '0');
-            document.getElementById('stat-delivered').innerText = counts.Delivered.toString().padStart(2, '0');
-        }
-
-        async function loadCategories() {
-            const { data, error } = await _supabase.from('categories').select('*').order('name');
-            if (error) return;
-            
-            const list = document.getElementById('category-list');
-            const dropdown = document.getElementById('prod-category');
-            
-            if (list) {
-                list.innerHTML = data.map(cat => `
-                    <div class="py-3 flex justify-between items-center text-sm">
-                        <span class="font-medium text-gray-700">${cat.name}</span>
-                        <button onclick="deleteCategory(${cat.id})" class="text-red-400 hover:text-red-600 font-bold">Remove</button>
-                    </div>
-                `).join('');
-            }
-            if (dropdown) {
-                dropdown.innerHTML = data.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('');
-            }
-        }
-
-        async function addNewCategory() {
-            const input = document.getElementById('new-category-name');
-            const name = input.value.trim();
-            if (!name) return alert("Please enter a category name.");
-
-            const { error } = await _supabase.from('categories').insert([{ name }]);
-            if (error) {
-                alert("Error: " + error.message);
+            if (isRegistering) {
+                // Register
+                const { data, error } = await _supabase.auth.signUp({
+                    email,
+                    password,
+                    options: { data: { full_name: name } }
+                });
+                if (error) alert("Error: " + error.message);
+                else alert("Registration successful! You can now login.");
             } else {
-                input.value = "";
-                await loadCategories();
-                alert("Category added!");
+                // Login
+                const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+                if (error) alert("Login Failed: " + error.message);
+                else checkSession();
             }
         }
 
-        async function deleteCategory(id) {
-            if (confirm("Remove category?")) {
-                await _supabase.from('categories').delete().eq('id', id);
+        async function checkSession() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) {
+                document.getElementById('auth-overlay').classList.add('hidden');
+                document.getElementById('dashboard-content').classList.remove('hidden');
+                loadOrders();
                 loadCategories();
+            } else {
+                document.getElementById('auth-overlay').classList.remove('hidden');
+                document.getElementById('dashboard-content').classList.add('hidden');
             }
         }
 
-        // --- IMPROVED PRODUCT UPLOAD ---
-        document.getElementById('prod-image').onchange = function() {
-            if (this.files[0]) document.getElementById('file-status').innerText = "Selected: " + this.files[0].name;
-        };
-
-        async function uploadProductImage(file) {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random()}-${Date.now()}.${fileExt}`;
-            const { data, error } = await _supabase.storage.from('product-images').upload(fileName, file);
-            if (error) {
-                console.error("Upload error:", error);
-                return null;
-            }
-            // Get the Public URL
-            const { data: urlData } = _supabase.storage.from('product-images').getPublicUrl(fileName);
-            return urlData.publicUrl;
+        async function logout() {
+            await _supabase.auth.signOut();
+            location.reload();
         }
 
-        document.getElementById('add-product-form').onsubmit = async function(e) {
-            e.preventDefault();
-            const saveBtn = document.getElementById('save-btn');
-            const originalText = saveBtn.innerText;
-            
-            saveBtn.innerText = "UPLOADING...";
-            saveBtn.disabled = true;
+        document.getElementById('auth-form').onsubmit = handleAuth;
 
-            try {
-                const file = document.getElementById('prod-image').files[0];
-                if (!file) throw new Error("Select image!");
+        // Run session check on load
+        window.onload = checkSession;
 
-                const publicUrl = await uploadProductImage(file);
-                if (!publicUrl) throw new Error("Image upload failed.");
-
-                const { error } = await _supabase.from('products').insert([{
-                    name: document.getElementById('prod-title').value,
-                    category: document.getElementById('prod-category').value,
-                    price: parseFloat(document.getElementById('prod-price').value),
-                    description: document.getElementById('prod-desc').value, // Matches updated schema
-                    img: publicUrl // Saves full URL for easier display
-                }]);
-
-                if (error) throw error;
-
-                alert("Product added successfully!");
-                location.reload(); 
-
-            } catch (err) {
-                alert("Error: " + err.message);
-            } finally {
-                saveBtn.innerText = originalText;
-                saveBtn.disabled = false;
-            }
-        };
-
-        window.onload = () => {
-            loadCategories();
-            loadOrders();
-        };
+        // [KEEP YOUR EXISTING loadOrders, loadCategories, and uploadProductImage functions here]
     </script>
 </body>
 </html>
