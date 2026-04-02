@@ -108,10 +108,7 @@
                         
                         <label class="text-xs font-black uppercase text-gray-400">Category</label>
                         <select id="prod-category" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
-                            <option>Skin Lightening</option>
-                            <option>Serums</option>
-                            <option>Organic Cleansers</option>
-                        </select>
+                            </select>
                         
                         <label class="text-xs font-black uppercase text-gray-400">Price (KES)</label>
                         <input id="prod-price" type="number" required placeholder="3500" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
@@ -143,101 +140,128 @@
             <h2 class="royal-font text-2xl text-[#D4AF37] mb-6">Manage Categories</h2>
             <div class="space-y-4">
                 <div class="flex gap-2">
-                    <input type="text" placeholder="New category name..." class="flex-1 border-2 border-gray-100 rounded-xl px-4 py-2 outline-none focus:border-[#FF007F]">
-                    <button class="bg-[#FF007F] text-white px-4 py-2 rounded-xl font-bold">+</button>
+                    <input type="text" id="new-category-name" placeholder="New category name..." class="flex-1 border-2 border-gray-100 rounded-xl px-4 py-2 outline-none focus:border-[#FF007F]">
+                    <button onclick="addNewCategory()" class="bg-[#FF007F] text-white px-4 py-2 rounded-xl font-bold hover:bg-[#D4AF37] transition-all">+</button>
                 </div>
-                <div class="divide-y divide-gray-100">
-                    <div class="py-3 flex justify-between items-center text-sm">
-                        <span>Skin Lightening</span>
-                        <button class="text-red-400 font-bold">Remove</button>
+                <div id="category-list" class="divide-y divide-gray-100 max-h-60 overflow-y-auto">
                     </div>
-                </div>
             </div>
             <button onclick="toggleModal('category-modal')" class="w-full mt-6 py-3 font-bold text-gray-400 uppercase text-xs tracking-widest">Close</button>
         </div>
     </div>
 
     <script>
-        // SUPABASE CONFIGURATION
         const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         function toggleModal(id) {
             const modal = document.getElementById(id);
             modal.classList.toggle('hidden');
+            if (id === 'category-modal') loadCategories();
         }
 
-        // Handle File Name Display
+        // --- CATEGORY MANAGEMENT ---
+        
+        async function loadCategories() {
+            const { data, error } = await _supabase.from('categories').select('*').order('name');
+            const list = document.getElementById('category-list');
+            const dropdown = document.getElementById('prod-category');
+            
+            if (error) return console.error(error);
+
+            // Update List in Modal
+            list.innerHTML = data.map(cat => `
+                <div class="py-3 flex justify-between items-center text-sm">
+                    <span class="font-medium text-gray-700">${cat.name}</span>
+                    <button onclick="deleteCategory(${cat.id})" class="text-red-400 hover:text-red-600 font-bold">Remove</button>
+                </div>
+            `).join('');
+
+            // Update Dropdown in Product Form
+            dropdown.innerHTML = data.map(cat => `
+                <option value="${cat.name}">${cat.name}</option>
+            `).join('');
+        }
+
+        async function addNewCategory() {
+            const input = document.getElementById('new-category-name');
+            const name = input.value.trim();
+            
+            if (!name) return alert("Please enter a category name.");
+
+            const { error } = await _supabase.from('categories').insert([{ name }]);
+
+            if (error) {
+                alert("Error: " + error.message);
+            } else {
+                input.value = "";
+                loadCategories(); // Refresh list
+            }
+        }
+
+        async function deleteCategory(id) {
+            if (!confirm("Remove this category?")) return;
+            const { error } = await _supabase.from('categories').delete().eq('id', id);
+            if (error) alert(error.message);
+            else loadCategories();
+        }
+
+        // --- PRODUCT MANAGEMENT ---
+
         document.getElementById('prod-image').onchange = function() {
             if (this.files && this.files[0]) {
                 document.getElementById('file-status').innerText = "Selected: " + this.files[0].name;
             }
         };
 
-        // IMAGE UPLOAD LOGIC
         async function uploadProductImage(file) {
             const fileExt = file.name.split('.').pop();
             const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-            const filePath = `${fileName}`;
-
-            const { data, error } = await _supabase.storage
-                .from('product-images')
-                .upload(filePath, file);
-
-            if (error) {
-                console.error("Upload error:", error.message);
-                return null;
-            }
+            const { data, error } = await _supabase.storage.from('product-images').upload(fileName, file);
+            if (error) return null;
             return fileName;
         }
 
-        // FORM SUBMISSION LOGIC
         document.getElementById('add-product-form').onsubmit = async function(e) {
             e.preventDefault();
             const saveBtn = document.getElementById('save-btn');
-            const originalBtnText = saveBtn.innerText;
-            
             saveBtn.innerText = "UPLOADING...";
             saveBtn.disabled = true;
 
             const file = document.getElementById('prod-image').files[0];
             if (!file) {
                 alert("Please select an image first!");
-                saveBtn.innerText = originalBtnText;
+                saveBtn.innerText = "SAVE TO CATALOG";
                 saveBtn.disabled = false;
                 return;
             }
 
-            // 1. Upload the image to Storage
             const fileName = await uploadProductImage(file);
 
             if (fileName) {
-                // 2. Insert into the 'products' table
-                // Note: Using 'description' to match your renamed SQL column
-                const { error } = await _supabase
-                    .from('products')
-                    .insert([{
-                        name: document.getElementById('prod-title').value,
-                        category: document.getElementById('prod-category').value,
-                        price: parseFloat(document.getElementById('prod-price').value),
-                        description: document.getElementById('prod-desc').value,
-                        img: fileName
-                    }]);
+                const { error } = await _supabase.from('products').insert([{
+                    name: document.getElementById('prod-title').value,
+                    category: document.getElementById('prod-category').value,
+                    price: parseFloat(document.getElementById('prod-price').value),
+                    description: document.getElementById('prod-desc').value,
+                    img: fileName
+                }]);
 
-                if (error) {
-                    alert("Database Error: " + error.message);
-                } else {
-                    alert("Success! Product added to Royal Collection.");
-                    location.reload(); 
+                if (error) alert("Database Error: " + error.message);
+                else {
+                    alert("Success! Product added.");
+                    location.reload();
                 }
             } else {
-                alert("Failed to upload image. Please check your Supabase Storage settings.");
+                alert("Failed to upload image.");
             }
-            
-            saveBtn.innerText = originalBtnText;
+            saveBtn.innerText = "SAVE TO CATALOG";
             saveBtn.disabled = false;
         };
+
+        // Initialize categories on load
+        window.onload = loadCategories;
     </script>
 </body>
 </html>
