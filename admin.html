@@ -26,7 +26,7 @@
             <form id="auth-form" class="space-y-4">
                 <input id="auth-email" type="email" placeholder="Email Address" required class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
                 
-                <input id="auth-name" type="text" placeholder="Your Name" class="hidden w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+                <input id="auth-name" type="text" placeholder="Your Full Name (For Tracking)" class="hidden w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
                 
                 <input id="auth-password" type="password" placeholder="Password" required class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
                 
@@ -40,7 +40,6 @@
 
             <div class="mt-6 flex flex-col gap-2">
                 <button onclick="toggleAuthMode()" id="toggle-auth-btn" class="text-xs font-bold text-gray-400 hover:text-[#FF007F]">Need to register a new admin?</button>
-                <button onclick="logout()" id="logout-btn" class="hidden text-xs font-bold text-red-400">Logout</button>
             </div>
         </div>
     </div>
@@ -51,6 +50,10 @@
                 <div class="h-10 w-10 bg-no-repeat bg-contain" style="background-image: url('logo.jpg'); filter: invert(1);"></div>
                 <h1 class="text-[#FF007F] font-bold text-xl royal-font">Vee's Portal</h1>
             </div>
+            <div id="admin-info" class="mb-6 p-3 bg-white/5 rounded-xl border border-white/10">
+                <p class="text-[10px] text-[#D4AF37] uppercase font-bold">Logged in as:</p>
+                <p id="current-admin-name" class="text-sm font-bold truncate">Admin Name</p>
+            </div>
             <nav class="space-y-2">
                 <a href="#" class="block p-3 rounded-xl bg-[#FF007F]/10 text-[#FF007F] font-bold">OVERVIEW</a>
                 <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all text-[#D4AF37]">ORDERS</a>
@@ -59,52 +62,29 @@
         </aside>
 
         <main class="flex-1 p-6 md:p-10">
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+             <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
                 <h2 class="text-3xl font-bold text-gray-800">Order Fulfillment</h2>
                 <div class="flex gap-3">
-                    <button onclick="toggleModal('category-modal')" class="border-2 border-[#D4AF37] text-[#D4AF37] px-6 py-2 rounded-full font-bold text-sm">MANAGE CATEGORIES</button>
-                    <button onclick="toggleModal('product-modal')" class="bg-[#FF007F] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg hover:scale-105 transition-transform">+ ADD PRODUCT</button>
+                    <button onclick="addCategoryPrompt()" class="border-2 border-[#D4AF37] text-[#D4AF37] px-6 py-2 rounded-full font-bold text-sm">ADD CATEGORY</button>
+                    <button onclick="alert('Add Product Logic Here')" class="bg-[#FF007F] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg">+ ADD PRODUCT</button>
                 </div>
             </header>
 
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
-                <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-blue-400">
-                    <p class="text-xs text-gray-400 font-bold uppercase">Incoming</p>
-                    <p id="stat-incoming" class="text-2xl font-bold">0</p>
-                </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-yellow-400">
-                    <p class="text-xs text-gray-400 font-bold uppercase">Packed</p>
-                    <p id="stat-packed" class="text-2xl font-bold">0</p>
-                </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-purple-400">
-                    <p class="text-xs text-gray-400 font-bold uppercase">Ready</p>
-                    <p id="stat-ready" class="text-2xl font-bold">0</p>
-                </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-orange-400">
-                    <p class="text-xs text-gray-400 font-bold uppercase">Shipped</p>
-                    <p id="stat-shipped" class="text-2xl font-bold">0</p>
-                </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-green-400">
-                    <p class="text-xs text-gray-400 font-bold uppercase">Delivered</p>
-                    <p id="stat-delivered" class="text-2xl font-bold">0</p>
-                </div>
-            </div>
-
             <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="p-5 border-b font-bold royal-font text-[#FF007F]">Recent Orders</div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead class="bg-pink-50/50 border-b">
                             <tr>
-                                <th class="p-5 text-[#FF007F] font-bold text-sm">Order ID</th>
+                                <th class="p-5 text-sm font-bold">Order ID</th>
                                 <th class="p-5 text-sm font-bold">Customer</th>
                                 <th class="p-5 text-sm font-bold">Date</th>
                                 <th class="p-5 text-sm font-bold">Status</th>
                                 <th class="p-5 text-sm font-bold">Payment</th>
-                                <th class="p-5 text-sm font-bold">Shipping Details</th>
                             </tr>
                         </thead>
                         <tbody id="orders-table-body" class="text-gray-600">
-                            <tr><td colspan="6" class="p-10 text-center">Loading Royal Orders...</td></tr>
+                            <tr><td colspan="5" class="p-10 text-center">Loading Royal Orders...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -117,10 +97,7 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // --- SECURITY SETTINGS ---
-        // Change this to your very unique password that only admins know
         const MASTER_ADMIN_KEY = "GLOW_QUEEN_2026_SECURE"; 
-        
         let isRegistering = false;
 
         function toggleAuthMode() {
@@ -128,7 +105,6 @@
             document.getElementById('auth-title').innerText = isRegistering ? "Register Admin" : "Admin Login";
             document.getElementById('auth-name').classList.toggle('hidden', !isRegistering);
             document.getElementById('auth-btn').innerText = isRegistering ? "CREATE ACCOUNT" : "ENTER PORTAL";
-            document.getElementById('toggle-auth-btn').innerText = isRegistering ? "Already have an account? Login" : "Need to register a new admin?";
         }
 
         async function handleAuth(e) {
@@ -136,28 +112,54 @@
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             const enteredMasterKey = document.getElementById('master-key').value;
-            const name = document.getElementById('auth-name').value;
+            const fullName = document.getElementById('auth-name').value;
 
-            // 1. Check the Master Key first
             if (enteredMasterKey !== MASTER_ADMIN_KEY) {
-                alert("❌ INVALID MASTER SECRET KEY. Access Denied.");
+                alert("❌ INVALID MASTER SECRET KEY.");
                 return;
             }
 
             if (isRegistering) {
-                // Register
                 const { data, error } = await _supabase.auth.signUp({
-                    email,
-                    password,
-                    options: { data: { full_name: name } }
+                    email, password, options: { data: { full_name: fullName } }
                 });
-                if (error) alert("Error: " + error.message);
-                else alert("Registration successful! You can now login.");
+                if (error) alert(error.message);
+                else alert("Account Created! You can now login.");
             } else {
-                // Login
-                const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-                if (error) alert("Login Failed: " + error.message);
+                const { error } = await _supabase.auth.signInWithPassword({ email, password });
+                if (error) alert(error.message);
                 else checkSession();
+            }
+        }
+
+        // --- NEW LOGGING FUNCTION ---
+        async function logActivity(action, details) {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) return;
+
+            await _supabase.from('admin_logs').insert([{
+                admin_id: user.id,
+                admin_name: user.user_metadata.full_name || 'Unknown Admin',
+                action: action,
+                details: details
+            }]);
+        }
+
+        // --- NEW TRACKED ACTION EXAMPLES ---
+        async function addCategoryPrompt() {
+            const catName = prompt("Enter New Category Name:");
+            if (!catName) return;
+
+            const { data: { user } } = await _supabase.auth.getUser();
+            
+            const { error } = await _supabase.from('categories').insert([{
+                name: catName,
+                created_by: user.id // Linked to the Admin
+            }]);
+
+            if (!error) {
+                alert("Category Added!");
+                await logActivity('CREATE_CATEGORY', `Created category: ${catName}`);
             }
         }
 
@@ -166,8 +168,8 @@
             if (session) {
                 document.getElementById('auth-overlay').classList.add('hidden');
                 document.getElementById('dashboard-content').classList.remove('hidden');
-                loadOrders();
-                loadCategories();
+                document.getElementById('current-admin-name').innerText = session.user.user_metadata.full_name || "Admin";
+                // loadOrders(); // Call your existing function here
             } else {
                 document.getElementById('auth-overlay').classList.remove('hidden');
                 document.getElementById('dashboard-content').classList.add('hidden');
@@ -175,16 +177,14 @@
         }
 
         async function logout() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (user) await logActivity('LOGOUT', `Admin ${user.email} signed out`);
             await _supabase.auth.signOut();
             location.reload();
         }
 
         document.getElementById('auth-form').onsubmit = handleAuth;
-
-        // Run session check on load
         window.onload = checkSession;
-
-        // [KEEP YOUR EXISTING loadOrders, loadCategories, and uploadProductImage functions here]
     </script>
 </body>
 </html>
