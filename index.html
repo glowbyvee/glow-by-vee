@@ -153,41 +153,47 @@
     </footer>
 
     <script>
-        // SUPABASE CONFIGURATION
+        // CENTRALIZED SYNC CONFIGURATION
         const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
-        
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let cart = [];
         let products = [];
 
+        // Global Sync Manager Object
+        const GlowSync = {
+            async fetchAllProducts() {
+                const { data, error } = await _supabase.from('products').select('*');
+                if (error) throw error;
+                return data;
+            },
+            getPublicImageUrl(fileName) {
+                const { data } = _supabase.storage.from('product-images').getPublicUrl(fileName);
+                return data.publicUrl;
+            },
+            async syncOrder(orderData) {
+                const { data, error } = await _supabase.from('orders').insert([orderData]);
+                if (error) throw error;
+                return data;
+            }
+        };
+
         async function initCatalog() {
             try {
-                // Fetch products from Supabase database
-                const { data, error } = await _supabase
-                    .from('products')
-                    .select('*');
-
-                if (error) throw error;
-
+                const data = await GlowSync.fetchAllProducts();
                 if (data && data.length > 0) {
                     products = data;
                 } else {
-                    // Fallback to sample if database is empty
                     products = [
                         { id: 1, name: "Vee's Lightening Elixir", price: 3500, category: "Lightening", description: "Our signature science-backed formula.", img: "product1-v1.jpg" }
                     ];
                 }
-                
                 renderCategories();
                 renderProducts('All');
             } catch (err) {
-                console.error("Error loading products:", err.message);
-                // Load from localStorage as last resort
-                products = JSON.parse(localStorage.getItem('glowProducts')) || [
-                    { id: 1, name: "Vee's Lightening Elixir", price: 3500, category: "Lightening", description: "Our signature science-backed formula.", img: "product1-v1.jpg" }
-                ];
+                console.error("❌ Sync Manager Error [Fetch]:", err.message);
+                products = JSON.parse(localStorage.getItem('glowProducts')) || [];
                 renderCategories();
                 renderProducts('All');
             }
@@ -196,7 +202,6 @@
         function renderCategories() {
             const container = document.getElementById('category-filters');
             const categories = ['All', ...new Set(products.map(p => p.category))];
-            
             container.innerHTML = categories.map(cat => `
                 <button onclick="filterProducts('${cat}')" class="category-btn px-8 py-2 rounded-full border-2 border-gray-100 hover:border-[#D4AF37] transition-all">
                     ${cat}
@@ -209,15 +214,11 @@
             const filtered = category === 'All' ? products : products.filter(p => p.category === category);
             
             grid.innerHTML = filtered.map(p => {
-                // Generate Public URL for image
-                const { data: imgData } = _supabase.storage
-                        .from('product-images')
-                        .getPublicUrl(p.img);
-
+                const imgUrl = GlowSync.getPublicImageUrl(p.img);
                 return `
                 <div class="bg-white rounded-[40px] p-6 shadow-xl border border-pink-50 hover:border-[#FF007F] transition-all group">
                     <div class="relative overflow-hidden rounded-[30px] mb-6 aspect-square bg-gray-100">
-                        <img src="${imgData.publicUrl}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.src='https://via.placeholder.com/300?text=Glow+Coming+Soon'">
+                        <img src="${imgUrl}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.src='https://via.placeholder.com/300?text=Glow+Coming+Soon'">
                     </div>
                     <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
                     <p class="text-gray-500 text-sm mb-6">${p.description || 'Experience the royal glow with Vee.'}</p>
@@ -260,24 +261,18 @@
             
             if(phone && phone.length >= 10) {
                 try {
-                    const { data, error } = await _supabase
-                        .from('orders')
-                        .insert([
-                            { 
-                                customer_phone: phone, 
-                                total_amount: total, 
-                                items: JSON.stringify(cart),
-                                status: 'Pending'
-                            }
-                        ]);
-
-                    if (error) throw error;
+                    await GlowSync.syncOrder({ 
+                        customer_phone: phone, 
+                        total_amount: total, 
+                        items: JSON.stringify(cart),
+                        status: 'Pending'
+                    });
 
                     alert("Order synced to Royal Database. Check your phone for the M-Pesa STK Push.");
                     cart = [];
                     updateCartUI();
                 } catch (err) {
-                    console.error("Database Sync Error:", err.message);
+                    console.error("❌ Sync Manager Error [Order]:", err.message);
                     alert("Order processing offline. We will contact you shortly.");
                 }
             }
@@ -285,6 +280,5 @@
 
         window.onload = initCatalog;
     </script>
-
 </body>
 </html>
