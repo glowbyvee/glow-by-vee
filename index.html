@@ -3,118 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glow By Vee | Practical Skincare</title>
+    <title>Glow By Vee | Royal Radiance</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        .active-link { color: #db2777; border-bottom: 2px solid #db2777; }
-        .hidden { display: none; }
+        :root { --fuchsia: #FF007F; --gold: #D4AF37; }
+        body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; overflow-x: hidden; }
+        .royal-font { font-family: 'Cinzel', serif; }
+        
+        /* Shimmering Royal Button */
+        .glow-button {
+            background: linear-gradient(135deg, var(--fuchsia) 0%, #ff69b4) 50%, var(--gold) 100%);
+            background-size: 200% 200%;
+            animation: shimmer 3s ease infinite;
+        }
+        @keyframes shimmer { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        /* Luxury Marquee */
+        .marquee { white-space: nowrap; overflow: hidden; background: #fdf2f8; padding: 15px 0; border-bottom: 2px solid var(--gold); }
+        .marquee-content { display: inline-block; animation: scroll 25s linear infinite; }
+        @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+
+        /* Perfected Mobile & Desktop Overlay */
+        .hero-overlay { 
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%); 
+        }
+        
+        /* Category Hover */
+        .category-card:hover { border-color: var(--fuchsia); transform: translateY(-5px); transition: all 0.3s ease; }
+
+        /* Updated Cart Notification Style */
+        #cart-counter { 
+            position: absolute; 
+            top: -8px; 
+            right: -12px; 
+            background: #FF007F; 
+            color: white; 
+            border-radius: 999px; 
+            padding: 2px 7px; 
+            font-size: 11px; 
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
-<body class="bg-gray-50 font-sans">
+<body>
 
-    <div class="bg-pink-100 py-2 text-center text-pink-600 text-sm font-semibold border-b border-pink-200">
-        ✨ TRADITIONAL SOMALI QASIL • MAGICAL GLOW ✨
-    </div>
-
-    <nav class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-pink-200 rounded-full flex items-center justify-center text-[10px] font-bold text-pink-600">GV</div>
-                <span class="text-xl font-bold text-pink-600 tracking-tight">GLOW BY VEE</span>
-            </div>
-            
-            <div class="hidden md:flex space-x-8 text-sm font-medium text-gray-600 uppercase tracking-wide">
-                <a href="#" onclick="showPage('home')" id="nav-home" class="hover:text-pink-500 transition active-link">Shop</a>
-                <a href="#" onclick="showPage('skinai')" id="nav-skinai" class="hover:text-pink-500 transition">Skin AI</a>
-                <a href="#" onclick="showPage('about')" id="nav-about" class="hover:text-pink-500 transition">About</a>
-                <a href="#" onclick="showPage('admin')" id="nav-admin" class="hover:text-pink-500 transition">Admin</a>
-            </div>
-
-            <div class="relative cursor-pointer">
-                <span class="absolute -top-2 -right-2 bg-pink-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">0</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+    <nav class="flex justify-between items-center p-6 border-b-4 border-[#FF007F] shadow-sm sticky top-0 bg-white z-50">
+        <div class="flex items-center gap-2">
+            <div class="h-12 w-12 bg-no-repeat bg-contain" style="background-image: url('logo.jpg');"></div>
+            <span class="royal-font text-2xl font-bold text-[#FF007F]">Glow By Vee</span>
+        </div>
+        <div class="hidden md:flex gap-10 royal-font font-bold text-[#D4AF37] items-center text-xl">
+            <a href="catalog.html" class="hover:text-[#FF007F]">SHOP</a>
+            <a href="ai-skin.html" class="hover:text-[#FF007F]">SKIN AI</a>
+            <a href="about.html" class="hover:text-[#FF007F]">ABOUT</a>
+            <a href="admin.html" class="hover:text-[#FF007F]">ADMIN</a>
+            <div class="relative cursor-pointer hover:scale-110 transition-transform ml-4" onclick="processPayment()">
+                <span class="text-3xl">🛒</span>
+                <span id="cart-counter">0</span>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto p-6">
-
-        <section id="page-home" class="py-12 text-center">
-            <h1 class="text-4xl font-extrabold text-gray-900 mb-4">Practical Skincare Solutions.</h1>
-            <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-                Specifically suited for you depending on your Age, Skin type, and your desired skin goals.
+    <section class="relative h-[85vh] md:h-[95vh] flex items-center justify-center text-white text-center">
+        <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" style="background-image: url('hero-premium.jpg');">
+            <div class="absolute inset-0 hero-overlay"></div>
+        </div>
+        
+        <div class="relative z-10 px-6 mt-10 md:mt-20">
+            <h1 class="royal-font text-5xl md:text-8xl mb-4 drop-shadow-2xl leading-tight">
+                REVEAL YOUR <br><span class="text-[#FF007F] drop-shadow-[0_2px_10px_rgba(255,0,127,0.6)]">INNER RADIANCE</span>
+            </h1>
+            <p class="text-xl md:text-2xl font-light tracking-[0.2em] italic mb-10 drop-shadow-md">
+                Your skin, your goals, our science.
             </p>
-            <button class="bg-pink-600 text-white px-8 py-3 rounded-full font-bold hover:bg-pink-700 transition shadow-lg">
-                Explore Shop
-            </button>
-            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="h-64 bg-pink-50 rounded-xl border border-dashed border-pink-200 flex items-center justify-center text-pink-300">Product 1</div>
-                <div class="h-64 bg-pink-50 rounded-xl border border-dashed border-pink-200 flex items-center justify-center text-pink-300">Product 2</div>
-                <div class="h-64 bg-pink-50 rounded-xl border border-dashed border-pink-200 flex items-center justify-center text-pink-300">Product 3</div>
-            </div>
-        </section>
+            <a href="#catalog" class="glow-button px-14 py-5 rounded-full text-white font-bold shadow-2xl inline-block hover:scale-105 transition-transform uppercase tracking-widest text-lg">
+                Start Your Journey
+            </a>
+        </div>
+    </section>
 
-        <section id="page-admin" class="hidden flex flex-col md:flex-row gap-6">
-            <div class="w-full md:w-64 bg-white rounded-xl shadow-sm p-4 border border-gray-100 h-fit">
-                <ul class="space-y-4 text-sm font-semibold text-gray-400 uppercase">
-                    <li class="text-pink-500 bg-pink-50 p-2 rounded-lg cursor-pointer">Overview</li>
-                    <li class="p-2 hover:text-pink-500 cursor-pointer transition">Orders</li>
-                    <li class="p-2 hover:text-pink-500 cursor-pointer transition">Inventory</li>
-                    <li class="p-2 hover:text-pink-500 cursor-pointer transition">Customers</li>
-                    <li class="p-2 hover:text-pink-500 cursor-pointer transition">Fulfillment</li>
-                </ul>
-            </div>
+    <div class="marquee">
+        <div class="marquee-content royal-font text-[#FF007F] font-bold text-lg">
+            ✨ TRADITIONAL SOMALI QASIL • MAGICAL BLACK SOAP • HYALURONIC ELIXIRS • VITAMIN C GLOW • LUXURY SUNSCREEN • SKIN LIGHTENING ELITE ✨
+        </div>
+    </div>
 
-            <div class="flex-1 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-bold text-gray-800">Order Fulfillment</h2>
-                    <button class="bg-pink-600 text-white px-4 py-2 rounded-lg text-sm font-bold uppercase">+ Add Product</button>
+    <section class="grid md:grid-cols-2 gap-8 p-10 bg-pink-50/30">
+        <div class="bg-white border-4 border-[#D4AF37] rounded-[40px] p-10 text-center hover:shadow-2xl transition-all group">
+            <div class="text-5xl mb-4">📸</div>
+            <h2 class="royal-font text-3xl text-[#FF007F] mb-4">AI Foundation Matcher</h2>
+            <p class="text-gray-600 mb-6">Take a royal selfie and let our science find your exact foundation match instantly.</p>
+            <a href="ai-skin.html" class="inline-block font-bold text-[#D4AF37] border-b-2 border-[#D4AF37] hover:text-[#FF007F] hover:border-[#FF007F] transition-all">LAUNCH AI ANALYZER</a>
+        </div>
+        <div class="bg-white border-4 border-[#FF007F] rounded-[40px] p-10 text-center hover:shadow-2xl transition-all group">
+            <div class="text-5xl mb-4">✨</div>
+            <h2 class="royal-font text-3xl text-[#D4AF37] mb-4">Glow Transformation</h2>
+            <p class="text-gray-600 mb-6">Visualize your journey. See your skin's transformation after using Glow by Vee.</p>
+            <a href="ai-skin.html" class="inline-block font-bold text-[#FF007F] border-b-2 border-[#FF007F] hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all">PREVIEW YOUR GLOW</a>
+        </div>
+    </section>
+
+    <section id="catalog" class="py-20 px-6 max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+            <h2 class="royal-font text-4xl md:text-5xl text-[#D4AF37]">The Royal Collection</h2>
+            <div class="h-1 w-24 bg-[#FF007F] mx-auto mt-4"></div>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-4 mb-12">
+            <button class="px-8 py-2 rounded-full border-2 border-[#FF007F] bg-[#FF007F] text-white font-bold">All</button>
+            <button class="px-8 py-2 rounded-full border-2 border-gray-100 hover:border-[#D4AF37] transition-all">Lightening</button>
+            <button class="px-8 py-2 rounded-full border-2 border-gray-100 hover:border-[#D4AF37] transition-all">Serums</button>
+            <button class="px-8 py-2 rounded-full border-2 border-gray-100 hover:border-[#D4AF37] transition-all">Cleansers</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div class="bg-white rounded-[40px] p-6 shadow-xl border border-pink-50 hover:border-[#FF007F] transition-all group">
+                <div class="relative overflow-hidden rounded-[30px] mb-6 aspect-square bg-gray-100">
+                    <img id="p1-display" src="product1-v1.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full">
+                        <button onclick="document.getElementById('p1-display').src='product1-v1.jpg'" class="w-4 h-4 rounded-full bg-[#D4AF37] border-2 border-white"></button>
+                        <button onclick="document.getElementById('p1-display').src='product1-v2.jpg'" class="w-4 h-4 rounded-full bg-[#FF007F] border-2 border-white"></button>
+                        <button onclick="document.getElementById('p1-display').src='product1-v3.jpg'" class="w-4 h-4 rounded-full bg-black border-2 border-white"></button>
+                    </div>
                 </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs uppercase tracking-wider">
-                        <thead class="bg-gray-50 text-gray-500">
-                            <tr>
-                                <th class="p-3">Order #</th>
-                                <th class="p-3">Customer Name</th>
-                                <th class="p-3">Date</th>
-                                <th class="p-3">Status</th>
-                                <th class="p-3">Payment Method</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-gray-700">
-                            <tr class="border-b border-gray-50">
-                                <td class="p-3 text-pink-600 font-bold">#GV-0012</td>
-                                <td class="p-3">Mifta Sheron</td>
-                                <td class="p-3 text-gray-400">02 Apr 2026</td>
-                                <td class="p-3"><span class="bg-pink-100 text-pink-600 px-2 py-1 rounded text-[10px] font-bold">PAID & SENT</span></td>
-                                <td class="p-3 font-bold">M-PESA</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">Vee's Lightening Elixir</h3>
+                <p class="text-gray-500 text-sm mb-6">Our signature science-backed formula for deep radiance and evening skin tone.</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-3xl font-black text-[#FF007F]">KES 3,500</span>
+                    <button onclick="addToCart('Vee\'s Lightening Elixir', 3500)" class="bg-[#FF007F] text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-[#D4AF37] transition-all">Add To Cart</button>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-    </main>
+    <footer class="bg-gray-900 text-white py-16 px-10">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-12 text-center md:text-left">
+            <div>
+                <h3 class="royal-font text-2xl text-[#FF007F] mb-6">Glow By Vee</h3>
+                <p class="text-gray-400">Practical skincare solutions tailored to your unique age and skin goals.</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">VISIT US</h4>
+                <p class="text-gray-400">Tom Mboya Street, Dynamic Mall<br>Stall ML-40, Nairobi, Kenya</p>
+                <p class="text-[#D4AF37] mt-2 italic">Always Open</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">CONTACT</h4>
+                <p class="text-gray-400">Phone: 0703 859881</p>
+                <p class="text-gray-400">Email: gbyvee@gmail.com</p>
+            </div>
+        </div>
+        <div class="text-center mt-12 pt-8 border-t border-gray-800 text-gray-500 text-sm">
+            &copy; 2026 GLOW BY VEE. ALL ROYALTY RESERVED.
+        </div>
+    </footer>
 
     <script>
-        function showPage(pageId) {
-            // Hide all pages
-            document.getElementById('page-home').classList.add('hidden');
-            document.getElementById('page-admin').classList.add('hidden');
-            
-            // Remove active style from all links
-            document.querySelectorAll('nav a').forEach(link => link.classList.remove('active-link'));
+        let cart = [];
 
-            // Show selected page
-            document.getElementById('page-' + pageId).classList.remove('hidden');
+        function addToCart(name, price) {
+            cart.push({ name, price });
+            updateCartUI();
+            alert(name + " has been added to your Royal Cart!");
+        }
+
+        function updateCartUI() {
+            const counter = document.getElementById('cart-counter');
+            if(counter) {
+                counter.innerText = cart.length;
+            }
+        }
+
+        function processPayment() {
+            if (cart.length === 0) {
+                alert("Your cart is empty. Explore the collection first!");
+                return;
+            }
+
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            const phone = prompt(`👑 Royal Checkout\n\nTotal: KES ${total}\n\nPlease enter your M-Pesa Number (e.g. 0703859881):`);
             
-            // Set active link style
-            document.getElementById('nav-' + pageId).classList.add('active-link');
+            if(phone && phone.length >= 10) {
+                alert("Processing... Please check your phone for the M-Pesa STK Push. Enter your PIN to finalize your Glow order.");
+                // Reset cart after simulation
+                cart = [];
+                updateCartUI();
+            } else if (phone !== null) {
+                alert("Please enter a valid M-Pesa number.");
+            }
         }
     </script>
+
 </body>
 </html>
