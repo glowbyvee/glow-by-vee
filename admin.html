@@ -2,48 +2,168 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Glow Admin Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glow Admin Portal | Queen's Command Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --fuchsia: #FF007F; --gold: #D4AF37; }
+        body { font-family: 'Inter', sans-serif; }
+        .royal-font { font-family: 'Cinzel', serif; }
+        .bg-glow-gradient { background: linear-gradient(135deg, var(--fuchsia), var(--gold)); }
+    </style>
 </head>
-<body class="bg-gray-50 flex">
-    <aside class="w-64 min-h-screen bg-[#1A1A1B] text-white p-6">
-        <h1 class="text-[#FF007F] font-bold text-2xl mb-10">Vee's Portal</h1>
-        <nav class="space-y-6">
-            <div class="text-[#D4AF37]">ORDERS</div>
-            <div>INVENTORY</div>
-            <div>CUSTOMERS</div>
-            <div>SHIPPING</div>
+<body class="bg-gray-50 flex flex-col md:flex-row min-h-screen">
+
+    <aside class="w-full md:w-64 bg-[#1A1A1B] text-white p-6 md:sticky md:top-0 md:h-screen">
+        <div class="flex items-center gap-2 mb-10">
+            <div class="h-10 w-10 bg-no-repeat bg-contain" style="background-image: url('logo.jpg'); filter: invert(1);"></div>
+            <h1 class="text-[#FF007F] font-bold text-xl royal-font">Vee's Portal</h1>
+        </div>
+        <nav class="space-y-2">
+            <a href="#" class="block p-3 rounded-xl bg-[#FF007F]/10 text-[#FF007F] font-bold">OVERVIEW</a>
+            <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all text-[#D4AF37]">ORDERS</a>
+            <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all">INVENTORY</a>
+            <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all">CUSTOMERS</a>
+            <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all">MARKETING</a>
+            <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all">FULFILLMENT</a>
         </nav>
     </aside>
 
-    <main class="flex-1 p-10">
-        <header class="flex justify-between items-center mb-10">
-            <h2 class="text-3xl font-bold">Incoming Orders</h2>
-            <button class="bg-[#FF007F] text-white px-6 py-2 rounded-full">+ ADD PRODUCT</button>
+    <main class="flex-1 p-6 md:p-10">
+        
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+            <h2 class="text-3xl font-bold text-gray-800">Order Fulfillment</h2>
+            <div class="flex gap-3">
+                <button onclick="toggleModal('category-modal')" class="border-2 border-[#D4AF37] text-[#D4AF37] px-6 py-2 rounded-full font-bold text-sm">MANAGE CATEGORIES</button>
+                <button onclick="toggleModal('product-modal')" class="bg-[#FF007F] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg hover:scale-105 transition-transform">+ ADD PRODUCT</button>
+            </div>
         </header>
 
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <table class="w-full text-left">
-                <thead class="bg-pink-50 border-b">
-                    <tr>
-                        <th class="p-4 text-[#FF007F]">Order ID</th>
-                        <th class="p-4">Customer</th>
-                        <th class="p-4">Status</th>
-                        <th class="p-4">Location</th>
-                        <th class="p-4">Payment</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-b">
-                        <td class="p-4 font-mono font-bold">#GV-8812</td>
-                        <td class="p-4">Millie Daniels</td>
-                        <td class="p-4"><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">Delivered</span></td>
-                        <td class="p-4">Nairobi, Kenya</td>
-                        <td class="p-4">M-Pesa</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-blue-400">
+                <p class="text-xs text-gray-400 font-bold uppercase">Incoming</p>
+                <p class="text-2xl font-bold">12</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-yellow-400">
+                <p class="text-xs text-gray-400 font-bold uppercase">Packed</p>
+                <p class="text-2xl font-bold">08</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-purple-400">
+                <p class="text-xs text-gray-400 font-bold uppercase">Ready</p>
+                <p class="text-2xl font-bold">05</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-orange-400">
+                <p class="text-xs text-gray-400 font-bold uppercase">Shipped</p>
+                <p class="text-2xl font-bold">24</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-green-400">
+                <p class="text-xs text-gray-400 font-bold uppercase">Delivered</p>
+                <p class="text-2xl font-bold">142</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-pink-50/50 border-b">
+                        <tr>
+                            <th class="p-5 text-[#FF007F] font-bold text-sm">Order ID</th>
+                            <th class="p-5 text-sm font-bold">Customer Name</th>
+                            <th class="p-5 text-sm font-bold">Date</th>
+                            <th class="p-5 text-sm font-bold">Status</th>
+                            <th class="p-5 text-sm font-bold">Payment Method</th>
+                            <th class="p-5 text-sm font-bold">Shipping Details</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600">
+                        <tr class="border-b hover:bg-gray-50 transition-all">
+                            <td class="p-5 font-mono font-bold text-gray-900">#GV-8812</td>
+                            <td class="p-5">Millie Daniels</td>
+                            <td class="p-5">02 Apr 2026</td>
+                            <td class="p-5">
+                                <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">Ready for Pickup</span>
+                            </td>
+                            <td class="p-5 flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-green-500"></div> M-Pesa Express
+                            </td>
+                            <td class="p-5 text-xs text-gray-400">Dynamic Mall, Nairobi - ML40</td>
+                        </tr>
+                        </tbody>
+                </table>
+            </div>
         </div>
     </main>
+
+    <div id="product-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-[40px] p-8 md:p-12 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <h2 class="royal-font text-3xl text-[#FF007F] mb-8 text-center">Add New Product</h2>
+            
+            <form class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <label class="text-xs font-black uppercase text-gray-400">Product Title</label>
+                        <input type="text" placeholder="e.g. Skin Lightening Cream" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+                        
+                        <label class="text-xs font-black uppercase text-gray-400">Category</label>
+                        <select class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+                            <option>Skin Lightening</option>
+                            <option>Serums</option>
+                            <option>Organic Cleansers</option>
+                        </select>
+                        
+                        <label class="text-xs font-black uppercase text-gray-400">Price (KES)</label>
+                        <input type="number" placeholder="3500" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+                    </div>
+
+                    <div class="space-y-4">
+                        <label class="text-xs font-black uppercase text-gray-400">Description</label>
+                        <textarea placeholder="Describe the royal benefits..." class="w-full border-2 border-gray-100 rounded-2xl p-4 h-32 outline-none focus:border-[#FF007F]"></textarea>
+                        
+                        <label class="text-xs font-black uppercase text-gray-400">Upload Media (Multiple views)</label>
+                        <div class="border-2 border-dashed border-[#D4AF37] rounded-2xl p-6 text-center bg-yellow-50/30">
+                            <p class="text-[#D4AF37] text-sm font-bold">Drop files or Click to Upload</p>
+                            <p class="text-[10px] text-gray-400 mt-1">PNG, JPG up to 10MB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 pt-6">
+                    <button type="button" onclick="toggleModal('product-modal')" class="flex-1 py-4 font-bold text-gray-400">DISCARD</button>
+                    <button type="submit" class="flex-1 bg-glow-gradient py-4 rounded-2xl font-bold text-white shadow-lg">SAVE TO CATALOG</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="category-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[40px] p-8 shadow-2xl">
+            <h2 class="royal-font text-2xl text-[#D4AF37] mb-6">Manage Categories</h2>
+            <div class="space-y-4">
+                <div class="flex gap-2">
+                    <input type="text" placeholder="New category name..." class="flex-1 border-2 border-gray-100 rounded-xl px-4 py-2 outline-none focus:border-[#FF007F]">
+                    <button class="bg-[#FF007F] text-white px-4 py-2 rounded-xl font-bold">+</button>
+                </div>
+                <div class="divide-y divide-gray-100">
+                    <div class="py-3 flex justify-between items-center text-sm">
+                        <span>Skin Lightening</span>
+                        <button class="text-red-400 font-bold">Remove</button>
+                    </div>
+                    <div class="py-3 flex justify-between items-center text-sm">
+                        <span>Serums</span>
+                        <button class="text-red-400 font-bold">Remove</button>
+                    </div>
+                </div>
+            </div>
+            <button onclick="toggleModal('category-modal')" class="w-full mt-6 py-3 font-bold text-gray-400 uppercase text-xs tracking-widest">Close</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden');
+        }
+    </script>
 </body>
 </html>
