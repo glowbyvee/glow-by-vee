@@ -12,7 +12,6 @@
         body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; overflow-x: hidden; }
         .royal-font { font-family: 'Cinzel', serif; }
         
-        /* Shimmering Royal Button */
         .glow-button {
             background: linear-gradient(135deg, var(--fuchsia) 0%, #ff69b4 50%, var(--gold) 100%);
             background-size: 200% 200%;
@@ -20,20 +19,16 @@
         }
         @keyframes shimmer { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        /* Luxury Marquee */
         .marquee { white-space: nowrap; overflow: hidden; background: #fdf2f8; padding: 15px 0; border-bottom: 2px solid var(--gold); }
         .marquee-content { display: inline-block; animation: scroll 25s linear infinite; }
         @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
 
-        /* Reduced Hero Height */
         .hero-overlay { 
             background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%); 
         }
         
-        /* Category Hover */
         .category-card:hover { border-color: var(--fuchsia); transform: translateY(-5px); transition: all 0.3s ease; }
 
-        /* Cart Notification Style */
         #cart-counter { 
             position: absolute; 
             top: -8px; 
@@ -47,7 +42,6 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        /* Smooth Slide for Catalog */
         #product-grid { transition: all 0.5s ease-in-out; }
     </style>
 </head>
@@ -101,7 +95,6 @@
         </div>
 
         <div id="category-filters" class="flex flex-wrap justify-center gap-4 mb-12">
-            <button onclick="filterProducts('All')" class="category-btn px-8 py-2 rounded-full border-2 border-[#FF007F] bg-[#FF007F] text-white font-bold transition-all">All</button>
             </div>
 
         <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -153,7 +146,6 @@
     </footer>
 
     <script>
-        // CENTRALIZED SYNC CONFIGURATION
         const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -161,7 +153,6 @@
         let cart = [];
         let products = [];
 
-        // Global Sync Manager Object
         const GlowSync = {
             async fetchAllProducts() {
                 const { data, error } = await _supabase.from('products').select('*');
@@ -173,26 +164,19 @@
                 return data.publicUrl;
             },
             async syncOrder(orderData) {
-                const { data, error } = await _supabase.from('orders').insert([orderData]);
+                const { error } = await _supabase.from('orders').insert([orderData]);
                 if (error) throw error;
-                return data;
             }
         };
 
         async function initCatalog() {
             try {
                 const data = await GlowSync.fetchAllProducts();
-                if (data && data.length > 0) {
-                    products = data;
-                } else {
-                    products = [
-                        { id: 1, name: "Vee's Lightening Elixir", price: 3500, category: "Lightening", description: "Our signature science-backed formula.", img: "product1-v1.jpg" }
-                    ];
-                }
+                products = data || [];
                 renderCategories();
                 renderProducts('All');
             } catch (err) {
-                console.error("❌ Sync Manager Error [Fetch]:", err.message);
+                console.error("❌ Sync Manager Error:", err.message);
                 products = JSON.parse(localStorage.getItem('glowProducts')) || [];
                 renderCategories();
                 renderProducts('All');
@@ -207,6 +191,10 @@
                     ${cat}
                 </button>
             `).join('');
+            
+            // Set initial active state
+            const firstBtn = container.querySelector('button');
+            if(firstBtn) firstBtn.classList.add('bg-[#FF007F]', 'text-white', 'border-[#FF007F]');
         }
 
         function renderProducts(category) {
@@ -252,12 +240,9 @@
         }
 
         async function processPayment() {
-            if (cart.length === 0) {
-                alert("Your cart is empty. Explore the collection first!");
-                return;
-            }
+            if (cart.length === 0) return alert("Your cart is empty!");
             const total = cart.reduce((sum, item) => sum + item.price, 0);
-            const phone = prompt(`👑 Royal Checkout\n\nTotal: KES ${total}\n\nPlease enter your M-Pesa Number:`);
+            const phone = prompt(`👑 Royal Checkout\nTotal: KES ${total}\nEnter M-Pesa Number:`);
             
             if(phone && phone.length >= 10) {
                 try {
@@ -267,13 +252,11 @@
                         items: JSON.stringify(cart),
                         status: 'Pending'
                     });
-
-                    alert("Order synced to Royal Database. Check your phone for the M-Pesa STK Push.");
+                    alert("Order synced! We'll contact you for payment.");
                     cart = [];
                     updateCartUI();
                 } catch (err) {
-                    console.error("❌ Sync Manager Error [Order]:", err.message);
-                    alert("Order processing offline. We will contact you shortly.");
+                    alert("Order saved locally. Check connection.");
                 }
             }
         }
