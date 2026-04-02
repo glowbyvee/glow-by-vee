@@ -105,7 +105,7 @@
                         <input id="prod-title" type="text" required placeholder="e.g. Skin Lightening Cream" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
                         <label class="text-xs font-black uppercase text-gray-400">Category</label>
                         <select id="prod-category" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
-                            </select>
+                        </select>
                         <label class="text-xs font-black uppercase text-gray-400">Price (KES)</label>
                         <input id="prod-price" type="number" required placeholder="3500" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
                     </div>
@@ -137,7 +137,7 @@
                     <button onclick="addCategory()" class="bg-[#FF007F] text-white px-4 py-2 rounded-xl font-bold">+</button>
                 </div>
                 <div id="category-list" class="divide-y divide-gray-100 max-h-48 overflow-y-auto">
-                    </div>
+                </div>
             </div>
             <button onclick="toggleModal('category-modal')" class="w-full mt-6 py-3 font-bold text-gray-400 uppercase text-xs tracking-widest">Close</button>
         </div>
@@ -145,7 +145,9 @@
 
     <script>
         const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
+        // Re-copy this key carefully from your Supabase Dashboard
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
+        
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         function toggleModal(id) {
@@ -156,29 +158,32 @@
             }
         }
 
-        // --- Category Logic ---
         async function fetchCategories() {
-            const { data, error } = await _supabase.from('categories').select('*');
-            if (error) return console.error(error);
+            try {
+                const { data, error } = await _supabase.from('categories').select('*');
+                if (error) throw error;
 
-            const list = document.getElementById('category-list');
-            const select = document.getElementById('prod-category');
-            
-            list.innerHTML = data.map(c => `
-                <div class="py-3 flex justify-between items-center text-sm">
-                    <span>${c.name}</span>
-                    <button onclick="deleteCategory(${c.id})" class="text-red-400 font-bold">Remove</button>
-                </div>
-            `).join('');
+                const list = document.getElementById('category-list');
+                const select = document.getElementById('prod-category');
+                
+                list.innerHTML = data.map(c => `
+                    <div class="py-3 flex justify-between items-center text-sm">
+                        <span>${c.name}</span>
+                        <button onclick="deleteCategory(${c.id})" class="text-red-400 font-bold">Remove</button>
+                    </div>
+                `).join('');
 
-            select.innerHTML = data.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+                select.innerHTML = data.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            } catch (err) {
+                console.error("API Error:", err.message);
+            }
         }
 
         async function addCategory() {
             const name = document.getElementById('cat-input').value;
             if (!name) return;
             const { error } = await _supabase.from('categories').insert([{ name }]);
-            if (error) alert("Error adding category: " + error.message);
+            if (error) alert("Error: " + error.message);
             else {
                 document.getElementById('cat-input').value = '';
                 fetchCategories();
@@ -191,7 +196,6 @@
             else fetchCategories();
         }
 
-        // --- Product Logic ---
         document.getElementById('prod-image').onchange = function() {
             if (this.files && this.files[0]) {
                 document.getElementById('file-status').innerText = "Selected: " + this.files[0].name;
@@ -202,30 +206,27 @@
             const fileExt = file.name.split('.').pop();
             const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
             const { data, error } = await _supabase.storage.from('product-images').upload(fileName, file);
-            if (error) {
-                console.error("Upload error:", error.message);
-                return null;
-            }
+            if (error) return null;
             return fileName;
         }
 
         document.getElementById('add-product-form').onsubmit = async function(e) {
             e.preventDefault();
             const saveBtn = document.getElementById('save-btn');
-            const originalBtnText = saveBtn.innerText;
             saveBtn.innerText = "UPLOADING...";
             saveBtn.disabled = true;
 
             const file = document.getElementById('prod-image').files[0];
             if (!file) {
                 alert("Please select an image first!");
-                saveBtn.innerText = originalBtnText;
+                saveBtn.innerText = "SAVE TO CATALOG";
                 saveBtn.disabled = false;
                 return;
             }
 
             const fileName = await uploadProductImage(file);
             if (fileName) {
+                // FIXED: Using 'description' instead of 'desc' to match your DB column
                 const { error } = await _supabase.from('products').insert([{
                     name: document.getElementById('prod-title').value,
                     category: document.getElementById('prod-category').value,
@@ -240,13 +241,12 @@
                     location.reload(); 
                 }
             } else {
-                alert("Failed to upload image. Check Supabase Storage settings.");
+                alert("Upload failed. Verify Storage bucket name 'product-images' exists.");
             }
-            saveBtn.innerText = originalBtnText;
+            saveBtn.innerText = "SAVE TO CATALOG";
             saveBtn.disabled = false;
         };
 
-        // Load categories on initial page load
         window.onload = fetchCategories;
     </script>
 </body>
