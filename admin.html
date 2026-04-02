@@ -32,7 +32,6 @@
     </aside>
 
     <main class="flex-1 p-6 md:p-10">
-        
         <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
             <h2 class="text-3xl font-bold text-gray-800">Order Fulfillment</h2>
             <div class="flex gap-3">
@@ -169,18 +168,19 @@
             const counts = { Incoming: 0, Packed: 0, Ready: 0, Shipped: 0, Delivered: 0 };
             orders.forEach(o => { if(counts[o.status] !== undefined) counts[o.status]++; });
             document.getElementById('stat-incoming').innerText = counts.Incoming.toString().padStart(2, '0');
-            document.getElementById('stat-packed').innerText = counts.Packed.toString().padStart(2, '0');
+            document.getElementById('stat-packed').innerText = counts.Packed.innerText = counts.Packed.toString().padStart(2, '0');
             document.getElementById('stat-ready').innerText = counts.Ready.toString().padStart(2, '0');
             document.getElementById('stat-shipped').innerText = counts.Shipped.toString().padStart(2, '0');
             document.getElementById('stat-delivered').innerText = counts.Delivered.toString().padStart(2, '0');
         }
 
-        // --- CATEGORY MANAGEMENT FIXED ---
         async function loadCategories() {
             const { data, error } = await _supabase.from('categories').select('*').order('name');
+            if (error) return;
+            
             const list = document.getElementById('category-list');
             const dropdown = document.getElementById('prod-category');
-            if (error) return;
+            
             if (list) {
                 list.innerHTML = data.map(cat => `
                     <div class="py-3 flex justify-between items-center text-sm">
@@ -197,26 +197,15 @@
         async function addNewCategory() {
             const input = document.getElementById('new-category-name');
             const name = input.value.trim();
-            
-            if (!name) {
-                alert("Please enter a category name.");
-                return;
-            }
+            if (!name) return alert("Please enter a category name.");
 
-            try {
-                const { data, error } = await _supabase
-                    .from('categories')
-                    .insert([{ name: name }]);
-
-                if (error) {
-                    alert("Error adding category: " + error.message);
-                } else {
-                    input.value = "";
-                    await loadCategories(); // Refresh the list
-                    alert("Category '" + name + "' added successfully!");
-                }
-            } catch (err) {
-                console.error("Critical error:", err);
+            const { error } = await _supabase.from('categories').insert([{ name }]);
+            if (error) {
+                alert("Error: " + error.message);
+            } else {
+                input.value = "";
+                await loadCategories();
+                alert("Category added!");
             }
         }
 
@@ -227,37 +216,58 @@
             }
         }
 
-        // --- PRODUCT UPLOAD ---
+        // --- IMPROVED PRODUCT UPLOAD ---
         document.getElementById('prod-image').onchange = function() {
             if (this.files[0]) document.getElementById('file-status').innerText = "Selected: " + this.files[0].name;
         };
 
         async function uploadProductImage(file) {
-            const fileName = `${Date.now()}-${file.name}`;
-            const { error } = await _supabase.storage.from('product-images').upload(fileName, file);
-            return error ? null : fileName;
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random()}-${Date.now()}.${fileExt}`;
+            const { data, error } = await _supabase.storage.from('product-images').upload(fileName, file);
+            if (error) {
+                console.error("Upload error:", error);
+                return null;
+            }
+            // Get the Public URL
+            const { data: urlData } = _supabase.storage.from('product-images').getPublicUrl(fileName);
+            return urlData.publicUrl;
         }
 
         document.getElementById('add-product-form').onsubmit = async function(e) {
             e.preventDefault();
             const saveBtn = document.getElementById('save-btn');
+            const originalText = saveBtn.innerText;
+            
             saveBtn.innerText = "UPLOADING...";
             saveBtn.disabled = true;
-            const file = document.getElementById('prod-image').files[0];
-            if (!file) return alert("Select image!");
-            const fileName = await uploadProductImage(file);
-            if (fileName) {
+
+            try {
+                const file = document.getElementById('prod-image').files[0];
+                if (!file) throw new Error("Select image!");
+
+                const publicUrl = await uploadProductImage(file);
+                if (!publicUrl) throw new Error("Image upload failed.");
+
                 const { error } = await _supabase.from('products').insert([{
                     name: document.getElementById('prod-title').value,
                     category: document.getElementById('prod-category').value,
                     price: parseFloat(document.getElementById('prod-price').value),
-                    description: document.getElementById('prod-desc').value,
-                    img: fileName
+                    description: document.getElementById('prod-desc').value, // Matches updated schema
+                    img: publicUrl // Saves full URL for easier display
                 }]);
-                if (!error) { alert("Success!"); location.reload(); }
+
+                if (error) throw error;
+
+                alert("Product added successfully!");
+                location.reload(); 
+
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                saveBtn.innerText = originalText;
+                saveBtn.disabled = false;
             }
-            saveBtn.innerText = "SAVE TO CATALOG";
-            saveBtn.disabled = false;
         };
 
         window.onload = () => {
