@@ -11,15 +11,20 @@
         :root { --fuchsia: #FF007F; --gold: #D4AF37; }
         body { font-family: 'Inter', sans-serif; }
         .royal-font { font-family: 'Cinzel', serif; }
+        .category-btn.active { background-color: var(--fuchsia); color: white; border-color: var(--fuchsia); }
     </style>
 </head>
 <body class="bg-white">
 
     <main class="p-6 md:p-10">
-        <h2 class="royal-font text-3xl md:text-4xl text-[#FF007F] mb-10 text-center md:text-left">Royal Collection</h2>
+        <h2 class="royal-font text-3xl md:text-4xl text-[#FF007F] mb-6 text-center md:text-left">Royal Collection</h2>
         
+        <div id="category-bar" class="flex flex-wrap gap-3 mb-10 justify-center md:justify-start">
+            <button onclick="filterProducts('All')" class="category-btn active border-2 border-gray-100 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all hover:border-[#FF007F]">All</button>
+            </div>
+
         <div id="loading-spinner" class="text-center py-20">
-            <p class="text-gray-400 animate-pulse">Fetching the latest glow essentials...</p>
+            <p class="text-gray-400 animate-pulse italic">Fetching the latest glow essentials...</p>
         </div>
 
         <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
@@ -32,61 +37,49 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        let allProducts = [];
+
+        async function initializeCatalog() {
+            await fetchCategories();
+            await fetchCatalog();
+        }
+
+        async function fetchCategories() {
+            const categoryBar = document.getElementById('category-bar');
+            try {
+                const { data: categories, error } = await _supabase
+                    .from('categories')
+                    .select('name')
+                    .order('name');
+
+                if (error) throw error;
+
+                categories.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = "category-btn border-2 border-gray-100 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all hover:border-[#FF007F]";
+                    btn.innerText = cat.name;
+                    btn.onclick = () => filterProducts(cat.name, btn);
+                    categoryBar.appendChild(btn);
+                });
+            } catch (err) {
+                console.error("Category Load Error:", err);
+            }
+        }
+
         async function fetchCatalog() {
             const grid = document.getElementById('product-grid');
             const loader = document.getElementById('loading-spinner');
 
             try {
-                // Fetch all products from Supabase
                 const { data: products, error } = await _supabase
                     .from('products')
                     .select('*');
 
                 if (error) throw error;
 
+                allProducts = products;
                 loader.classList.add('hidden');
-
-                if (products.length === 0) {
-                    grid.innerHTML = `<p class="col-span-full text-center text-gray-400">The vault is currently empty. Check back soon!</p>`;
-                    return;
-                }
-
-                // Generate HTML for each product
-                grid.innerHTML = products.map(product => {
-                    // Generate the public URL for the image stored in Supabase Storage
-                    const { data: imgData } = _supabase.storage
-                        .from('product-images')
-                        .getPublicUrl(product.img);
-
-                    return `
-                        <div class="group border border-pink-50 rounded-[32px] p-3 md:p-5 shadow-sm hover:shadow-xl hover:border-[#D4AF37] transition-all bg-white flex flex-col justify-between">
-                            <div>
-                                <div class="h-40 md:h-56 bg-gray-50 rounded-2xl mb-4 overflow-hidden">
-                                    <img src="${imgData.publicUrl}" 
-                                         alt="${product.name}" 
-                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                         onerror="this.src='https://via.placeholder.com/300?text=Glow+Coming+Soon'">
-                                </div>
-                                <span class="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] mb-1 block">${product.category}</span>
-                                <h3 class="font-bold text-gray-800 text-sm md:text-base leading-tight mb-1">${product.name}</h3>
-                                <p class="text-[11px] text-gray-400 line-clamp-2 mb-4">${product.description || 'No description available'}</p>
-                            </div>
-                            
-                            <div class="flex justify-between items-center pt-2">
-                                <div class="flex flex-col">
-                                    <span class="text-[10px] text-gray-400 font-bold uppercase">Price</span>
-                                    <span class="text-[#FF007F] font-black text-sm md:text-lg">KES ${product.price.toLocaleString()}</span>
-                                </div>
-                                <button onclick="addToCart('${product.id}')" 
-                                        class="bg-[#D4AF37] hover:bg-[#FF007F] text-white w-10 h-10 rounded-xl font-bold transition-colors flex items-center justify-center shadow-lg shadow-yellow-100">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+                renderProducts(allProducts);
 
             } catch (err) {
                 console.error("Catalog Fetch Error:", err);
@@ -94,13 +87,73 @@
             }
         }
 
-        // Dummy Add to Cart Function
-        function addToCart(id) {
-            alert("Added product to your bag!");
+        function renderProducts(products) {
+            const grid = document.getElementById('product-grid');
+            
+            if (products.length === 0) {
+                grid.innerHTML = `<p class="col-span-full text-center text-gray-400 py-10 italic">No products found in this category.</p>`;
+                return;
+            }
+
+            grid.innerHTML = products.map(product => {
+                const { data: imgData } = _supabase.storage
+                    .from('product-images')
+                    .getPublicUrl(product.img);
+
+                return `
+                    <div class="group border border-pink-50 rounded-[32px] p-3 md:p-5 shadow-sm hover:shadow-xl hover:border-[#D4AF37] transition-all bg-white flex flex-col justify-between">
+                        <div>
+                            <div class="h-40 md:h-56 bg-gray-50 rounded-2xl mb-4 overflow-hidden">
+                                <img src="${imgData.publicUrl}" 
+                                     alt="${product.name}" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                     onerror="this.src='https://via.placeholder.com/300?text=Glow+Coming+Soon'">
+                            </div>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] mb-1 block">${product.category}</span>
+                            <h3 class="font-bold text-gray-800 text-sm md:text-base leading-tight mb-1">${product.name}</h3>
+                            <p class="text-[11px] text-gray-400 line-clamp-2 mb-4">${product.description || 'No description available'}</p>
+                        </div>
+                        
+                        <div class="flex justify-between items-center pt-2 border-t border-gray-50">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] text-gray-400 font-bold uppercase">Price</span>
+                                <span class="text-[#FF007F] font-black text-sm md:text-lg">KES ${product.price.toLocaleString()}</span>
+                            </div>
+                            <button onclick="addToCart('${product.id}')" 
+                                    class="bg-[#D4AF37] hover:bg-[#FF007F] text-white w-10 h-10 rounded-xl font-bold transition-all flex items-center justify-center shadow-lg shadow-yellow-100 active:scale-90">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
-        // Initialize on load
-        window.onload = fetchCatalog;
+        function filterProducts(category, clickedBtn) {
+            // Update Active Button UI
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            if (clickedBtn) {
+                clickedBtn.classList.add('active');
+            } else {
+                document.querySelector('.category-btn').classList.add('active'); // Fallback to 'All'
+            }
+
+            // Filter Logic
+            if (category === 'All') {
+                renderProducts(allProducts);
+            } else {
+                const filtered = allProducts.filter(p => p.category === category);
+                renderProducts(filtered);
+            }
+        }
+
+        function addToCart(id) {
+            alert("Added royal item to your bag!");
+        }
+
+        window.onload = initializeCatalog;
     </script>
 </body>
 </html>
