@@ -2,7 +2,15 @@
   "version": 2,
   "name": "glow-by-vee",
   "cleanUrls": true,
-  "framework": null,
+  "trailingSlash": false,
   "installCommand": "npx plugins add vercel/vercel-plugin",
-  "buildCommand": null
+  "build": {
+    "env": {
+      "NODE_VERSION": "18.x"
+    }
+  },
+  "github": {
+    "silent": false,
+    "autoJobCancelation": true
+  }
 }
