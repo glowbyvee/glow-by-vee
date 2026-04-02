@@ -13,6 +13,9 @@
         .royal-font { font-family: 'Cinzel', serif; }
         .bg-glow-gradient { background: linear-gradient(135deg, var(--fuchsia), var(--gold)); }
         .hidden { display: none !important; }
+        /* Add a simple loader style */
+        .loader { border-top-color: #FF007F; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -26,16 +29,18 @@
             <form id="auth-form" class="space-y-4">
                 <input id="auth-email" type="email" placeholder="Email Address" required class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
                 
-                <input id="auth-name" type="text" placeholder="Your Full Name (For Tracking)" class="hidden w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+                <input id="auth-name" type="text" placeholder="Your Full Name" class="hidden w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
                 
                 <input id="auth-password" type="password" placeholder="Password" required class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
                 
                 <div class="relative">
                     <input id="master-key" type="password" placeholder="Master Admin Secret Key" required class="w-full border-2 border-[#D4AF37] rounded-2xl p-4 outline-none bg-yellow-50/30">
-                    <p class="text-[10px] text-[#D4AF37] font-bold mt-1 text-left px-2">REQUIRED FOR ALL ADMINS</p>
+                    <p class="text-[10px] text-[#D4AF37] font-bold mt-1 text-left px-2 uppercase">Required for security</p>
                 </div>
 
-                <button type="submit" id="auth-btn" class="w-full bg-glow-gradient py-4 rounded-2xl font-bold text-white shadow-lg mt-4">ENTER PORTAL</button>
+                <button type="submit" id="auth-btn" class="w-full bg-glow-gradient py-4 rounded-2xl font-bold text-white shadow-lg mt-4 flex justify-center items-center">
+                    <span id="btn-text">ENTER PORTAL</span>
+                </button>
             </form>
 
             <div class="mt-6 flex flex-col gap-2">
@@ -66,7 +71,7 @@
                 <h2 class="text-3xl font-bold text-gray-800">Order Fulfillment</h2>
                 <div class="flex gap-3">
                     <button onclick="addCategoryPrompt()" class="border-2 border-[#D4AF37] text-[#D4AF37] px-6 py-2 rounded-full font-bold text-sm">ADD CATEGORY</button>
-                    <button onclick="alert('Add Product Logic Here')" class="bg-[#FF007F] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg">+ ADD PRODUCT</button>
+                    <button class="bg-[#FF007F] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg">+ ADD PRODUCT</button>
                 </div>
             </header>
 
@@ -84,7 +89,7 @@
                             </tr>
                         </thead>
                         <tbody id="orders-table-body" class="text-gray-600">
-                            <tr><td colspan="5" class="p-10 text-center">Loading Royal Orders...</td></tr>
+                            <tr><td colspan="5" class="p-10 text-center">Ready for operations...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -105,10 +110,14 @@
             document.getElementById('auth-title').innerText = isRegistering ? "Register Admin" : "Admin Login";
             document.getElementById('auth-name').classList.toggle('hidden', !isRegistering);
             document.getElementById('auth-btn').innerText = isRegistering ? "CREATE ACCOUNT" : "ENTER PORTAL";
+            document.getElementById('toggle-auth-btn').innerText = isRegistering ? "Back to Login" : "Need to register a new admin?";
         }
 
         async function handleAuth(e) {
             e.preventDefault();
+            const btn = document.getElementById('auth-btn');
+            const btnText = document.getElementById('btn-text');
+            
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             const enteredMasterKey = document.getElementById('master-key').value;
@@ -119,48 +128,39 @@
                 return;
             }
 
+            btn.disabled = true;
+            btnText.innerText = "PROCESSING...";
+
             if (isRegistering) {
                 const { data, error } = await _supabase.auth.signUp({
                     email, password, options: { data: { full_name: fullName } }
                 });
-                if (error) alert(error.message);
-                else alert("Account Created! You can now login.");
+
+                if (error) {
+                    alert("Error: " + error.message);
+                } else {
+                    alert("✅ New Admin added and saved successfully in server!");
+                    // AUTOMATICALLY SWITCH TO LOGIN MODE
+                    toggleAuthMode();
+                    // Clear password for security
+                    document.getElementById('auth-password').value = "";
+                }
             } else {
-                const { error } = await _supabase.auth.signInWithPassword({ email, password });
-                if (error) alert(error.message);
-                else checkSession();
+                const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+                
+                if (error) {
+                    if (error.message.includes("Email not confirmed")) {
+                        alert("⚠️ Registration received. Please check your email to confirm the account before logging in, or disable email confirmation in Supabase settings.");
+                    } else {
+                        alert("❌ Login Failed: " + error.message);
+                    }
+                } else {
+                    // SUCCESS - Dashboard shows immediately
+                    checkSession(); 
+                }
             }
-        }
-
-        // --- NEW LOGGING FUNCTION ---
-        async function logActivity(action, details) {
-            const { data: { user } } = await _supabase.auth.getUser();
-            if (!user) return;
-
-            await _supabase.from('admin_logs').insert([{
-                admin_id: user.id,
-                admin_name: user.user_metadata.full_name || 'Unknown Admin',
-                action: action,
-                details: details
-            }]);
-        }
-
-        // --- NEW TRACKED ACTION EXAMPLES ---
-        async function addCategoryPrompt() {
-            const catName = prompt("Enter New Category Name:");
-            if (!catName) return;
-
-            const { data: { user } } = await _supabase.auth.getUser();
-            
-            const { error } = await _supabase.from('categories').insert([{
-                name: catName,
-                created_by: user.id // Linked to the Admin
-            }]);
-
-            if (!error) {
-                alert("Category Added!");
-                await logActivity('CREATE_CATEGORY', `Created category: ${catName}`);
-            }
+            btn.disabled = false;
+            btnText.innerText = isRegistering ? "CREATE ACCOUNT" : "ENTER PORTAL";
         }
 
         async function checkSession() {
@@ -169,16 +169,27 @@
                 document.getElementById('auth-overlay').classList.add('hidden');
                 document.getElementById('dashboard-content').classList.remove('hidden');
                 document.getElementById('current-admin-name').innerText = session.user.user_metadata.full_name || "Admin";
-                // loadOrders(); // Call your existing function here
+                
+                // Track Login
+                await logActivity('LOGIN', `Admin ${session.user.email} entered the portal`);
             } else {
                 document.getElementById('auth-overlay').classList.remove('hidden');
                 document.getElementById('dashboard-content').classList.add('hidden');
             }
         }
 
-        async function logout() {
+        async function logActivity(action, details) {
             const { data: { user } } = await _supabase.auth.getUser();
-            if (user) await logActivity('LOGOUT', `Admin ${user.email} signed out`);
+            if (!user) return;
+            await _supabase.from('admin_logs').insert([{
+                admin_id: user.id,
+                admin_name: user.user_metadata.full_name || 'Unknown Admin',
+                action: action,
+                details: details
+            }]);
+        }
+
+        async function logout() {
             await _supabase.auth.signOut();
             location.reload();
         }
