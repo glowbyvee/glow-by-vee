@@ -39,7 +39,8 @@
             <a href="#catalog" class="hover:text-[#FF007F]">SHOP</a>
             <a href="ai-skin.html" class="hover:text-[#FF007F]">SKIN AI</a>
             <a href="about.html" class="hover:text-[#FF007F]">ABOUT</a>
-            <a href="admin.html" class="hover:text-[#FF007F]">ADMIN</a>
+            <button onclick="accessAdmin()" class="hover:text-[#FF007F] uppercase">ADMIN</button>
+            
             <div class="relative cursor-pointer hover:scale-110 transition-transform ml-4" onclick="processPayment()">
                 <span class="text-3xl">🛒</span>
                 <span id="cart-counter">0</span>
@@ -112,13 +113,24 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // --- SECRET ACCESS CONFIG ---
+        const MASTER_ADMIN_KEY = "GLOW_QUEEN_2026_SECURE";
+
+        function accessAdmin() {
+            const entry = prompt("Royal Clearance Required. Please enter the Master Admin Key:");
+            if (entry === MASTER_ADMIN_KEY) {
+                window.location.href = "admin.html";
+            } else {
+                alert("❌ Unauthorized Access. Your attempt has been logged.");
+            }
+        }
+
         let cart = [];
         let products = [];
         let categories = [];
 
         async function initCatalog() {
             try {
-                // 1. Fetch Data
                 const { data: catData } = await _supabase.from('categories').select('*').order('name');
                 const { data: prodData } = await _supabase.from('products').select('*');
                 
@@ -135,7 +147,6 @@
 
         function updateMarquee() {
             const marquee = document.getElementById('marquee-text');
-            // Combine categories and top product names for the slideshow effect
             const highlights = [
                 ...categories.map(c => c.name),
                 ...products.slice(0, 5).map(p => p.name)
