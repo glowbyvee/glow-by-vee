@@ -8,58 +8,138 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --fuchsia: #FF007F; --gold: #D4AF37; }
-        body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; }
+        body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; overflow-x: hidden; }
         .royal-font { font-family: 'Cinzel', serif; }
+        
+        /* Shimmering Royal Button */
         .glow-button {
             background: linear-gradient(135deg, var(--fuchsia) 0%, #ff69b4 50%, var(--gold) 100%);
             background-size: 200% 200%;
             animation: shimmer 3s ease infinite;
         }
         @keyframes shimmer { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        .marquee { white-space: nowrap; overflow: hidden; background: #fdf2f8; padding: 10px 0; border-bottom: 2px solid var(--gold); }
-        .marquee-content { display: inline-block; animation: scroll 20s linear infinite; }
+        
+        /* Luxury Marquee */
+        .marquee { white-space: nowrap; overflow: hidden; background: #fdf2f8; padding: 15px 0; border-bottom: 2px solid var(--gold); }
+        .marquee-content { display: inline-block; animation: scroll 25s linear infinite; }
         @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+
+        /* Hero Image Styling */
+        .hero-overlay { background: rgba(0, 0, 0, 0.4); }
+        
+        /* Category Hover */
+        .category-card:hover { border-color: var(--fuchsia); transform: translateY(-5px); transition: all 0.3s ease; }
     </style>
 </head>
 <body>
 
-    <nav class="flex justify-between items-center p-6 border-b-4 border-[#FF007F] shadow-sm">
+    <nav class="flex justify-between items-center p-6 border-b-4 border-[#FF007F] shadow-sm sticky top-0 bg-white z-50">
         <div class="flex items-center gap-2">
             <div class="h-12 w-12 bg-no-repeat bg-contain" style="background-image: url('logo.jpg');"></div>
             <span class="royal-font text-2xl font-bold text-[#FF007F]">Glow By Vee</span>
         </div>
         <div class="hidden md:flex gap-8 royal-font font-bold text-[#D4AF37]">
-            <a href="catalog.html">SHOP</a>
-            <a href="ai-skin.html">SKIN AI</a>
-            <a href="about.html">ABOUT</a>
-            <a href="admin.html">ADMIN</a>
+            <a href="catalog.html" class="hover:text-[#FF007F]">SHOP</a>
+            <a href="ai-skin.html" class="hover:text-[#FF007F]">SKIN AI</a>
+            <a href="about.html" class="hover:text-[#FF007F]">ABOUT</a>
+            <a href="admin.html" class="hover:text-[#FF007F]">ADMIN</a>
         </div>
     </nav>
 
-    <section class="py-20 px-10 text-center bg-gradient-to-b from-white to-pink-50">
-        <h1 class="royal-font text-5xl md:text-8xl text-[#D4AF37] mb-4">REVEAL YOUR <br><span class="text-[#FF007F]">INNER RADIANCE</span></h1>
-        <p class="tracking-[0.3em] text-gray-500 uppercase mb-10">Practical Skincare Solutions fit for a Queen</p>
-        <a href="catalog.html" class="glow-button px-12 py-5 rounded-full text-white font-bold shadow-2xl inline-block hover:scale-105 transition-transform">EXPLORE THE COLLECTION</a>
+    <section class="relative h-[70vh] md:h-[85vh] flex items-center justify-center text-white text-center">
+        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('hero-glow.jpg');">
+            <div class="absolute inset-0 hero-overlay"></div>
+        </div>
+        
+        <div class="relative z-10 px-6">
+            <h1 class="royal-font text-5xl md:text-8xl mb-4 drop-shadow-2xl">
+                REVEAL YOUR <br><span class="text-[#FF007F]">INNER RADIANCE</span>
+            </h1>
+            <p class="text-xl md:text-2xl font-light tracking-[0.2em] italic mb-10 drop-shadow-md">
+                Your skin, your goals, our science.
+            </p>
+            <a href="#catalog" class="glow-button px-12 py-5 rounded-full text-white font-bold shadow-2xl inline-block hover:scale-105 transition-transform uppercase tracking-widest">
+                Start Your Journey
+            </a>
+        </div>
     </section>
 
     <div class="marquee">
-        <div class="marquee-content royal-font text-[#FF007F] font-bold">
-            ✨ SOMALI QASIL POWDER • MAGICAL BLACK SOAP • HYALURONIC ELIXIRS • VITAMIN C GLOW • LUXURY SUNSCREEN ✨
+        <div class="marquee-content royal-font text-[#FF007F] font-bold text-lg">
+            ✨ TRADITIONAL SOMALI QASIL • MAGICAL BLACK SOAP • HYALURONIC ELIXIRS • VITAMIN C GLOW • LUXURY SUNSCREEN • SKIN LIGHTENING ELITE ✨
         </div>
     </div>
 
-    <section class="grid md:grid-cols-2 gap-8 p-10">
-        <div class="border-4 border-[#D4AF37] rounded-[40px] p-10 text-center hover:shadow-2xl transition-all">
+    <section class="grid md:grid-cols-2 gap-8 p-10 bg-pink-50/30">
+        <div class="bg-white border-4 border-[#D4AF37] rounded-[40px] p-10 text-center hover:shadow-2xl transition-all group">
+            <div class="text-5xl mb-4">📸</div>
             <h2 class="royal-font text-3xl text-[#FF007F] mb-4">AI Foundation Matcher</h2>
-            <p>Upload a selfie and find your perfect shade in seconds.</p>
-            <a href="ai-skin.html" class="mt-6 inline-block font-bold text-[#D4AF37] underline">TRY AI ANALYZER</a>
+            <p class="text-gray-600 mb-6">Take a royal selfie and let our science find your exact foundation match instantly.</p>
+            <a href="ai-skin.html" class="inline-block font-bold text-[#D4AF37] border-b-2 border-[#D4AF37] hover:text-[#FF007F] hover:border-[#FF007F] transition-all">LAUNCH AI ANALYZER</a>
         </div>
-        <div class="border-4 border-[#FF007F] rounded-[40px] p-10 text-center hover:shadow-2xl transition-all">
+        <div class="bg-white border-4 border-[#FF007F] rounded-[40px] p-10 text-center hover:shadow-2xl transition-all group">
+            <div class="text-5xl mb-4">✨</div>
             <h2 class="royal-font text-3xl text-[#D4AF37] mb-4">Glow Transformation</h2>
-            <p>See how your skin will glow after 30 days of Vee's care.</p>
-            <a href="ai-skin.html" class="mt-6 inline-block font-bold text-[#FF007F] underline">PREVIEW YOUR GLOW</a>
+            <p class="text-gray-600 mb-6">Visualize your journey. See your skin's transformation after using Glow by Vee.</p>
+            <a href="ai-skin.html" class="inline-block font-bold text-[#FF007F] border-b-2 border-[#FF007F] hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all">PREVIEW YOUR GLOW</a>
         </div>
     </section>
+
+    <section id="catalog" class="py-20 px-6 max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+            <h2 class="royal-font text-4xl md:text-5xl text-[#D4AF37]">The Royal Collection</h2>
+            <div class="h-1 w-24 bg-[#FF007F] mx-auto mt-4"></div>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-4 mb-12">
+            <button class="px-8 py-2 rounded-full border-2 border-[#FF007F] bg-[#FF007F] text-white font-bold">All</button>
+            <button class="px-8 py-2 rounded-full border-2 border-gray-100 hover:border-[#D4AF37] transition-all">Lightening</button>
+            <button class="px-8 py-2 rounded-full border-2 border-gray-100 hover:border-[#D4AF37] transition-all">Serums</button>
+            <button class="px-8 py-2 rounded-full border-2 border-gray-100 hover:border-[#D4AF37] transition-all">Cleansers</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div class="bg-white rounded-[40px] p-6 shadow-xl border border-pink-50 hover:border-[#FF007F] transition-all group">
+                <div class="relative overflow-hidden rounded-[30px] mb-6 aspect-square bg-gray-100">
+                    <img id="p1-display" src="product1-v1.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full">
+                        <button onclick="document.getElementById('p1-display').src='product1-v1.jpg'" class="w-4 h-4 rounded-full bg-[#D4AF37] border-2 border-white"></button>
+                        <button onclick="document.getElementById('p1-display').src='product1-v2.jpg'" class="w-4 h-4 rounded-full bg-[#FF007F] border-2 border-white"></button>
+                        <button onclick="document.getElementById('p1-display').src='product1-v3.jpg'" class="w-4 h-4 rounded-full bg-black border-2 border-white"></button>
+                    </div>
+                </div>
+                <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">Vee's Lightening Elixir</h3>
+                <p class="text-gray-500 text-sm mb-6">Our signature science-backed formula for deep radiance and evening skin tone.</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-3xl font-black text-[#FF007F]">KES 3,500</span>
+                    <button class="bg-[#FF007F] text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-[#D4AF37] transition-all">Add To Cart</button>
+                </div>
+            </div>
+
+            </div>
+    </section>
+
+    <footer class="bg-gray-900 text-white py-16 px-10">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-12 text-center md:text-left">
+            <div>
+                <h3 class="royal-font text-2xl text-[#FF007F] mb-6">Glow By Vee</h3>
+                <p class="text-gray-400">Practical skincare solutions tailored to your unique age and skin goals.</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">VISIT US</h4>
+                <p class="text-gray-400">Tom Mboya Street, Dynamic Mall<br>Stall ML-40, Nairobi, Kenya</p>
+                <p class="text-[#D4AF37] mt-2 italic">Always Open</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">CONTACT</h4>
+                <p class="text-gray-400">Phone: 0703 859881</p>
+                <p class="text-gray-400">Email: gbyvee@gmail.com</p>
+            </div>
+        </div>
+        <div class="text-center mt-12 pt-8 border-t border-gray-800 text-gray-500 text-sm">
+            &copy; 2026 GLOW BY VEE. ALL ROYALTY RESERVED.
+        </div>
+    </footer>
 
 </body>
 </html>
