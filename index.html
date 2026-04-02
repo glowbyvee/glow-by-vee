@@ -29,6 +29,9 @@
         
         /* Category Hover */
         .category-card:hover { border-color: var(--fuchsia); transform: translateY(-5px); transition: all 0.3s ease; }
+
+        /* Cart Notification */
+        #cart-counter { position: absolute; top: -5px; right: -10px; background: #FF007F; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; }
     </style>
 </head>
 <body>
@@ -38,11 +41,15 @@
             <div class="h-12 w-12 bg-no-repeat bg-contain" style="background-image: url('logo.jpg');"></div>
             <span class="royal-font text-2xl font-bold text-[#FF007F]">Glow By Vee</span>
         </div>
-        <div class="hidden md:flex gap-8 royal-font font-bold text-[#D4AF37]">
+        <div class="hidden md:flex gap-8 royal-font font-bold text-[#D4AF37] items-center">
             <a href="catalog.html" class="hover:text-[#FF007F]">SHOP</a>
             <a href="ai-skin.html" class="hover:text-[#FF007F]">SKIN AI</a>
             <a href="about.html" class="hover:text-[#FF007F]">ABOUT</a>
             <a href="admin.html" class="hover:text-[#FF007F]">ADMIN</a>
+            <div class="relative cursor-pointer" onclick="processPayment()">
+                <span>🛒</span>
+                <span id="cart-counter">0</span>
+            </div>
         </div>
     </nav>
 
@@ -112,11 +119,10 @@
                 <p class="text-gray-500 text-sm mb-6">Our signature science-backed formula for deep radiance and evening skin tone.</p>
                 <div class="flex justify-between items-center">
                     <span class="text-3xl font-black text-[#FF007F]">KES 3,500</span>
-                    <button class="bg-[#FF007F] text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-[#D4AF37] transition-all">Add To Cart</button>
+                    <button onclick="addToCart('Vee\'s Lightening Elixir', 3500)" class="bg-[#FF007F] text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-[#D4AF37] transition-all">Add To Cart</button>
                 </div>
             </div>
-
-            </div>
+        </div>
     </section>
 
     <footer class="bg-gray-900 text-white py-16 px-10">
@@ -140,6 +146,42 @@
             &copy; 2026 GLOW BY VEE. ALL ROYALTY RESERVED.
         </div>
     </footer>
+
+    <script>
+        let cart = [];
+
+        function addToCart(name, price) {
+            cart.push({ name, price });
+            updateCartUI();
+            alert(name + " has been added to your Royal Cart!");
+        }
+
+        function updateCartUI() {
+            const counter = document.getElementById('cart-counter');
+            if(counter) {
+                counter.innerText = cart.length;
+            }
+        }
+
+        function processPayment() {
+            if (cart.length === 0) {
+                alert("Your cart is empty. Explore the collection first!");
+                return;
+            }
+
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            const phone = prompt(`Your Total is KES ${total}. Please enter your M-Pesa Number (e.g. 0703859881) to complete the purchase:`);
+            
+            if(phone && phone.length >= 10) {
+                alert("Processing... Please check your phone for the M-Pesa STK Push. Enter your PIN to finalize your Glow order.");
+                // Clear cart after simulation
+                cart = [];
+                updateCartUI();
+            } else if (phone !== null) {
+                alert("Please enter a valid M-Pesa number.");
+            }
+        }
+    </script>
 
 </body>
 </html>
