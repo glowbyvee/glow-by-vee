@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Glow By Vee | Royal Radiance</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --fuchsia: #FF007F; --gold: #D4AF37; }
@@ -152,15 +153,44 @@
     </footer>
 
     <script>
-        let cart = [];
-        // Sample initial data; this will be merged with your Admin-added products
-        let products = JSON.parse(localStorage.getItem('glowProducts')) || [
-            { id: 1, name: "Vee's Lightening Elixir", price: 3500, category: "Lightening", desc: "Our signature science-backed formula.", img: "product1-v1.jpg" }
-        ];
+        // SUPABASE CONFIGURATION
+        const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
+        
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function initCatalog() {
-            renderCategories();
-            renderProducts('All');
+        let cart = [];
+        let products = [];
+
+        async function initCatalog() {
+            try {
+                // Fetch products from Supabase database
+                const { data, error } = await _supabase
+                    .from('products')
+                    .select('*');
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    products = data;
+                } else {
+                    // Fallback to sample if database is empty
+                    products = [
+                        { id: 1, name: "Vee's Lightening Elixir", price: 3500, category: "Lightening", desc: "Our signature science-backed formula.", img: "product1-v1.jpg" }
+                    ];
+                }
+                
+                renderCategories();
+                renderProducts('All');
+            } catch (err) {
+                console.error("Error loading products:", err.message);
+                // Load from localStorage as last resort
+                products = JSON.parse(localStorage.getItem('glowProducts')) || [
+                    { id: 1, name: "Vee's Lightening Elixir", price: 3500, category: "Lightening", desc: "Our signature science-backed formula.", img: "product1-v1.jpg" }
+                ];
+                renderCategories();
+                renderProducts('All');
+            }
         }
 
         function renderCategories() {
@@ -194,7 +224,6 @@
         }
 
         function filterProducts(category) {
-            // Update button styles
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.remove('bg-[#FF007F]', 'text-white', 'border-[#FF007F]');
                 if(btn.innerText === category) {
@@ -215,17 +244,37 @@
             if(counter) counter.innerText = cart.length;
         }
 
-        function processPayment() {
+        async function processPayment() {
             if (cart.length === 0) {
                 alert("Your cart is empty. Explore the collection first!");
                 return;
             }
             const total = cart.reduce((sum, item) => sum + item.price, 0);
             const phone = prompt(`👑 Royal Checkout\n\nTotal: KES ${total}\n\nPlease enter your M-Pesa Number:`);
+            
             if(phone && phone.length >= 10) {
-                alert("Processing... Check your phone for the M-Pesa STK Push.");
-                cart = [];
-                updateCartUI();
+                try {
+                    // SYNC TO SUPABASE: Save order to 'orders' table
+                    const { data, error } = await _supabase
+                        .from('orders')
+                        .insert([
+                            { 
+                                customer_phone: phone, 
+                                total_amount: total, 
+                                items: JSON.stringify(cart),
+                                status: 'Pending'
+                            }
+                        ]);
+
+                    if (error) throw error;
+
+                    alert("Order synced to Royal Database. Check your phone for the M-Pesa STK Push.");
+                    cart = [];
+                    updateCartUI();
+                } catch (err) {
+                    console.error("Database Sync Error:", err.message);
+                    alert("Order processing offline. We will contact you shortly.");
+                }
             }
         }
 
