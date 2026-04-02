@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glow By Vee | Royal Radiance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --fuchsia: #FF007F; --gold: #D4AF37; }
+        body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; }
+        .royal-font { font-family: 'Cinzel', serif; }
+        .glow-button {
+            background: linear-gradient(135deg, var(--fuchsia) 0%, #ff69b4 50%, var(--gold) 100%);
+            background-size: 200% 200%;
+            animation: shimmer 3s ease infinite;
+        }
+        @keyframes shimmer { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .marquee { white-space: nowrap; overflow: hidden; background: #fdf2f8; padding: 10px 0; border-bottom: 2px solid var(--gold); }
+        .marquee-content { display: inline-block; animation: scroll 20s linear infinite; }
+        @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+    </style>
+</head>
+<body>
+
+    <nav class="flex justify-between items-center p-6 border-b-4 border-[#FF007F] shadow-sm">
+        <div class="flex items-center gap-2">
+            <div class="h-12 w-12 bg-no-repeat bg-contain" style="background-image: url('logo.jpg');"></div>
+            <span class="royal-font text-2xl font-bold text-[#FF007F]">Glow By Vee</span>
+        </div>
+        <div class="hidden md:flex gap-8 royal-font font-bold text-[#D4AF37]">
+            <a href="catalog.html">SHOP</a>
+            <a href="ai-skin.html">SKIN AI</a>
+            <a href="about.html">ABOUT</a>
+            <a href="admin.html">ADMIN</a>
+        </div>
+    </nav>
+
+    <section class="py-20 px-10 text-center bg-gradient-to-b from-white to-pink-50">
+        <h1 class="royal-font text-5xl md:text-8xl text-[#D4AF37] mb-4">REVEAL YOUR <br><span class="text-[#FF007F]">INNER RADIANCE</span></h1>
+        <p class="tracking-[0.3em] text-gray-500 uppercase mb-10">Practical Skincare Solutions fit for a Queen</p>
+        <a href="catalog.html" class="glow-button px-12 py-5 rounded-full text-white font-bold shadow-2xl inline-block hover:scale-105 transition-transform">EXPLORE THE COLLECTION</a>
+    </section>
+
+    <div class="marquee">
+        <div class="marquee-content royal-font text-[#FF007F] font-bold">
+            ✨ SOMALI QASIL POWDER • MAGICAL BLACK SOAP • HYALURONIC ELIXIRS • VITAMIN C GLOW • LUXURY SUNSCREEN ✨
+        </div>
+    </div>
+
+    <section class="grid md:grid-cols-2 gap-8 p-10">
+        <div class="border-4 border-[#D4AF37] rounded-[40px] p-10 text-center hover:shadow-2xl transition-all">
+            <h2 class="royal-font text-3xl text-[#FF007F] mb-4">AI Foundation Matcher</h2>
+            <p>Upload a selfie and find your perfect shade in seconds.</p>
+            <a href="ai-skin.html" class="mt-6 inline-block font-bold text-[#D4AF37] underline">TRY AI ANALYZER</a>
+        </div>
+        <div class="border-4 border-[#FF007F] rounded-[40px] p-10 text-center hover:shadow-2xl transition-all">
+            <h2 class="royal-font text-3xl text-[#D4AF37] mb-4">Glow Transformation</h2>
+            <p>See how your skin will glow after 30 days of Vee's care.</p>
+            <a href="ai-skin.html" class="mt-6 inline-block font-bold text-[#FF007F] underline">PREVIEW YOUR GLOW</a>
+        </div>
+    </section>
+
+</body>
+</html>
