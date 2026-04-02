@@ -43,6 +43,12 @@
         }
 
         #product-grid { transition: all 0.5s ease-in-out; }
+
+        .ai-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -90,13 +96,53 @@
 
     <section id="catalog" class="py-16 px-6 max-w-7xl mx-auto">
         <div class="text-center mb-12">
-            <h2 class="royal-font text-4xl md:text-5xl text-[#D4AF37]">The Royal Collection</h2>
+            <h2 class="royal-font text-4xl md:text-5xl text-[#D4AF37]">Glow By Vee Collections</h2>
             <div class="h-1 w-24 bg-[#FF007F] mx-auto mt-4"></div>
         </div>
 
         <div id="category-filters" class="flex flex-wrap justify-center gap-4 mb-12"></div>
 
         <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-10"></div>
+    </section>
+
+    <section class="py-20 bg-[#1A1A1B] text-white overflow-hidden relative">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-[#FF007F] opacity-10 blur-[100px]"></div>
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div>
+                    <h2 class="royal-font text-4xl md:text-5xl text-[#D4AF37] mb-6">Royal AI Skin Analysis</h2>
+                    <p class="text-gray-400 text-lg mb-8 leading-relaxed">
+                        Stop guessing your skincare routine. Our advanced AI scans your unique skin profile to recommend the exact Glow By Vee elixirs your skin craves.
+                    </p>
+                    <ul class="space-y-4 mb-10">
+                        <li class="flex items-center gap-3">
+                            <span class="text-[#FF007F] text-xl">✦</span>
+                            <span>Instant Hydration Mapping</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="text-[#FF007F] text-xl">✦</span>
+                            <span>Hyperpigmentation Detection</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="text-[#FF007F] text-xl">✦</span>
+                            <span>Personalized Glow Regimes</span>
+                        </li>
+                    </ul>
+                    <a href="ai-skin.html" class="inline-block border-2 border-[#D4AF37] text-[#D4AF37] px-8 py-3 rounded-full font-bold hover:bg-[#D4AF37] hover:text-black transition-all">
+                        START FREE SCAN
+                    </a>
+                </div>
+                <div class="relative">
+                    <div class="ai-glass p-8 rounded-[40px] border-2 border-[#D4AF37]/30 relative z-20">
+                        <img src="ai-preview.jpg" alt="AI Scan" class="rounded-[20px] shadow-2xl grayscale hover:grayscale-0 transition-all duration-500">
+                        <div class="absolute -bottom-6 -right-6 bg-[#FF007F] p-6 rounded-2xl shadow-xl animate-bounce">
+                            <p class="text-xs font-black uppercase tracking-widest">Accuracy</p>
+                            <p class="text-3xl font-bold">99.4%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <footer class="bg-gray-900 text-white py-16 px-10">
@@ -122,7 +168,6 @@
     </footer>
 
     <script>
-        // Ensure these match your Supabase Dashboard > Settings > API
         const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         
@@ -133,7 +178,6 @@
 
         const GlowSync = {
             async fetchAllProducts() {
-                // Fetching from the products table we just fixed
                 const { data, error } = await _supabase.from('products').select('*');
                 if (error) throw error;
                 return data;
@@ -156,7 +200,6 @@
                 renderProducts('All');
             } catch (err) {
                 console.error("❌ Sync Manager Error:", err.message);
-                // Fallback to local storage if the API fails
                 products = JSON.parse(localStorage.getItem('glowProducts')) || [];
                 renderCategories();
                 renderProducts('All');
@@ -165,6 +208,7 @@
 
         function renderCategories() {
             const container = document.getElementById('category-filters');
+            if(!container) return;
             const categories = ['All', ...new Set(products.map(p => p.category))];
             container.innerHTML = categories.map(cat => `
                 <button onclick="filterProducts('${cat}')" class="category-btn px-8 py-2 rounded-full border-2 border-gray-100 hover:border-[#D4AF37] transition-all">
@@ -178,6 +222,7 @@
 
         function renderProducts(category) {
             const grid = document.getElementById('product-grid');
+            if(!grid) return;
             const filtered = category === 'All' ? products : products.filter(p => p.category === category);
             
             grid.innerHTML = filtered.map(p => {
