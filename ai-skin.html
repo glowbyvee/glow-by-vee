@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glow AI | Foundation Matcher</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .royal-font { font-family: 'Cinzel', serif; }
+        .bg-glow { background: linear-gradient(135deg, #FF007F 0%, #D4AF37 100%); }
+        #camera-stream { transform: scaleX(-1); border: 8px solid #FF007F; }
+        .scan-line {
+            height: 4px;
+            background: #D4AF37;
+            position: absolute;
+            width: 100%;
+            top: 0;
+            animation: scan 3s linear infinite;
+            box-shadow: 0 0 15px #D4AF37;
+        }
+        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
+    </style>
+</head>
+<body class="bg-white font-sans">
+
+    <header class="p-6 flex justify-between items-center border-b-2 border-pink-100">
+        <a href="index.html" class="text-[#FF007F] font-bold">← BACK</a>
+        <h1 class="royal-font text-2xl text-[#D4AF37]">GLOW AI</h1>
+        <div class="w-10"></div>
+    </header>
+
+    <main class="p-6 max-w-md mx-auto text-center">
+        <h2 class="royal-font text-3xl text-[#FF007F] mb-2">Skin Analyzer</h2>
+        <p class="text-gray-500 mb-8">Upload a selfie or use live camera for your Royal Foundation Match.</p>
+
+        <div class="relative rounded-[40px] overflow-hidden shadow-2xl mb-8 aspect-square bg-black">
+            <video id="video" autoplay playsinline class="w-full h-full object-cover"></video>
+            <canvas id="canvas" class="hidden"></canvas>
+            <div id="scanner" class="scan-line hidden"></div>
+        </div>
+
+        <div class="space-y-4">
+            <button onclick="startCamera()" id="start-btn" class="w-full bg-[#D4AF37] text-white py-4 rounded-full font-bold">START CAMERA</button>
+            <button onclick="takeSelfie()" id="capture-btn" class="w-full bg-glow text-white py-4 rounded-full font-bold hidden shadow-lg">ANALYZE MY GLOW</button>
+        </div>
+
+        <div id="results" class="hidden mt-10 p-6 border-2 border-[#D4AF37] rounded-3xl bg-pink-50 animate-bounce">
+            <h3 class="royal-font text-[#FF007F] text-xl">Your Royal Match:</h3>
+            <div id="color-preview" class="w-16 h-16 rounded-full mx-auto my-4 border-4 border-white shadow-md"></div>
+            <p id="match-text" class="font-bold text-lg">Vee's Radiance Foundation: Shade 04</p>
+            <button class="mt-4 text-[#D4AF37] font-bold underline">SHOP THIS SHADE NOW</button>
+        </div>
+    </main>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const scanner = document.getElementById('scanner');
+        const results = document.getElementById('results');
+
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                video.srcObject = stream;
+                document.getElementById('start-btn').classList.add('hidden');
+                document.getElementById('capture-btn').classList.remove('hidden');
+                scanner.classList.remove('hidden');
+            } catch (err) {
+                alert("Please allow camera access for the AI Analyzer");
+            }
+        }
+
+        function takeSelfie() {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Basic Skin Tone Detection Logic
+            const pixelData = context.getImageData(canvas.width/2, canvas.height/2, 1, 1).data;
+            const rgb = `rgb(${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]})`;
+            
+            document.getElementById('color-preview').style.backgroundColor = rgb;
+            results.classList.remove('hidden');
+            document.getElementById('match-text').innerText = "Vee's Royal Foundation: Match Confirmed!";
+            
+            // Stop camera after capture
+            video.srcObject.getTracks().forEach(track => track.stop());
+            scanner.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
