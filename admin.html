@@ -44,23 +44,23 @@
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
             <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-blue-400">
                 <p class="text-xs text-gray-400 font-bold uppercase">Incoming</p>
-                <p class="text-2xl font-bold">12</p>
+                <p id="stat-incoming" class="text-2xl font-bold">0</p>
             </div>
             <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-yellow-400">
                 <p class="text-xs text-gray-400 font-bold uppercase">Packed</p>
-                <p class="text-2xl font-bold">08</p>
+                <p id="stat-packed" class="text-2xl font-bold">0</p>
             </div>
             <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-purple-400">
                 <p class="text-xs text-gray-400 font-bold uppercase">Ready</p>
-                <p class="text-2xl font-bold">05</p>
+                <p id="stat-ready" class="text-2xl font-bold">0</p>
             </div>
             <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-orange-400">
                 <p class="text-xs text-gray-400 font-bold uppercase">Shipped</p>
-                <p class="text-2xl font-bold">24</p>
+                <p id="stat-shipped" class="text-2xl font-bold">0</p>
             </div>
             <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-green-400">
                 <p class="text-xs text-gray-400 font-bold uppercase">Delivered</p>
-                <p class="text-2xl font-bold">142</p>
+                <p id="stat-delivered" class="text-2xl font-bold">0</p>
             </div>
         </div>
 
@@ -70,26 +70,15 @@
                     <thead class="bg-pink-50/50 border-b">
                         <tr>
                             <th class="p-5 text-[#FF007F] font-bold text-sm">Order ID</th>
-                            <th class="p-5 text-sm font-bold">Customer Name</th>
+                            <th class="p-5 text-sm font-bold">Customer</th>
                             <th class="p-5 text-sm font-bold">Date</th>
                             <th class="p-5 text-sm font-bold">Status</th>
-                            <th class="p-5 text-sm font-bold">Payment Method</th>
+                            <th class="p-5 text-sm font-bold">Payment</th>
                             <th class="p-5 text-sm font-bold">Shipping Details</th>
                         </tr>
                     </thead>
-                    <tbody id="orders-table-body" class="text-gray-600">
-                        <tr class="border-b hover:bg-gray-50 transition-all">
-                            <td class="p-5 font-mono font-bold text-gray-900">#GV-8812</td>
-                            <td class="p-5">Millie Daniels</td>
-                            <td class="p-5">02 Apr 2026</td>
-                            <td class="p-5">
-                                <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">Ready for Pickup</span>
-                            </td>
-                            <td class="p-5 flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full bg-green-500"></div> M-Pesa Express
-                            </td>
-                            <td class="p-5 text-xs text-gray-400">Dynamic Mall, Nairobi - ML40</td>
-                        </tr>
+                    <tbody id="orders-table-body" class="text-gray-600 italic">
+                        <tr><td colspan="6" class="p-10 text-center">Loading Royal Orders...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -99,33 +88,26 @@
     <div id="product-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-2xl rounded-[40px] p-8 md:p-12 shadow-2xl overflow-y-auto max-h-[90vh]">
             <h2 class="royal-font text-3xl text-[#FF007F] mb-8 text-center">Add New Product</h2>
-            
             <form id="add-product-form" class="space-y-6">
                 <div class="grid md:grid-cols-2 gap-6">
                     <div class="space-y-4">
                         <label class="text-xs font-black uppercase text-gray-400">Product Title</label>
-                        <input id="prod-title" type="text" required placeholder="e.g. Skin Lightening Cream" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
-                        
+                        <input id="prod-title" type="text" required placeholder="e.g. Skin Lightening" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
                         <label class="text-xs font-black uppercase text-gray-400">Category</label>
                         <select id="prod-category" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]"></select>
-                        
                         <label class="text-xs font-black uppercase text-gray-400">Price (KES)</label>
                         <input id="prod-price" type="number" required placeholder="3500" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
                     </div>
-
                     <div class="space-y-4">
                         <label class="text-xs font-black uppercase text-gray-400">Description</label>
-                        <textarea id="prod-desc" required placeholder="Describe the royal benefits..." class="w-full border-2 border-gray-100 rounded-2xl p-4 h-32 outline-none focus:border-[#FF007F]"></textarea>
-                        
+                        <textarea id="prod-desc" required placeholder="Royal benefits..." class="w-full border-2 border-gray-100 rounded-2xl p-4 h-32 outline-none focus:border-[#FF007F]"></textarea>
                         <label class="text-xs font-black uppercase text-gray-400">Upload Image</label>
                         <div class="relative border-2 border-dashed border-[#D4AF37] rounded-2xl p-6 text-center bg-yellow-50/30">
                             <input type="file" id="prod-image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                             <p id="file-status" class="text-[#D4AF37] text-sm font-bold">Click to Upload Image</p>
-                            <p class="text-[10px] text-gray-400 mt-1">PNG, JPG up to 10MB</p>
                         </div>
                     </div>
                 </div>
-
                 <div class="flex gap-4 pt-6">
                     <button type="button" onclick="toggleModal('product-modal')" class="flex-1 py-4 font-bold text-gray-400">DISCARD</button>
                     <button type="submit" id="save-btn" class="flex-1 bg-glow-gradient py-4 rounded-2xl font-bold text-white shadow-lg">SAVE TO CATALOG</button>
@@ -139,7 +121,7 @@
             <h2 class="royal-font text-2xl text-[#D4AF37] mb-6">Manage Categories</h2>
             <div class="space-y-4">
                 <div class="flex gap-2">
-                    <input type="text" id="new-category-name" placeholder="New category name..." class="flex-1 border-2 border-gray-100 rounded-xl px-4 py-2 outline-none focus:border-[#FF007F]">
+                    <input type="text" id="new-category-name" placeholder="New category..." class="flex-1 border-2 border-gray-100 rounded-xl px-4 py-2 outline-none focus:border-[#FF007F]">
                     <button onclick="addNewCategory()" class="bg-[#FF007F] text-white px-4 py-2 rounded-xl font-bold hover:bg-[#D4AF37] transition-all">+</button>
                 </div>
                 <div id="category-list" class="divide-y divide-gray-100 max-h-60 overflow-y-auto"></div>
@@ -149,16 +131,79 @@
     </div>
 
     <script>
-        // Use clean keys without extra spaces
         const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
-        
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         function toggleModal(id) {
             const modal = document.getElementById(id);
             modal.classList.toggle('hidden');
-            if (id === 'category-modal' || id === 'product-modal') loadCategories();
+            if (!modal.classList.contains('hidden')) loadCategories();
+        }
+
+        // --- ORDER MANAGEMENT ---
+        async function loadOrders() {
+            const { data: orders, error } = await _supabase
+                .from('orders')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) return console.error("Order Error:", error);
+
+            const tbody = document.getElementById('orders-table-body');
+            
+            // Update Stats
+            updateStats(orders);
+
+            if (!orders || orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-gray-400">No royal orders found yet.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = orders.map(order => {
+                const statusStyles = {
+                    'Incoming': 'bg-blue-100 text-blue-700',
+                    'Packed': 'bg-yellow-100 text-yellow-700',
+                    'Ready': 'bg-purple-100 text-purple-700',
+                    'Shipped': 'bg-orange-100 text-orange-700',
+                    'Delivered': 'bg-green-100 text-green-700'
+                };
+                
+                const badgeClass = statusStyles[order.status] || 'bg-gray-100 text-gray-700';
+                const date = new Date(order.created_at).toLocaleDateString('en-GB', {
+                    day: '2-digit', month: 'short', year: 'numeric'
+                });
+
+                return `
+                    <tr class="border-b hover:bg-gray-50 transition-all">
+                        <td class="p-5 font-mono font-bold text-gray-900">#GV-${order.id.toString().slice(-4).toUpperCase()}</td>
+                        <td class="p-5 font-semibold">${order.customer_name}</td>
+                        <td class="p-5 text-sm">${date}</td>
+                        <td class="p-5">
+                            <span class="${badgeClass} px-3 py-1 rounded-full text-[10px] font-black uppercase">
+                                ${order.status || 'Incoming'}
+                            </span>
+                        </td>
+                        <td class="p-5 flex items-center gap-2 text-sm">
+                            <div class="w-2 h-2 rounded-full bg-green-500"></div> ${order.payment_method || 'M-Pesa'}
+                        </td>
+                        <td class="p-5 text-xs text-gray-400">
+                            ${order.shipping_address || 'No address provided'}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateStats(orders) {
+            const counts = { Incoming: 0, Packed: 0, Ready: 0, Shipped: 0, Delivered: 0 };
+            orders.forEach(o => { if(counts[o.status] !== undefined) counts[o.status]++; });
+            
+            document.getElementById('stat-incoming').innerText = counts.Incoming.toString().padStart(2, '0');
+            document.getElementById('stat-packed').innerText = counts.Packed.toString().padStart(2, '0');
+            document.getElementById('stat-ready').innerText = counts.Ready.toString().padStart(2, '0');
+            document.getElementById('stat-shipped').innerText = counts.Shipped.toString().padStart(2, '0');
+            document.getElementById('stat-delivered').innerText = counts.Delivered.toString().padStart(2, '0');
         }
 
         // --- CATEGORY MANAGEMENT ---
@@ -166,8 +211,7 @@
             const { data, error } = await _supabase.from('categories').select('*').order('name');
             const list = document.getElementById('category-list');
             const dropdown = document.getElementById('prod-category');
-            
-            if (error) return console.error(error);
+            if (error) return;
 
             if (list) {
                 list.innerHTML = data.map(cat => `
@@ -177,50 +221,35 @@
                     </div>
                 `).join('');
             }
-
             if (dropdown) {
-                dropdown.innerHTML = data.map(cat => `
-                    <option value="${cat.name}">${cat.name}</option>
-                `).join('');
+                dropdown.innerHTML = data.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('');
             }
         }
 
         async function addNewCategory() {
             const input = document.getElementById('new-category-name');
             const name = input.value.trim();
-            if (!name) return alert("Please enter a category name.");
-
+            if (!name) return;
             const { error } = await _supabase.from('categories').insert([{ name }]);
-            if (error) alert("Error: " + error.message);
-            else {
-                input.value = "";
+            if (!error) { input.value = ""; loadCategories(); }
+        }
+
+        async function deleteCategory(id) {
+            if (confirm("Remove category?")) {
+                await _supabase.from('categories').delete().eq('id', id);
                 loadCategories();
             }
         }
 
-        async function deleteCategory(id) {
-            if (!confirm("Remove this category?")) return;
-            const { error } = await _supabase.from('categories').delete().eq('id', id);
-            if (error) alert(error.message);
-            else loadCategories();
-        }
-
-        // --- PRODUCT MANAGEMENT ---
+        // --- PRODUCT UPLOAD ---
         document.getElementById('prod-image').onchange = function() {
-            if (this.files && this.files[0]) {
-                document.getElementById('file-status').innerText = "Selected: " + this.files[0].name;
-            }
+            if (this.files[0]) document.getElementById('file-status').innerText = "Selected: " + this.files[0].name;
         };
 
         async function uploadProductImage(file) {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-            const { data, error } = await _supabase.storage.from('product-images').upload(fileName, file);
-            if (error) {
-                console.error("Storage Error:", error.message);
-                return null;
-            }
-            return fileName;
+            const fileName = `${Date.now()}-${file.name}`;
+            const { error } = await _supabase.storage.from('product-images').upload(fileName, file);
+            return error ? null : fileName;
         }
 
         document.getElementById('add-product-form').onsubmit = async function(e) {
@@ -230,17 +259,10 @@
             saveBtn.disabled = true;
 
             const file = document.getElementById('prod-image').files[0];
-            if (!file) {
-                alert("Please select an image first!");
-                saveBtn.innerText = "SAVE TO CATALOG";
-                saveBtn.disabled = false;
-                return;
-            }
+            if (!file) return alert("Select image!");
 
             const fileName = await uploadProductImage(file);
-
             if (fileName) {
-                // FIXED: Using 'description' instead of 'desc'
                 const { error } = await _supabase.from('products').insert([{
                     name: document.getElementById('prod-title').value,
                     category: document.getElementById('prod-category').value,
@@ -248,22 +270,17 @@
                     description: document.getElementById('prod-desc').value,
                     img: fileName
                 }]);
-
-                if (error) {
-                    alert("Database Error: " + error.message);
-                } else {
-                    alert("Success! Product added to Royal Catalog.");
-                    location.reload();
-                }
-            } else {
-                alert("Failed to upload image. Check your storage bucket permissions.");
+                if (!error) { alert("Success!"); location.reload(); }
             }
-            
             saveBtn.innerText = "SAVE TO CATALOG";
             saveBtn.disabled = false;
         };
 
-        window.onload = loadCategories;
+        // Initial Load
+        window.onload = () => {
+            loadCategories();
+            loadOrders();
+        };
     </script>
 </body>
 </html>
