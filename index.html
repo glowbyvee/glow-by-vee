@@ -24,7 +24,7 @@
         .marquee-content { display: inline-block; animation: scroll 25s linear infinite; }
         @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
 
-        /* Perfected Mobile & Desktop Overlay */
+        /* Reduced Hero Height */
         .hero-overlay { 
             background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%); 
         }
@@ -32,7 +32,7 @@
         /* Category Hover */
         .category-card:hover { border-color: var(--fuchsia); transform: translateY(-5px); transition: all 0.3s ease; }
 
-        /* Updated Cart Notification Style */
+        /* Cart Notification Style */
         #cart-counter { 
             position: absolute; 
             top: -8px; 
@@ -45,6 +45,9 @@
             font-weight: bold;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
+
+        /* Smooth Slide for Catalog */
+        #product-grid { transition: all 0.5s ease-in-out; }
     </style>
 </head>
 <body>
@@ -66,20 +69,20 @@
         </div>
     </nav>
 
-    <section class="relative h-[70vh] md:h-[80vh] flex items-center justify-center text-white text-center">
+    <section class="relative h-[50vh] md:h-[60vh] flex items-center justify-center text-white text-center">
         <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" style="background-image: url('hero-premium.jpg');">
             <div class="absolute inset-0 hero-overlay"></div>
         </div>
         
-        <div class="relative z-10 px-6 mt-10 md:mt-20">
-            <h1 class="royal-font text-5xl md:text-8xl mb-4 drop-shadow-2xl leading-tight">
+        <div class="relative z-10 px-6 mt-5">
+            <h1 class="royal-font text-4xl md:text-7xl mb-4 drop-shadow-2xl leading-tight">
                 REVEAL YOUR <br><span class="text-[#FF007F] drop-shadow-[0_2px_10px_rgba(255,0,127,0.6)]">INNER RADIANCE</span>
             </h1>
-            <p class="text-xl md:text-2xl font-light tracking-[0.2em] italic mb-10 drop-shadow-md">
+            <p class="text-lg md:text-xl font-light tracking-[0.2em] italic mb-6 drop-shadow-md">
                 Your skin, your goals, our science.
             </p>
-            <a href="#catalog" class="glow-button px-14 py-5 rounded-full text-white font-bold shadow-2xl inline-block hover:scale-105 transition-transform uppercase tracking-widest text-lg">
-                Start Your Journey
+            <a href="#catalog" class="glow-button px-10 py-4 rounded-full text-white font-bold shadow-2xl inline-block hover:scale-105 transition-transform uppercase tracking-widest text-md">
+                Explore Catalog
             </a>
         </div>
     </section>
@@ -90,51 +93,39 @@
         </div>
     </div>
 
-    <section id="catalog" class="py-20 px-6 max-w-7xl mx-auto">
-        <div class="text-center mb-16">
+    <section id="catalog" class="py-16 px-6 max-w-7xl mx-auto">
+        <div class="text-center mb-12">
             <h2 class="royal-font text-4xl md:text-5xl text-[#D4AF37]">The Royal Collection</h2>
             <div class="h-1 w-24 bg-[#FF007F] mx-auto mt-4"></div>
         </div>
 
-        <div class="flex flex-wrap justify-center gap-4 mb-12">
-            <button class="px-8 py-2 rounded-full border-2 border-[#FF007F] bg-[#FF007F] text-white font-bold">All</button>
-            <button class="px-8 py-2 rounded-full border-2 border-gray-100 hover:border-[#D4AF37] transition-all">Lightening</button>
-            <button class="px-8 py-2 rounded-full border-2 border-gray-100 hover:border-[#D4AF37] transition-all">Serums</button>
-            <button class="px-8 py-2 rounded-full border-2 border-gray-100 hover:border-[#D4AF37] transition-all">Cleansers</button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div class="bg-white rounded-[40px] p-6 shadow-xl border border-pink-50 hover:border-[#FF007F] transition-all group">
-                <div class="relative overflow-hidden rounded-[30px] mb-6 aspect-square bg-gray-100">
-                    <img id="p1-display" src="product1-v1.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full">
-                        <button onclick="document.getElementById('p1-display').src='product1-v1.jpg'" class="w-4 h-4 rounded-full bg-[#D4AF37] border-2 border-white"></button>
-                        <button onclick="document.getElementById('p1-display').src='product1-v2.jpg'" class="w-4 h-4 rounded-full bg-[#FF007F] border-2 border-white"></button>
-                        <button onclick="document.getElementById('p1-display').src='product1-v3.jpg'" class="w-4 h-4 rounded-full bg-black border-2 border-white"></button>
-                    </div>
-                </div>
-                <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">Vee's Lightening Elixir</h3>
-                <p class="text-gray-500 text-sm mb-6">Our signature science-backed formula for deep radiance and evening skin tone.</p>
-                <div class="flex justify-between items-center">
-                    <span class="text-3xl font-black text-[#FF007F]">KES 3,500</span>
-                    <button onclick="addToCart('Vee\'s Lightening Elixir', 3500)" class="bg-[#FF007F] text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-[#D4AF37] transition-all">Add To Cart</button>
-                </div>
+        <div id="category-filters" class="flex flex-wrap justify-center gap-4 mb-12">
+            <button onclick="filterProducts('All')" class="category-btn px-8 py-2 rounded-full border-2 border-[#FF007F] bg-[#FF007F] text-white font-bold transition-all">All</button>
             </div>
-        </div>
+
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            </div>
     </section>
 
-    <section class="grid md:grid-cols-2 gap-8 p-10 bg-pink-50/30">
-        <div class="bg-white border-4 border-[#D4AF37] rounded-[40px] p-10 text-center hover:shadow-2xl transition-all group">
-            <div class="text-5xl mb-4">📸</div>
-            <h2 class="royal-font text-3xl text-[#FF007F] mb-4">AI Foundation Matcher</h2>
-            <p class="text-gray-600 mb-6">Take a royal selfie and let our science find your exact foundation match instantly.</p>
-            <a href="ai-skin.html" class="inline-block font-bold text-[#D4AF37] border-b-2 border-[#D4AF37] hover:text-[#FF007F] hover:border-[#FF007F] transition-all">LAUNCH AI ANALYZER</a>
+    <section class="py-16 bg-pink-50/30">
+        <div class="text-center mb-10">
+            <h2 class="royal-font text-3xl md:text-4xl text-[#FF007F]">The Royal AI Beauty Suite</h2>
+            <p class="text-gray-500 italic mt-2">Next-generation science for your unique skin.</p>
         </div>
-        <div class="bg-white border-4 border-[#FF007F] rounded-[40px] p-10 text-center hover:shadow-2xl transition-all group">
-            <div class="text-5xl mb-4">✨</div>
-            <h2 class="royal-font text-3xl text-[#D4AF37] mb-4">Glow Transformation</h2>
-            <p class="text-gray-600 mb-6">Visualize your journey. See your skin's transformation after using Glow by Vee.</p>
-            <a href="ai-skin.html" class="inline-block font-bold text-[#FF007F] border-b-2 border-[#FF007F] hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all">PREVIEW YOUR GLOW</a>
+        
+        <div class="grid md:grid-cols-2 gap-8 px-10 max-w-7xl mx-auto">
+            <div class="bg-white border-4 border-[#D4AF37] rounded-[40px] p-10 text-center hover:shadow-2xl transition-all group">
+                <div class="text-5xl mb-4">📸</div>
+                <h2 class="royal-font text-2xl text-[#FF007F] mb-4">AI Foundation Matcher</h2>
+                <p class="text-gray-600 mb-6">Take a royal selfie and let our science find your exact foundation match instantly.</p>
+                <a href="ai-skin.html" class="inline-block font-bold text-[#D4AF37] border-b-2 border-[#D4AF37] hover:text-[#FF007F] hover:border-[#FF007F] transition-all">LAUNCH AI ANALYZER</a>
+            </div>
+            <div class="bg-white border-4 border-[#FF007F] rounded-[40px] p-10 text-center hover:shadow-2xl transition-all group">
+                <div class="text-5xl mb-4">✨</div>
+                <h2 class="royal-font text-2xl text-[#D4AF37] mb-4">Glow Transformation</h2>
+                <p class="text-gray-600 mb-6">Visualize your journey. See your skin's transformation after using Glow by Vee.</p>
+                <a href="ai-skin.html" class="inline-block font-bold text-[#FF007F] border-b-2 border-[#FF007F] hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all">PREVIEW YOUR GLOW</a>
+            </div>
         </div>
     </section>
 
@@ -162,6 +153,56 @@
 
     <script>
         let cart = [];
+        // Sample initial data; this will be merged with your Admin-added products
+        let products = JSON.parse(localStorage.getItem('glowProducts')) || [
+            { id: 1, name: "Vee's Lightening Elixir", price: 3500, category: "Lightening", desc: "Our signature science-backed formula.", img: "product1-v1.jpg" }
+        ];
+
+        function initCatalog() {
+            renderCategories();
+            renderProducts('All');
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('category-filters');
+            const categories = ['All', ...new Set(products.map(p => p.category))];
+            
+            container.innerHTML = categories.map(cat => `
+                <button onclick="filterProducts('${cat}')" class="category-btn px-8 py-2 rounded-full border-2 border-gray-100 hover:border-[#D4AF37] transition-all">
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        function renderProducts(category) {
+            const grid = document.getElementById('product-grid');
+            const filtered = category === 'All' ? products : products.filter(p => p.category === category);
+            
+            grid.innerHTML = filtered.map(p => `
+                <div class="bg-white rounded-[40px] p-6 shadow-xl border border-pink-50 hover:border-[#FF007F] transition-all group">
+                    <div class="relative overflow-hidden rounded-[30px] mb-6 aspect-square bg-gray-100">
+                        <img src="${p.img}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    </div>
+                    <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
+                    <p class="text-gray-500 text-sm mb-6">${p.desc}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-2xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
+                        <button onclick="addToCart('${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-[#D4AF37] transition-all text-sm">Add To Cart</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterProducts(category) {
+            // Update button styles
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('bg-[#FF007F]', 'text-white', 'border-[#FF007F]');
+                if(btn.innerText === category) {
+                    btn.classList.add('bg-[#FF007F]', 'text-white', 'border-[#FF007F]');
+                }
+            });
+            renderProducts(category);
+        }
 
         function addToCart(name, price) {
             cart.push({ name, price });
@@ -171,9 +212,7 @@
 
         function updateCartUI() {
             const counter = document.getElementById('cart-counter');
-            if(counter) {
-                counter.innerText = cart.length;
-            }
+            if(counter) counter.innerText = cart.length;
         }
 
         function processPayment() {
@@ -181,19 +220,17 @@
                 alert("Your cart is empty. Explore the collection first!");
                 return;
             }
-
             const total = cart.reduce((sum, item) => sum + item.price, 0);
-            const phone = prompt(`👑 Royal Checkout\n\nTotal: KES ${total}\n\nPlease enter your M-Pesa Number (e.g. 0703859881):`);
-            
+            const phone = prompt(`👑 Royal Checkout\n\nTotal: KES ${total}\n\nPlease enter your M-Pesa Number:`);
             if(phone && phone.length >= 10) {
-                alert("Processing... Please check your phone for the M-Pesa STK Push. Enter your PIN to finalize your Glow order.");
-                // Reset cart after simulation
+                alert("Processing... Check your phone for the M-Pesa STK Push.");
                 cart = [];
                 updateCartUI();
-            } else if (phone !== null) {
-                alert("Please enter a valid M-Pesa number.");
             }
         }
+
+        // Initialize on load
+        window.onload = initCatalog;
     </script>
 
 </body>
