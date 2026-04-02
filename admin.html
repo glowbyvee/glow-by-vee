@@ -13,7 +13,6 @@
         .royal-font { font-family: 'Cinzel', serif; }
         .bg-glow-gradient { background: linear-gradient(135deg, var(--fuchsia), var(--gold)); }
         .hidden { display: none !important; }
-        /* Add a simple loader style */
         .loader { border-top-color: #FF007F; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -70,7 +69,7 @@
              <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
                 <h2 class="text-3xl font-bold text-gray-800">Order Fulfillment</h2>
                 <div class="flex gap-3">
-                    <button onclick="addCategoryPrompt()" class="border-2 border-[#D4AF37] text-[#D4AF37] px-6 py-2 rounded-full font-bold text-sm">ADD CATEGORY</button>
+                    <button class="border-2 border-[#D4AF37] text-[#D4AF37] px-6 py-2 rounded-full font-bold text-sm">ADD CATEGORY</button>
                     <button class="bg-[#FF007F] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg">+ ADD PRODUCT</button>
                 </div>
             </header>
@@ -98,6 +97,7 @@
     </div>
 
     <script>
+        // Supabase Configuration
         const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -109,7 +109,8 @@
             isRegistering = !isRegistering;
             document.getElementById('auth-title').innerText = isRegistering ? "Register Admin" : "Admin Login";
             document.getElementById('auth-name').classList.toggle('hidden', !isRegistering);
-            document.getElementById('auth-btn').innerText = isRegistering ? "CREATE ACCOUNT" : "ENTER PORTAL";
+            document.getElementById('auth-name').required = isRegistering;
+            document.getElementById('btn-text').innerText = isRegistering ? "CREATE ACCOUNT" : "ENTER PORTAL";
             document.getElementById('toggle-auth-btn').innerText = isRegistering ? "Back to Login" : "Need to register a new admin?";
         }
 
@@ -120,80 +121,103 @@
             
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
-            const enteredMasterKey = document.getElementById('master-key').value;
             const fullName = document.getElementById('auth-name').value;
+            const enteredMasterKey = document.getElementById('master-key').value;
 
+            // Security Check
             if (enteredMasterKey !== MASTER_ADMIN_KEY) {
                 alert("❌ INVALID MASTER SECRET KEY.");
                 return;
             }
 
             btn.disabled = true;
+            const originalText = btnText.innerText;
             btnText.innerText = "PROCESSING...";
 
-            if (isRegistering) {
-                const { data, error } = await _supabase.auth.signUp({
-                    email, password, options: { data: { full_name: fullName } }
-                });
+            try {
+                if (isRegistering) {
+                    // 1. REGISTER
+                    const { data, error } = await _supabase.auth.signUp({
+                        email, 
+                        password, 
+                        options: { data: { full_name: fullName } }
+                    });
 
-                if (error) {
-                    alert("Error: " + error.message);
-                } else {
-                    alert("✅ New Admin added and saved successfully in server!");
-                    // AUTOMATICALLY SWITCH TO LOGIN MODE
+                    if (error) throw error;
+
+                    // 2. LOG REGISTRATION
+                    await logActivity('REGISTER', `New admin registered: ${email}`, data.user?.id, fullName);
+                    
+                    alert("✅ Admin created! Please log in now.");
                     toggleAuthMode();
-                    // Clear password for security
                     document.getElementById('auth-password').value = "";
-                }
-            } else {
-                const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-                
-                if (error) {
-                    if (error.message.includes("Email not confirmed")) {
-                        alert("⚠️ Registration received. Please check your email to confirm the account before logging in, or disable email confirmation in Supabase settings.");
-                    } else {
-                        alert("❌ Login Failed: " + error.message);
-                    }
                 } else {
-                    // SUCCESS - Dashboard shows immediately
-                    checkSession(); 
+                    // 1. LOGIN
+                    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+
+                    // 2. LOG LOGIN & SHOW DASHBOARD
+                    await checkSession();
                 }
+            } catch (err) {
+                console.error("Auth Error:", err.message);
+                alert("❌ Error: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btnText.innerText = isRegistering ? "CREATE ACCOUNT" : "ENTER PORTAL";
             }
-            btn.disabled = false;
-            btnText.innerText = isRegistering ? "CREATE ACCOUNT" : "ENTER PORTAL";
         }
 
         async function checkSession() {
             const { data: { session } } = await _supabase.auth.getSession();
             if (session) {
+                const user = session.user;
+                const name = user.user_metadata.full_name || "Admin";
+                
+                // Update UI
                 document.getElementById('auth-overlay').classList.add('hidden');
                 document.getElementById('dashboard-content').classList.remove('hidden');
-                document.getElementById('current-admin-name').innerText = session.user.user_metadata.full_name || "Admin";
+                document.getElementById('current-admin-name').innerText = name;
                 
-                // Track Login
-                await logActivity('LOGIN', `Admin ${session.user.email} entered the portal`);
+                // Track Login activity if just logged in
+                await logActivity('LOGIN', `Admin ${user.email} entered the portal`, user.id, name);
             } else {
                 document.getElementById('auth-overlay').classList.remove('hidden');
                 document.getElementById('dashboard-content').classList.add('hidden');
             }
         }
 
-        async function logActivity(action, details) {
-            const { data: { user } } = await _supabase.auth.getUser();
-            if (!user) return;
-            await _supabase.from('admin_logs').insert([{
-                admin_id: user.id,
-                admin_name: user.user_metadata.full_name || 'Unknown Admin',
-                action: action,
-                details: details
-            }]);
+        async function logActivity(action, details, adminId = null, adminName = null) {
+            try {
+                // If ID/Name not provided, try to fetch from current session
+                if (!adminId) {
+                    const { data: { user } } = await _supabase.auth.getUser();
+                    if (!user) return;
+                    adminId = user.id;
+                    adminName = user.user_metadata.full_name || 'System';
+                }
+
+                await _supabase.from('admin_logs').insert([{
+                    admin_id: adminId,
+                    admin_name: adminName,
+                    action: action,
+                    details: details,
+                    created_at: new Date()
+                }]);
+            } catch (e) {
+                console.warn("Activity logging failed:", e.message);
+            }
         }
 
         async function logout() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (user) await logActivity('LOGOUT', `Admin ${user.email} logged out`);
+            
             await _supabase.auth.signOut();
             location.reload();
         }
 
+        // Initialize
         document.getElementById('auth-form').onsubmit = handleAuth;
         window.onload = checkSession;
     </script>
