@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Glow Admin Portal | Queen's Command Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --fuchsia: #FF007F; --gold: #D4AF37; }
@@ -76,7 +77,7 @@
                             <th class="p-5 text-sm font-bold">Shipping Details</th>
                         </tr>
                     </thead>
-                    <tbody class="text-gray-600">
+                    <tbody id="orders-table-body" class="text-gray-600">
                         <tr class="border-b hover:bg-gray-50 transition-all">
                             <td class="p-5 font-mono font-bold text-gray-900">#GV-8812</td>
                             <td class="p-5">Millie Daniels</td>
@@ -99,30 +100,31 @@
         <div class="bg-white w-full max-w-2xl rounded-[40px] p-8 md:p-12 shadow-2xl overflow-y-auto max-h-[90vh]">
             <h2 class="royal-font text-3xl text-[#FF007F] mb-8 text-center">Add New Product</h2>
             
-            <form class="space-y-6">
+            <form id="add-product-form" class="space-y-6">
                 <div class="grid md:grid-cols-2 gap-6">
                     <div class="space-y-4">
                         <label class="text-xs font-black uppercase text-gray-400">Product Title</label>
-                        <input type="text" placeholder="e.g. Skin Lightening Cream" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+                        <input id="prod-title" type="text" required placeholder="e.g. Skin Lightening Cream" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
                         
                         <label class="text-xs font-black uppercase text-gray-400">Category</label>
-                        <select class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+                        <select id="prod-category" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
                             <option>Skin Lightening</option>
                             <option>Serums</option>
                             <option>Organic Cleansers</option>
                         </select>
                         
                         <label class="text-xs font-black uppercase text-gray-400">Price (KES)</label>
-                        <input type="number" placeholder="3500" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+                        <input id="prod-price" type="number" required placeholder="3500" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
                     </div>
 
                     <div class="space-y-4">
                         <label class="text-xs font-black uppercase text-gray-400">Description</label>
-                        <textarea placeholder="Describe the royal benefits..." class="w-full border-2 border-gray-100 rounded-2xl p-4 h-32 outline-none focus:border-[#FF007F]"></textarea>
+                        <textarea id="prod-desc" required placeholder="Describe the royal benefits..." class="w-full border-2 border-gray-100 rounded-2xl p-4 h-32 outline-none focus:border-[#FF007F]"></textarea>
                         
-                        <label class="text-xs font-black uppercase text-gray-400">Upload Media (Multiple views)</label>
-                        <div class="border-2 border-dashed border-[#D4AF37] rounded-2xl p-6 text-center bg-yellow-50/30">
-                            <p class="text-[#D4AF37] text-sm font-bold">Drop files or Click to Upload</p>
+                        <label class="text-xs font-black uppercase text-gray-400">Upload Image</label>
+                        <div class="relative border-2 border-dashed border-[#D4AF37] rounded-2xl p-6 text-center bg-yellow-50/30">
+                            <input type="file" id="prod-image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <p id="file-status" class="text-[#D4AF37] text-sm font-bold">Click to Upload Image</p>
                             <p class="text-[10px] text-gray-400 mt-1">PNG, JPG up to 10MB</p>
                         </div>
                     </div>
@@ -130,7 +132,7 @@
 
                 <div class="flex gap-4 pt-6">
                     <button type="button" onclick="toggleModal('product-modal')" class="flex-1 py-4 font-bold text-gray-400">DISCARD</button>
-                    <button type="submit" class="flex-1 bg-glow-gradient py-4 rounded-2xl font-bold text-white shadow-lg">SAVE TO CATALOG</button>
+                    <button type="submit" id="save-btn" class="flex-1 bg-glow-gradient py-4 rounded-2xl font-bold text-white shadow-lg">SAVE TO CATALOG</button>
                 </div>
             </form>
         </div>
@@ -149,10 +151,6 @@
                         <span>Skin Lightening</span>
                         <button class="text-red-400 font-bold">Remove</button>
                     </div>
-                    <div class="py-3 flex justify-between items-center text-sm">
-                        <span>Serums</span>
-                        <button class="text-red-400 font-bold">Remove</button>
-                    </div>
                 </div>
             </div>
             <button onclick="toggleModal('category-modal')" class="w-full mt-6 py-3 font-bold text-gray-400 uppercase text-xs tracking-widest">Close</button>
@@ -160,10 +158,79 @@
     </div>
 
     <script>
+        // SUPABASE CONFIGURATION
+        const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         function toggleModal(id) {
             const modal = document.getElementById(id);
             modal.classList.toggle('hidden');
         }
+
+        // Handle File Name Display
+        document.getElementById('prod-image').onchange = function() {
+            document.getElementById('file-status').innerText = this.files[0].name;
+        };
+
+        // IMAGE UPLOAD LOGIC
+        async function uploadProductImage(file) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            const { data, error } = await _supabase.storage
+                .from('product-images')
+                .upload(filePath, file);
+
+            if (error) {
+                console.error("Upload error:", error.message);
+                return null;
+            }
+            return fileName; // Return just the name for the SQL trigger to handle
+        }
+
+        // FORM SUBMISSION LOGIC
+        document.getElementById('add-product-form').onsubmit = async function(e) {
+            e.preventDefault();
+            const saveBtn = document.getElementById('save-btn');
+            saveBtn.innerText = "UPLOADING...";
+            saveBtn.disabled = true;
+
+            const file = document.getElementById('prod-image').files[0];
+            if (!file) {
+                alert("Please select an image!");
+                saveBtn.innerText = "SAVE TO CATALOG";
+                saveBtn.disabled = false;
+                return;
+            }
+
+            // 1. Upload the image
+            const fileName = await uploadProductImage(file);
+
+            if (fileName) {
+                // 2. Save to Database
+                const { error } = await _supabase
+                    .from('products')
+                    .insert([{
+                        name: document.getElementById('prod-title').value,
+                        category: document.getElementById('prod-category').value,
+                        price: parseFloat(document.getElementById('prod-price').value),
+                        description: document.getElementById('prod-desc').value,
+                        img: fileName
+                    }]);
+
+                if (error) {
+                    alert("Error: " + error.message);
+                } else {
+                    alert("Success! Product added to Royal Collection.");
+                    location.reload(); // Refresh to clear form and show new status
+                }
+            }
+            
+            saveBtn.innerText = "SAVE TO CATALOG";
+            saveBtn.disabled = false;
+        };
     </script>
 </body>
 </html>
