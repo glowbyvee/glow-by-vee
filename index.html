@@ -3,248 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glow By Vee | Royal Admin</title>
+    <title>Glow By Vee | Practical Skincare</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --fuchsia: #FF007F; --gold: #D4AF37; }
-        body { font-family: 'Inter', sans-serif; background-color: #e5e7eb; color: #1a1a1a; overflow-x: hidden; margin: 0; padding: 0; }
-        .royal-font { font-family: 'Cinzel', serif; }
-        .marquee { white-space: nowrap; overflow: hidden; background: #fdf2f8; padding: 15px 0; border-bottom: 2px solid var(--gold); }
-        .marquee-content { display: inline-block; animation: scroll 25s linear infinite; }
-        @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
-        
-        /* Modal Overlay - Force hidden on load */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6); 
-            display: none; 
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(8px);
-        }
-
-        .modal-box {
-            background: white;
-            padding: 40px;
-            border-radius: 24px;
-            width: 90%;
-            max-width: 650px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-            position: relative;
-        }
-
-        .save-button {
-            background: linear-gradient(135deg, #FF007F 0%, #ff8c00 100%);
-            color: white;
-            font-weight: bold;
-            padding: 12px 24px;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-        .save-button:hover { transform: scale(1.02); opacity: 0.9; }
-
-        .upload-box {
-            border: 2px dashed #D4AF37;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            color: #71717a;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .upload-box:hover { background-color: #fefce8; }
-
-        #product-image { display: none; }
-        #image-preview {
-            max-width: 100px;
-            max-height: 100px;
-            margin-top: 10px;
-            border-radius: 8px;
-            border: 1px solid #D4AF37;
-        }
+        .active-link { color: #db2777; border-bottom: 2px solid #db2777; }
+        .hidden { display: none; }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 font-sans">
 
-    <nav class="flex justify-between items-center p-6 border-b-4 border-[#FF007F] shadow-sm sticky top-0 bg-white z-50">
-        <div class="flex items-center gap-2">
-            <div class="h-12 w-12 bg-no-repeat bg-contain" style="background-image: url('logo.jpg');"></div>
-            <span class="royal-font text-2xl font-bold text-[#FF007F]">Glow By Vee</span>
-        </div>
-        <div class="hidden md:flex gap-10 royal-font font-bold text-[#FF007F] items-center text-xl">
-            <a href="catalog.html" class="hover:text-[#D4AF37] transition-colors">SHOP</a>
-            <a href="ai-skin.html" class="hover:text-[#D4AF37] transition-colors">SKIN AI</a>
-            <a href="about.html" class="hover:text-[#D4AF37] transition-colors">ABOUT</a>
-            <a href="admin.html" class="hover:text-[#D4AF37] transition-colors">ADMIN</a>
-            <div class="relative cursor-pointer hover:scale-110 transition-transform ml-4" onclick="processPayment()">
-                <span class="text-3xl">🛒</span>
-                <span id="cart-counter" class="absolute -top-2 -right-3 bg-[#FF007F] text-white rounded-full px-2 py-0.5 text-xs">0</span>
+    <div class="bg-pink-100 py-2 text-center text-pink-600 text-sm font-semibold border-b border-pink-200">
+        ✨ TRADITIONAL SOMALI QASIL • MAGICAL GLOW ✨
+    </div>
+
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-pink-200 rounded-full flex items-center justify-center text-[10px] font-bold text-pink-600">GV</div>
+                <span class="text-xl font-bold text-pink-600 tracking-tight">GLOW BY VEE</span>
+            </div>
+            
+            <div class="hidden md:flex space-x-8 text-sm font-medium text-gray-600 uppercase tracking-wide">
+                <a href="#" onclick="showPage('home')" id="nav-home" class="hover:text-pink-500 transition active-link">Shop</a>
+                <a href="#" onclick="showPage('skinai')" id="nav-skinai" class="hover:text-pink-500 transition">Skin AI</a>
+                <a href="#" onclick="showPage('about')" id="nav-about" class="hover:text-pink-500 transition">About</a>
+                <a href="#" onclick="showPage('admin')" id="nav-admin" class="hover:text-pink-500 transition">Admin</a>
+            </div>
+
+            <div class="relative cursor-pointer">
+                <span class="absolute -top-2 -right-2 bg-pink-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">0</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
             </div>
         </div>
     </nav>
 
-    <div class="marquee">
-        <div class="marquee-content royal-font text-[#FF007F] font-bold text-lg">
-            ✨ TRADITIONAL SOMALI QASIL • MAGICAL BLACK SOAP • HYALURONIC ELIXIRS • VITAMIN C GLOW • LUXURY SUNSCREEN • SKIN LIGHTENING ELITE ✨
-        </div>
-    </div>
+    <main class="max-w-7xl mx-auto p-6">
 
-    <main class="flex p-6 min-h-screen">
-        <aside class="w-1/4 bg-gray-100 rounded-3xl p-6 mr-6 space-y-4 shadow-sm h-fit">
-            <button class="w-full text-left p-3 rounded-lg text-fuchsia-600 font-bold bg-fuchsia-100" onclick="location.reload()">OVERVIEW</button>
-            <button class="w-full text-left p-3 rounded-lg text-gray-700 hover:bg-gray-200">ORDERS</button>
-            <button class="w-full text-left p-3 rounded-lg text-gray-700 hover:bg-gray-200" onclick="openModal()">INVENTORY</button>
-            <button class="w-full text-left p-3 rounded-lg text-gray-700 hover:bg-gray-200">CUSTOMERS</button>
-            <button class="w-full text-left p-3 rounded-lg text-gray-700 hover:bg-gray-200">FULFILLMENT</button>
-        </aside>
-
-        <section class="w-3/4 bg-white rounded-3xl p-8 shadow-md">
-            <div class="flex justify-between items-center mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 royal-font">Order Fulfillment</h1>
-                <button onclick="openModal()" class="bg-[#FF007F] text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg hover:bg-fuchsia-700 transition-all">+ ADD PRODUCT</button>
-            </div>
-            
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-gray-600">
-                    <thead class="text-xs text-gray-500 uppercase bg-gray-50 rounded-lg">
-                        <tr>
-                            <th class="px-6 py-4">Order #</th>
-                            <th class="px-6 py-4">Customer Name</th>
-                            <th class="px-6 py-4">Date</th>
-                            <th class="px-6 py-4">Status</th>
-                            <th class="px-6 py-4">Payment</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        <tr class="bg-white hover:bg-gray-50 transition-colors">
-                            <th class="px-6 py-5 font-bold text-fuchsia-700">#GV-0012</th>
-                            <td class="px-6 py-5 font-medium text-gray-800">Mifta Sheron</td>
-                            <td class="px-6 py-5 text-gray-500">02 Apr 2026</td>
-                            <td class="px-6 py-5"><span class="bg-fuchsia-100 text-fuchsia-800 px-3 py-1 rounded-full text-xs font-bold">PAID & SENT</span></td>
-                            <td class="px-6 py-5 font-semibold text-gray-700">M-PESA</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <section id="page-home" class="py-12 text-center">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-4">Practical Skincare Solutions.</h1>
+            <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                Specifically suited for you depending on your Age, Skin type, and your desired skin goals.
+            </p>
+            <button class="bg-pink-600 text-white px-8 py-3 rounded-full font-bold hover:bg-pink-700 transition shadow-lg">
+                Explore Shop
+            </button>
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="h-64 bg-pink-50 rounded-xl border border-dashed border-pink-200 flex items-center justify-center text-pink-300">Product 1</div>
+                <div class="h-64 bg-pink-50 rounded-xl border border-dashed border-pink-200 flex items-center justify-center text-pink-300">Product 2</div>
+                <div class="h-64 bg-pink-50 rounded-xl border border-dashed border-pink-200 flex items-center justify-center text-pink-300">Product 3</div>
             </div>
         </section>
+
+        <section id="page-admin" class="hidden flex flex-col md:flex-row gap-6">
+            <div class="w-full md:w-64 bg-white rounded-xl shadow-sm p-4 border border-gray-100 h-fit">
+                <ul class="space-y-4 text-sm font-semibold text-gray-400 uppercase">
+                    <li class="text-pink-500 bg-pink-50 p-2 rounded-lg cursor-pointer">Overview</li>
+                    <li class="p-2 hover:text-pink-500 cursor-pointer transition">Orders</li>
+                    <li class="p-2 hover:text-pink-500 cursor-pointer transition">Inventory</li>
+                    <li class="p-2 hover:text-pink-500 cursor-pointer transition">Customers</li>
+                    <li class="p-2 hover:text-pink-500 cursor-pointer transition">Fulfillment</li>
+                </ul>
+            </div>
+
+            <div class="flex-1 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Order Fulfillment</h2>
+                    <button class="bg-pink-600 text-white px-4 py-2 rounded-lg text-sm font-bold uppercase">+ Add Product</button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs uppercase tracking-wider">
+                        <thead class="bg-gray-50 text-gray-500">
+                            <tr>
+                                <th class="p-3">Order #</th>
+                                <th class="p-3">Customer Name</th>
+                                <th class="p-3">Date</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">Payment Method</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            <tr class="border-b border-gray-50">
+                                <td class="p-3 text-pink-600 font-bold">#GV-0012</td>
+                                <td class="p-3">Mifta Sheron</td>
+                                <td class="p-3 text-gray-400">02 Apr 2026</td>
+                                <td class="p-3"><span class="bg-pink-100 text-pink-600 px-2 py-1 rounded text-[10px] font-bold">PAID & SENT</span></td>
+                                <td class="p-3 font-bold">M-PESA</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
     </main>
 
-    <div class="modal-overlay" id="add-product-modal">
-        <div class="modal-box">
-            <h2 class="text-center royal-font text-2xl font-bold text-fuchsia-600 mb-8">ADD NEW PRODUCT</h2>
-
-            <form id="add-product-form" class="space-y-6">
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Product Title</label>
-                            <input type="text" id="product-title" placeholder="e.g. Somali Qasil" class="w-full mt-1 p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-fuchsia-200 outline-none">
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Category</label>
-                            <select id="product-category" class="w-full mt-1 p-3 border border-gray-200 rounded-xl bg-gray-50 focus:ring-2 focus:ring-fuchsia-200 outline-none">
-                                <option>Lightening</option>
-                                <option>Serums</option>
-                                <option>Cleansers</option>
-                                <option selected>Moisturizers</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Price (KES)</label>
-                            <input type="number" id="product-price" placeholder="0" class="w-full mt-1 p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-fuchsia-200 outline-none">
-                        </div>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Description</label>
-                            <textarea id="product-description" class="w-full mt-1 p-3 border border-gray-200 rounded-xl bg-white text-sm h-32 focus:ring-2 focus:ring-fuchsia-200 outline-none" placeholder="Details about ingredients and usage..."></textarea>
-                        </div>
-
-                        <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Product Image</label>
-                            <div class="upload-box mt-1" id="drop-zone">
-                                <span class="text-sm font-semibold">Click to Upload Image</span>
-                                <input type="file" id="product-image" accept="image/*">
-                            </div>
-                            <div id="preview-container" class="flex justify-center"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-between items-center mt-10">
-                    <button type="button" class="text-gray-400 hover:text-red-500 text-sm font-bold uppercase transition-colors" id="discard-btn">Discard</button>
-                    <button type="submit" class="save-button uppercase text-sm px-10">Save to Catalog</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
-        const fileInput = document.getElementById('product-image');
-        const uploadBox = document.getElementById('drop-zone');
-        const previewContainer = document.getElementById('preview-container');
-        const productForm = document.getElementById('add-product-form');
-        const discardButton = document.getElementById('discard-btn');
-        const modalOverlay = document.getElementById('add-product-modal');
+        function showPage(pageId) {
+            // Hide all pages
+            document.getElementById('page-home').classList.add('hidden');
+            document.getElementById('page-admin').classList.add('hidden');
+            
+            // Remove active style from all links
+            document.querySelectorAll('nav a').forEach(link => link.classList.remove('active-link'));
 
-        function openModal() {
-            modalOverlay.style.display = 'flex';
+            // Show selected page
+            document.getElementById('page-' + pageId).classList.remove('hidden');
+            
+            // Set active link style
+            document.getElementById('nav-' + pageId).classList.add('active-link');
         }
-
-        function closeModal() {
-            modalOverlay.style.display = 'none';
-            productForm.reset();
-            previewContainer.innerHTML = '';
-        }
-
-        uploadBox.addEventListener('click', () => fileInput.click());
-
-        fileInput.addEventListener('change', (event) => {
-            previewContainer.innerHTML = '';
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.id = 'image-preview'; 
-                    previewContainer.appendChild(img);
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-
-        productForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const title = document.getElementById('product-title').value;
-            const price = document.getElementById('product-price').value;
-            if (!title || !price) {
-                alert('Please provide at least a title and price.');
-                return;
-            }
-            alert(`Success! ${title} is now in the catalog.`);
-            closeModal();
-        });
-
-        discardButton.addEventListener('click', () => {
-            if (confirm('Discard changes?')) closeModal();
-        });
-
-        // Close modal if clicking outside the box
-        window.onclick = function(event) {
-            if (event.target == modalOverlay) {
-                closeModal();
-            }
-        }
-
-        function processPayment() { alert("Redirecting to royal checkout..."); }
     </script>
 </body>
 </html>
