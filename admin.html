@@ -69,8 +69,8 @@
              <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
                 <h2 class="text-3xl font-bold text-gray-800">Order Fulfillment</h2>
                 <div class="flex gap-3">
-                    <button class="border-2 border-[#D4AF37] text-[#D4AF37] px-6 py-2 rounded-full font-bold text-sm">ADD CATEGORY</button>
-                    <button class="bg-[#FF007F] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg">+ ADD PRODUCT</button>
+                    <button onclick="openCategoryModal()" class="border-2 border-[#D4AF37] text-[#D4AF37] px-6 py-2 rounded-full font-bold text-sm hover:bg-[#D4AF37] hover:text-white transition-all">ADD CATEGORY</button>
+                    <button onclick="openProductModal()" class="bg-[#FF007F] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg hover:opacity-90 transition-all">+ ADD PRODUCT</button>
                 </div>
             </header>
 
@@ -105,6 +105,32 @@
         const MASTER_ADMIN_KEY = "GLOW_QUEEN_2026_SECURE"; 
         let isRegistering = false;
 
+        // Dashboard Actions
+        function openCategoryModal() {
+            const categoryName = prompt("Enter new category name:");
+            if (categoryName) {
+                saveCategory(categoryName);
+            }
+        }
+
+        async function saveCategory(name) {
+            try {
+                const { error } = await _supabase.from('categories').insert([{ name: name }]);
+                if (error) throw error;
+                alert("✅ Category added successfully!");
+                await logActivity('ADD_CATEGORY', `Created category: ${name}`);
+            } catch (err) {
+                alert("❌ Error adding category: " + err.message);
+            }
+        }
+
+        function openProductModal() {
+            // This assumes you have a product modal or another page. 
+            // For now, it alerts to confirm the button works.
+            alert("Redirecting to product builder...");
+            // Example: window.location.href = 'add-product.html';
+        }
+
         function toggleAuthMode() {
             isRegistering = !isRegistering;
             document.getElementById('auth-title').innerText = isRegistering ? "Register Admin" : "Admin Login";
@@ -124,19 +150,16 @@
             const fullName = document.getElementById('auth-name').value;
             const enteredMasterKey = document.getElementById('master-key').value;
 
-            // Security Check
             if (enteredMasterKey !== MASTER_ADMIN_KEY) {
                 alert("❌ INVALID MASTER SECRET KEY.");
                 return;
             }
 
             btn.disabled = true;
-            const originalText = btnText.innerText;
             btnText.innerText = "PROCESSING...";
 
             try {
                 if (isRegistering) {
-                    // 1. REGISTER
                     const { data, error } = await _supabase.auth.signUp({
                         email, 
                         password, 
@@ -144,19 +167,13 @@
                     });
 
                     if (error) throw error;
-
-                    // 2. LOG REGISTRATION
                     await logActivity('REGISTER', `New admin registered: ${email}`, data.user?.id, fullName);
-                    
                     alert("✅ Admin created! Please log in now.");
                     toggleAuthMode();
                     document.getElementById('auth-password').value = "";
                 } else {
-                    // 1. LOGIN
                     const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
                     if (error) throw error;
-
-                    // 2. LOG LOGIN & SHOW DASHBOARD
                     await checkSession();
                 }
             } catch (err) {
@@ -173,13 +190,9 @@
             if (session) {
                 const user = session.user;
                 const name = user.user_metadata.full_name || "Admin";
-                
-                // Update UI
                 document.getElementById('auth-overlay').classList.add('hidden');
                 document.getElementById('dashboard-content').classList.remove('hidden');
                 document.getElementById('current-admin-name').innerText = name;
-                
-                // Track Login activity if just logged in
                 await logActivity('LOGIN', `Admin ${user.email} entered the portal`, user.id, name);
             } else {
                 document.getElementById('auth-overlay').classList.remove('hidden');
@@ -189,14 +202,12 @@
 
         async function logActivity(action, details, adminId = null, adminName = null) {
             try {
-                // If ID/Name not provided, try to fetch from current session
                 if (!adminId) {
                     const { data: { user } } = await _supabase.auth.getUser();
                     if (!user) return;
                     adminId = user.id;
                     adminName = user.user_metadata.full_name || 'System';
                 }
-
                 await _supabase.from('admin_logs').insert([{
                     admin_id: adminId,
                     admin_name: adminName,
@@ -212,12 +223,10 @@
         async function logout() {
             const { data: { user } } = await _supabase.auth.getUser();
             if (user) await logActivity('LOGOUT', `Admin ${user.email} logged out`);
-            
             await _supabase.auth.signOut();
             location.reload();
         }
 
-        // Initialize
         document.getElementById('auth-form').onsubmit = handleAuth;
         window.onload = checkSession;
     </script>
