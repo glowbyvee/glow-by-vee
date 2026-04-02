@@ -90,7 +90,7 @@
                             </td>
                             <td class="p-5 text-xs text-gray-400">Dynamic Mall, Nairobi - ML40</td>
                         </tr>
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -170,7 +170,9 @@
 
         // Handle File Name Display
         document.getElementById('prod-image').onchange = function() {
-            document.getElementById('file-status').innerText = this.files[0].name;
+            if (this.files && this.files[0]) {
+                document.getElementById('file-status').innerText = "Selected: " + this.files[0].name;
+            }
         };
 
         // IMAGE UPLOAD LOGIC
@@ -187,29 +189,32 @@
                 console.error("Upload error:", error.message);
                 return null;
             }
-            return fileName; // Return just the name for the SQL trigger to handle
+            return fileName;
         }
 
         // FORM SUBMISSION LOGIC
         document.getElementById('add-product-form').onsubmit = async function(e) {
             e.preventDefault();
             const saveBtn = document.getElementById('save-btn');
+            const originalBtnText = saveBtn.innerText;
+            
             saveBtn.innerText = "UPLOADING...";
             saveBtn.disabled = true;
 
             const file = document.getElementById('prod-image').files[0];
             if (!file) {
-                alert("Please select an image!");
-                saveBtn.innerText = "SAVE TO CATALOG";
+                alert("Please select an image first!");
+                saveBtn.innerText = originalBtnText;
                 saveBtn.disabled = false;
                 return;
             }
 
-            // 1. Upload the image
+            // 1. Upload the image to Storage
             const fileName = await uploadProductImage(file);
 
             if (fileName) {
-                // 2. Save to Database
+                // 2. Insert into the 'products' table
+                // Note: Using 'description' to match your renamed SQL column
                 const { error } = await _supabase
                     .from('products')
                     .insert([{
@@ -221,14 +226,16 @@
                     }]);
 
                 if (error) {
-                    alert("Error: " + error.message);
+                    alert("Database Error: " + error.message);
                 } else {
                     alert("Success! Product added to Royal Collection.");
-                    location.reload(); // Refresh to clear form and show new status
+                    location.reload(); 
                 }
+            } else {
+                alert("Failed to upload image. Please check your Supabase Storage settings.");
             }
             
-            saveBtn.innerText = "SAVE TO CATALOG";
+            saveBtn.innerText = originalBtnText;
             saveBtn.disabled = false;
         };
     </script>
