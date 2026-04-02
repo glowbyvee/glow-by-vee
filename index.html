@@ -24,8 +24,10 @@
         .marquee-content { display: inline-block; animation: scroll 25s linear infinite; }
         @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
 
-        /* Hero Image Styling - Adjusted for new Header Image */
-        .hero-overlay { background: radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 100%); }
+        /* Perfected Mobile & Desktop Overlay */
+        .hero-overlay { 
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%); 
+        }
         
         /* Category Hover */
         .category-card:hover { border-color: var(--fuchsia); transform: translateY(-5px); transition: all 0.3s ease; }
@@ -64,14 +66,14 @@
         </div>
     </nav>
 
-    <section class="relative h-[80vh] md:h-[95vh] flex items-center justify-center text-white text-center">
-        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('hero-premium.jpg');">
+    <section class="relative h-[85vh] md:h-[95vh] flex items-center justify-center text-white text-center">
+        <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" style="background-image: url('hero-premium.jpg'); background-attachment: scroll;">
             <div class="absolute inset-0 hero-overlay"></div>
         </div>
         
-        <div class="relative z-10 px-6 mt-20 md:mt-32">
+        <div class="relative z-10 px-6 mt-10 md:mt-20">
             <h1 class="royal-font text-5xl md:text-8xl mb-4 drop-shadow-2xl leading-tight">
-                REVEAL YOUR <br><span class="text-[#FF007F] drop-shadow-[0_2px_10px_rgba(255,0,127,0.5)]">INNER RADIANCE</span>
+                REVEAL YOUR <br><span class="text-[#FF007F] drop-shadow-[0_2px_10px_rgba(255,0,127,0.6)]">INNER RADIANCE</span>
             </h1>
             <p class="text-xl md:text-2xl font-light tracking-[0.2em] italic mb-10 drop-shadow-md">
                 Your skin, your goals, our science.
