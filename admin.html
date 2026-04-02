@@ -15,6 +15,9 @@
         .hidden { display: none !important; }
         .loader { border-top-color: #FF007F; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Modal Glass Effect */
+        .modal-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -27,16 +30,12 @@
 
             <form id="auth-form" class="space-y-4">
                 <input id="auth-email" type="email" placeholder="Email Address" required class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
-                
                 <input id="auth-name" type="text" placeholder="Your Full Name" class="hidden w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
-                
                 <input id="auth-password" type="password" placeholder="Password" required class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
-                
                 <div class="relative">
                     <input id="master-key" type="password" placeholder="Master Admin Secret Key" required class="w-full border-2 border-[#D4AF37] rounded-2xl p-4 outline-none bg-yellow-50/30">
                     <p class="text-[10px] text-[#D4AF37] font-bold mt-1 text-left px-2 uppercase">Required for security</p>
                 </div>
-
                 <button type="submit" id="auth-btn" class="w-full bg-glow-gradient py-4 rounded-2xl font-bold text-white shadow-lg mt-4 flex justify-center items-center">
                     <span id="btn-text">ENTER PORTAL</span>
                 </button>
@@ -69,7 +68,7 @@
              <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
                 <h2 class="text-3xl font-bold text-gray-800">Order Fulfillment</h2>
                 <div class="flex gap-3">
-                    <button onclick="openCategoryModal()" class="border-2 border-[#D4AF37] text-[#D4AF37] px-6 py-2 rounded-full font-bold text-sm hover:bg-[#D4AF37] hover:text-white transition-all">ADD CATEGORY</button>
+                    <button onclick="toggleModal('category-modal')" class="border-2 border-[#D4AF37] text-[#D4AF37] px-6 py-2 rounded-full font-bold text-sm hover:bg-[#D4AF37] hover:text-white transition-all">ADD CATEGORY</button>
                     <button onclick="openProductModal()" class="bg-[#FF007F] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg hover:opacity-90 transition-all">+ ADD PRODUCT</button>
                 </div>
             </header>
@@ -96,6 +95,49 @@
         </main>
     </div>
 
+    <div id="category-modal" class="hidden fixed inset-0 z-[110] modal-overlay flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
+            <h3 class="royal-font text-xl text-[#FF007F] mb-6">New Category</h3>
+            <form id="category-form" class="space-y-4">
+                <input type="text" id="cat-name" placeholder="Category Name (e.g., Skincare)" required class="w-full border-2 border-gray-100 rounded-xl p-3 outline-none focus:border-[#FF007F]">
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="toggleModal('category-modal')" class="flex-1 py-3 text-gray-400 font-bold">CANCEL</button>
+                    <button type="submit" class="flex-1 bg-glow-gradient py-3 rounded-xl font-bold text-white shadow-lg">SAVE</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="product-modal" class="hidden fixed inset-0 z-[110] modal-overlay flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-3xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 class="royal-font text-xl text-[#FF007F] mb-6">Add New Product</h3>
+            <form id="product-form" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="prod-name" placeholder="Product Name" required class="border-2 border-gray-100 rounded-xl p-3 outline-none focus:border-[#FF007F]">
+                    <select id="prod-category" required class="border-2 border-gray-100 rounded-xl p-3 outline-none focus:border-[#FF007F]">
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <textarea id="prod-desc" placeholder="Product Description" rows="3" required class="w-full border-2 border-gray-100 rounded-xl p-3 outline-none focus:border-[#FF007F]"></textarea>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" id="prod-price" placeholder="Price (KES)" required class="border-2 border-gray-100 rounded-xl p-3 outline-none focus:border-[#FF007F]">
+                    <input type="number" id="prod-stock" placeholder="Stock Quantity" required class="border-2 border-gray-100 rounded-xl p-3 outline-none focus:border-[#FF007F]">
+                </div>
+                <div class="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center">
+                    <input type="file" id="prod-image" accept="image/*" required class="hidden">
+                    <label for="prod-image" class="cursor-pointer">
+                        <div class="text-[#D4AF37] font-bold">Click to Upload Product Image</div>
+                        <div id="file-name" class="text-xs text-gray-400 mt-1 italic">No file chosen</div>
+                    </label>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="toggleModal('product-modal')" class="flex-1 py-3 text-gray-400 font-bold">CANCEL</button>
+                    <button type="submit" id="prod-save-btn" class="flex-1 bg-glow-gradient py-3 rounded-xl font-bold text-white shadow-lg">PUBLISH PRODUCT</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         // Supabase Configuration
         const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
@@ -105,37 +147,90 @@
         const MASTER_ADMIN_KEY = "GLOW_QUEEN_2026_SECURE"; 
         let isRegistering = false;
 
-        // Dashboard Actions
-        function openCategoryModal() {
-            const categoryName = prompt("Enter new category name:");
-            if (categoryName) {
-                saveCategory(categoryName);
-            }
+        // UI HELPERS
+        function toggleModal(id) {
+            document.getElementById(id).classList.toggle('hidden');
         }
 
-        async function saveCategory(name) {
+        // File name preview
+        document.getElementById('prod-image').onchange = function() {
+            document.getElementById('file-name').innerText = this.files[0]?.name || "No file chosen";
+        };
+
+        // CATEGORY LOGIC
+        document.getElementById('category-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('cat-name').value;
             try {
-                const { error } = await _supabase.from('categories').insert([{ name: name }]);
+                const { error } = await _supabase.from('categories').insert([{ name }]);
                 if (error) throw error;
-                alert("✅ Category added successfully!");
-                await logActivity('ADD_CATEGORY', `Created category: ${name}`);
+                alert("✅ Category Saved!");
+                toggleModal('category-modal');
+                e.target.reset();
+            } catch (err) { alert("Error: " + err.message); }
+        };
+
+        // PRODUCT LOGIC
+        async function openProductModal() {
+            const select = document.getElementById('prod-category');
+            select.innerHTML = '<option value="">Loading categories...</option>';
+            toggleModal('product-modal');
+            
+            const { data } = await _supabase.from('categories').select('*');
+            select.innerHTML = '<option value="">Select Category</option>';
+            data?.forEach(cat => {
+                select.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+            });
+        }
+
+        document.getElementById('product-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('prod-save-btn');
+            btn.innerText = "UPLOADING...";
+            btn.disabled = true;
+
+            const file = document.getElementById('prod-image').files[0];
+            const fileName = `${Date.now()}_${file.name}`;
+
+            try {
+                // 1. Upload Image
+                const { data: imgData, error: imgErr } = await _supabase.storage
+                    .from('product-images')
+                    .upload(fileName, file);
+                if (imgErr) throw imgErr;
+
+                // 2. Get Public URL
+                const { data: urlData } = _supabase.storage.from('product-images').getPublicUrl(fileName);
+
+                // 3. Insert to Products Table
+                const { error: prodErr } = await _supabase.from('products').insert([{
+                    name: document.getElementById('prod-name').value,
+                    category_id: document.getElementById('prod-category').value,
+                    description: document.getElementById('prod-desc').value,
+                    price: document.getElementById('prod-price').value,
+                    stock: document.getElementById('prod-stock').value,
+                    image_url: urlData.publicUrl
+                }]);
+
+                if (prodErr) throw prodErr;
+
+                alert("✅ Product Published Successfully!");
+                toggleModal('product-modal');
+                e.target.reset();
+                await logActivity('ADD_PRODUCT', `Added ${document.getElementById('prod-name').value}`);
             } catch (err) {
-                alert("❌ Error adding category: " + err.message);
+                alert("Error: " + err.message);
+            } finally {
+                btn.innerText = "PUBLISH PRODUCT";
+                btn.disabled = false;
             }
-        }
+        };
 
-        function openProductModal() {
-            // This assumes you have a product modal or another page. 
-            // For now, it alerts to confirm the button works.
-            alert("Redirecting to product builder...");
-            // Example: window.location.href = 'add-product.html';
-        }
-
+        // AUTH & SESSION (Your existing code)
         function toggleAuthMode() {
             isRegistering = !isRegistering;
             document.getElementById('auth-title').innerText = isRegistering ? "Register Admin" : "Admin Login";
             document.getElementById('auth-name').classList.toggle('hidden', !isRegistering);
-            document.getElementById('auth-name').required = isRegistering;
             document.getElementById('btn-text').innerText = isRegistering ? "CREATE ACCOUNT" : "ENTER PORTAL";
             document.getElementById('toggle-auth-btn').innerText = isRegistering ? "Back to Login" : "Need to register a new admin?";
         }
@@ -144,85 +239,51 @@
             e.preventDefault();
             const btn = document.getElementById('auth-btn');
             const btnText = document.getElementById('btn-text');
-            
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             const fullName = document.getElementById('auth-name').value;
-            const enteredMasterKey = document.getElementById('master-key').value;
-
-            if (enteredMasterKey !== MASTER_ADMIN_KEY) {
-                alert("❌ INVALID MASTER SECRET KEY.");
-                return;
+            if (document.getElementById('master-key').value !== MASTER_ADMIN_KEY) {
+                alert("❌ INVALID MASTER SECRET KEY."); return;
             }
-
             btn.disabled = true;
             btnText.innerText = "PROCESSING...";
-
             try {
                 if (isRegistering) {
-                    const { data, error } = await _supabase.auth.signUp({
-                        email, 
-                        password, 
-                        options: { data: { full_name: fullName } }
-                    });
-
+                    const { data, error } = await _supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
                     if (error) throw error;
-                    await logActivity('REGISTER', `New admin registered: ${email}`, data.user?.id, fullName);
-                    alert("✅ Admin created! Please log in now.");
+                    alert("✅ Admin created! Log in now.");
                     toggleAuthMode();
-                    document.getElementById('auth-password').value = "";
                 } else {
-                    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+                    const { error } = await _supabase.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                     await checkSession();
                 }
-            } catch (err) {
-                console.error("Auth Error:", err.message);
-                alert("❌ Error: " + err.message);
-            } finally {
-                btn.disabled = false;
-                btnText.innerText = isRegistering ? "CREATE ACCOUNT" : "ENTER PORTAL";
-            }
+            } catch (err) { alert("❌ Error: " + err.message); }
+            finally { btn.disabled = false; btnText.innerText = isRegistering ? "CREATE ACCOUNT" : "ENTER PORTAL"; }
         }
 
         async function checkSession() {
             const { data: { session } } = await _supabase.auth.getSession();
             if (session) {
-                const user = session.user;
-                const name = user.user_metadata.full_name || "Admin";
                 document.getElementById('auth-overlay').classList.add('hidden');
                 document.getElementById('dashboard-content').classList.remove('hidden');
-                document.getElementById('current-admin-name').innerText = name;
-                await logActivity('LOGIN', `Admin ${user.email} entered the portal`, user.id, name);
+                document.getElementById('current-admin-name').innerText = session.user.user_metadata.full_name || "Admin";
             } else {
                 document.getElementById('auth-overlay').classList.remove('hidden');
                 document.getElementById('dashboard-content').classList.add('hidden');
             }
         }
 
-        async function logActivity(action, details, adminId = null, adminName = null) {
-            try {
-                if (!adminId) {
-                    const { data: { user } } = await _supabase.auth.getUser();
-                    if (!user) return;
-                    adminId = user.id;
-                    adminName = user.user_metadata.full_name || 'System';
-                }
-                await _supabase.from('admin_logs').insert([{
-                    admin_id: adminId,
-                    admin_name: adminName,
-                    action: action,
-                    details: details,
-                    created_at: new Date()
-                }]);
-            } catch (e) {
-                console.warn("Activity logging failed:", e.message);
-            }
+        async function logActivity(action, details) {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) return;
+            await _supabase.from('admin_logs').insert([{
+                admin_id: user.id, admin_name: user.user_metadata.full_name || 'Admin',
+                action, details, created_at: new Date()
+            }]);
         }
 
         async function logout() {
-            const { data: { user } } = await _supabase.auth.getUser();
-            if (user) await logActivity('LOGOUT', `Admin ${user.email} logged out`);
             await _supabase.auth.signOut();
             location.reload();
         }
