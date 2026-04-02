@@ -3,265 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glow By Vee | Royal Radiance</title>
+    <title>Glow Admin Portal | Queen's Command Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --fuchsia: #FF007F; --gold: #D4AF37; }
-        body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; }
         .royal-font { font-family: 'Cinzel', serif; }
-        
-        .glow-button {
-            background: linear-gradient(135deg, var(--fuchsia) 0%, #ff69b4 50%, var(--gold) 100%);
-            background-size: 200% 200%;
-            animation: shimmer 3s ease infinite;
-        }
-        @keyframes shimmer { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        
-        .marquee { white-space: nowrap; overflow: hidden; background: #fdf2f8; padding: 15px 0; border-bottom: 2px solid var(--gold); }
-        .marquee-content { display: inline-block; animation: scroll 25s linear infinite; }
-        @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
-
-        .hero-overlay { 
-            background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%); 
-        }
-        
-        .category-card:hover { border-color: var(--fuchsia); transform: translateY(-5px); transition: all 0.3s ease; }
-
-        #cart-counter { 
-            position: absolute; 
-            top: -8px; 
-            right: -12px; 
-            background: #FF007F; 
-            color: white; 
-            border-radius: 999px; 
-            padding: 2px 7px; 
-            font-size: 11px; 
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        #product-grid { transition: all 0.5s ease-in-out; }
+        .bg-glow-gradient { background: linear-gradient(135deg, var(--fuchsia), var(--gold)); }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 flex flex-col md:flex-row min-h-screen">
 
-    <nav class="flex justify-between items-center p-6 border-b-4 border-[#FF007F] shadow-sm sticky top-0 bg-white z-50">
-        <div class="flex items-center gap-2">
-            <div class="h-12 w-12 bg-no-repeat bg-contain" style="background-image: url('logo.jpg');"></div>
-            <span class="royal-font text-2xl font-bold text-[#FF007F]">Glow By Vee</span>
+    <aside class="w-full md:w-64 bg-[#1A1A1B] text-white p-6 md:sticky md:top-0 md:h-screen">
+        <div class="flex items-center gap-2 mb-10">
+            <div class="h-10 w-10 bg-no-repeat bg-contain" style="background-image: url('logo.jpg'); filter: invert(1);"></div>
+            <h1 class="text-[#FF007F] font-bold text-xl royal-font">Vee's Portal</h1>
         </div>
-        <div class="hidden md:flex gap-10 royal-font font-bold text-[#D4AF37] items-center text-xl">
-            <a href="catalog.html" class="hover:text-[#FF007F]">SHOP</a>
-            <a href="ai-skin.html" class="hover:text-[#FF007F]">SKIN AI</a>
-            <a href="about.html" class="hover:text-[#FF007F]">ABOUT</a>
-            <a href="admin.html" class="hover:text-[#FF007F]">ADMIN</a>
-            <div class="relative cursor-pointer hover:scale-110 transition-transform ml-4" onclick="processPayment()">
-                <span class="text-3xl">🛒</span>
-                <span id="cart-counter">0</span>
+        <nav class="space-y-2">
+            <a href="#" class="block p-3 rounded-xl bg-[#FF007F]/10 text-[#FF007F] font-bold">OVERVIEW</a>
+            <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all text-[#D4AF37]">ORDERS</a>
+            <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all">INVENTORY</a>
+            <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all">CUSTOMERS</a>
+            <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all">MARKETING</a>
+            <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all">FULFILLMENT</a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 p-6 md:p-10">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+            <h2 class="text-3xl font-bold text-gray-800">Order Fulfillment</h2>
+            <div class="flex gap-3">
+                <button onclick="toggleModal('category-modal')" class="border-2 border-[#D4AF37] text-[#D4AF37] px-6 py-2 rounded-full font-bold text-sm">MANAGE CATEGORIES</button>
+                <button onclick="toggleModal('product-modal')" class="bg-[#FF007F] text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg hover:scale-105 transition-transform">+ ADD PRODUCT</button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-blue-400">
+                <p class="text-xs text-gray-400 font-bold uppercase">Incoming</p>
+                <p class="text-2xl font-bold">12</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-yellow-400">
+                <p class="text-xs text-gray-400 font-bold uppercase">Packed</p>
+                <p class="text-2xl font-bold">08</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-purple-400">
+                <p class="text-xs text-gray-400 font-bold uppercase">Ready</p>
+                <p class="text-2xl font-bold">05</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-orange-400">
+                <p class="text-xs text-gray-400 font-bold uppercase">Shipped</p>
+                <p class="text-2xl font-bold">24</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-green-400">
+                <p class="text-xs text-gray-400 font-bold uppercase">Delivered</p>
+                <p class="text-2xl font-bold">142</p>
             </div>
         </div>
-    </nav>
 
-    <section class="relative h-[50vh] md:h-[60vh] flex items-center justify-center text-white text-center">
-        <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" style="background-image: url('hero-premium.jpg');">
-            <div class="absolute inset-0 hero-overlay"></div>
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-pink-50/50 border-b">
+                        <tr>
+                            <th class="p-5 text-[#FF007F] font-bold text-sm">Order ID</th>
+                            <th class="p-5 text-sm font-bold">Customer Name</th>
+                            <th class="p-5 text-sm font-bold">Date</th>
+                            <th class="p-5 text-sm font-bold">Status</th>
+                            <th class="p-5 text-sm font-bold">Payment Method</th>
+                            <th class="p-5 text-sm font-bold">Shipping Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table-body" class="text-gray-600">
+                        <tr class="border-b hover:bg-gray-50 transition-all">
+                            <td class="p-5 font-mono font-bold text-gray-900">#GV-8812</td>
+                            <td class="p-5">Millie Daniels</td>
+                            <td class="p-5">02 Apr 2026</td>
+                            <td class="p-5">
+                                <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">Ready for Pickup</span>
+                            </td>
+                            <td class="p-5 flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-green-500"></div> M-Pesa Express
+                            </td>
+                            <td class="p-5 text-xs text-gray-400">Dynamic Mall, Nairobi - ML40</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        
-        <div class="relative z-10 px-6 mt-5">
-            <h1 class="royal-font text-4xl md:text-7xl mb-4 drop-shadow-2xl leading-tight">
-                REVEAL YOUR <br><span class="text-[#FF007F] drop-shadow-[0_2px_10px_rgba(255,0,127,0.6)]">INNER RADIANCE</span>
-            </h1>
-            <p class="text-lg md:text-xl font-light tracking-[0.2em] italic mb-6 drop-shadow-md">
-                Your skin, your goals, our science.
-            </p>
-            <a href="#catalog" class="glow-button px-10 py-4 rounded-full text-white font-bold shadow-2xl inline-block hover:scale-105 transition-transform uppercase tracking-widest text-md">
-                Explore Catalog
-            </a>
-        </div>
-    </section>
+    </main>
 
-    <div class="marquee">
-        <div class="marquee-content royal-font text-[#FF007F] font-bold text-lg">
-            ✨ TRADITIONAL SOMALI QASIL • MAGICAL BLACK SOAP • HYALURONIC ELIXIRS • VITAMIN C GLOW • LUXURY SUNSCREEN • SKIN LIGHTENING ELITE ✨
+    <div id="product-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-[40px] p-8 md:p-12 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <h2 class="royal-font text-3xl text-[#FF007F] mb-8 text-center">Add New Product</h2>
+            <form id="add-product-form" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <label class="text-xs font-black uppercase text-gray-400">Product Title</label>
+                        <input id="prod-title" type="text" required placeholder="e.g. Skin Lightening Cream" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+                        <label class="text-xs font-black uppercase text-gray-400">Category</label>
+                        <select id="prod-category" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+                            </select>
+                        <label class="text-xs font-black uppercase text-gray-400">Price (KES)</label>
+                        <input id="prod-price" type="number" required placeholder="3500" class="w-full border-2 border-gray-100 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+                    </div>
+                    <div class="space-y-4">
+                        <label class="text-xs font-black uppercase text-gray-400">Description</label>
+                        <textarea id="prod-desc" required placeholder="Describe the royal benefits..." class="w-full border-2 border-gray-100 rounded-2xl p-4 h-32 outline-none focus:border-[#FF007F]"></textarea>
+                        <label class="text-xs font-black uppercase text-gray-400">Upload Image</label>
+                        <div class="relative border-2 border-dashed border-[#D4AF37] rounded-2xl p-6 text-center bg-yellow-50/30">
+                            <input type="file" id="prod-image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <p id="file-status" class="text-[#D4AF37] text-sm font-bold">Click to Upload Image</p>
+                            <p class="text-[10px] text-gray-400 mt-1">PNG, JPG up to 10MB</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-4 pt-6">
+                    <button type="button" onclick="toggleModal('product-modal')" class="flex-1 py-4 font-bold text-gray-400">DISCARD</button>
+                    <button type="submit" id="save-btn" class="flex-1 bg-glow-gradient py-4 rounded-2xl font-bold text-white shadow-lg">SAVE TO CATALOG</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <section id="catalog" class="py-16 px-6 max-w-7xl mx-auto">
-        <div class="text-center mb-12">
-            <h2 class="royal-font text-4xl md:text-5xl text-[#D4AF37]">The Royal Collection</h2>
-            <div class="h-1 w-24 bg-[#FF007F] mx-auto mt-4"></div>
+    <div id="category-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[40px] p-8 shadow-2xl">
+            <h2 class="royal-font text-2xl text-[#D4AF37] mb-6">Manage Categories</h2>
+            <div class="space-y-4">
+                <div class="flex gap-2">
+                    <input type="text" id="cat-input" placeholder="New category name..." class="flex-1 border-2 border-gray-100 rounded-xl px-4 py-2 outline-none focus:border-[#FF007F]">
+                    <button onclick="addCategory()" class="bg-[#FF007F] text-white px-4 py-2 rounded-xl font-bold">+</button>
+                </div>
+                <div id="category-list" class="divide-y divide-gray-100 max-h-48 overflow-y-auto">
+                    </div>
+            </div>
+            <button onclick="toggleModal('category-modal')" class="w-full mt-6 py-3 font-bold text-gray-400 uppercase text-xs tracking-widest">Close</button>
         </div>
-
-        <div id="category-filters" class="flex flex-wrap justify-center gap-4 mb-12">
-            </div>
-
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-10">
-            </div>
-    </section>
-
-    <section class="py-16 bg-pink-50/30">
-        <div class="text-center mb-10">
-            <h2 class="royal-font text-3xl md:text-4xl text-[#FF007F]">The Royal AI Beauty Suite</h2>
-            <p class="text-gray-500 italic mt-2">Next-generation science for your unique skin.</p>
-        </div>
-        
-        <div class="grid md:grid-cols-2 gap-8 px-10 max-w-7xl mx-auto">
-            <div class="bg-white border-4 border-[#D4AF37] rounded-[40px] p-10 text-center hover:shadow-2xl transition-all group">
-                <div class="text-5xl mb-4">📸</div>
-                <h2 class="royal-font text-2xl text-[#FF007F] mb-4">AI Foundation Matcher</h2>
-                <p class="text-gray-600 mb-6">Take a royal selfie and let our science find your exact foundation match instantly.</p>
-                <a href="ai-skin.html" class="inline-block font-bold text-[#D4AF37] border-b-2 border-[#D4AF37] hover:text-[#FF007F] hover:border-[#FF007F] transition-all">LAUNCH AI ANALYZER</a>
-            </div>
-            <div class="bg-white border-4 border-[#FF007F] rounded-[40px] p-10 text-center hover:shadow-2xl transition-all group">
-                <div class="text-5xl mb-4">✨</div>
-                <h2 class="royal-font text-2xl text-[#D4AF37] mb-4">Glow Transformation</h2>
-                <p class="text-gray-600 mb-6">Visualize your journey. See your skin's transformation after using Glow by Vee.</p>
-                <a href="ai-skin.html" class="inline-block font-bold text-[#FF007F] border-b-2 border-[#FF007F] hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all">PREVIEW YOUR GLOW</a>
-            </div>
-        </div>
-    </section>
-
-    <footer class="bg-gray-900 text-white py-16 px-10">
-        <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-12 text-center md:text-left">
-            <div>
-                <h3 class="royal-font text-2xl text-[#FF007F] mb-6">Glow By Vee</h3>
-                <p class="text-gray-400">Practical skincare solutions tailored to your unique age and skin goals.</p>
-            </div>
-            <div>
-                <h4 class="font-bold mb-6">VISIT US</h4>
-                <p class="text-gray-400">Tom Mboya Street, Dynamic Mall<br>Stall ML-40, Nairobi, Kenya</p>
-                <p class="text-[#D4AF37] mt-2 italic">Always Open</p>
-            </div>
-            <div>
-                <h4 class="font-bold mb-6">CONTACT</h4>
-                <p class="text-gray-400">Phone: 0703 859881</p>
-                <p class="text-gray-400">Email: gbyvee@gmail.com</p>
-            </div>
-        </div>
-        <div class="text-center mt-12 pt-8 border-t border-gray-800 text-gray-500 text-sm">
-            &copy; 2026 GLOW BY VEE. ALL ROYALTY RESERVED.
-        </div>
-    </footer>
+    </div>
 
     <script>
         const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let cart = [];
-        let products = [];
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                fetchCategories();
+            }
+        }
 
-        const GlowSync = {
-            async fetchAllProducts() {
-                const { data, error } = await _supabase.from('products').select('*');
-                if (error) throw error;
-                return data;
-            },
-            getPublicImageUrl(fileName) {
-                const { data } = _supabase.storage.from('product-images').getPublicUrl(fileName);
-                return data.publicUrl;
-            },
-            async syncOrder(orderData) {
-                const { error } = await _supabase.from('orders').insert([orderData]);
-                if (error) throw error;
+        // --- Category Logic ---
+        async function fetchCategories() {
+            const { data, error } = await _supabase.from('categories').select('*');
+            if (error) return console.error(error);
+
+            const list = document.getElementById('category-list');
+            const select = document.getElementById('prod-category');
+            
+            list.innerHTML = data.map(c => `
+                <div class="py-3 flex justify-between items-center text-sm">
+                    <span>${c.name}</span>
+                    <button onclick="deleteCategory(${c.id})" class="text-red-400 font-bold">Remove</button>
+                </div>
+            `).join('');
+
+            select.innerHTML = data.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+        }
+
+        async function addCategory() {
+            const name = document.getElementById('cat-input').value;
+            if (!name) return;
+            const { error } = await _supabase.from('categories').insert([{ name }]);
+            if (error) alert("Error adding category: " + error.message);
+            else {
+                document.getElementById('cat-input').value = '';
+                fetchCategories();
+            }
+        }
+
+        async function deleteCategory(id) {
+            const { error } = await _supabase.from('categories').delete().eq('id', id);
+            if (error) alert(error.message);
+            else fetchCategories();
+        }
+
+        // --- Product Logic ---
+        document.getElementById('prod-image').onchange = function() {
+            if (this.files && this.files[0]) {
+                document.getElementById('file-status').innerText = "Selected: " + this.files[0].name;
             }
         };
 
-        async function initCatalog() {
-            try {
-                const data = await GlowSync.fetchAllProducts();
-                products = data || [];
-                renderCategories();
-                renderProducts('All');
-            } catch (err) {
-                console.error("❌ Sync Manager Error:", err.message);
-                products = JSON.parse(localStorage.getItem('glowProducts')) || [];
-                renderCategories();
-                renderProducts('All');
+        async function uploadProductImage(file) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const { data, error } = await _supabase.storage.from('product-images').upload(fileName, file);
+            if (error) {
+                console.error("Upload error:", error.message);
+                return null;
             }
+            return fileName;
         }
 
-        function renderCategories() {
-            const container = document.getElementById('category-filters');
-            const categories = ['All', ...new Set(products.map(p => p.category))];
-            container.innerHTML = categories.map(cat => `
-                <button onclick="filterProducts('${cat}')" class="category-btn px-8 py-2 rounded-full border-2 border-gray-100 hover:border-[#D4AF37] transition-all">
-                    ${cat}
-                </button>
-            `).join('');
-            
-            // Set initial active state
-            const firstBtn = container.querySelector('button');
-            if(firstBtn) firstBtn.classList.add('bg-[#FF007F]', 'text-white', 'border-[#FF007F]');
-        }
+        document.getElementById('add-product-form').onsubmit = async function(e) {
+            e.preventDefault();
+            const saveBtn = document.getElementById('save-btn');
+            const originalBtnText = saveBtn.innerText;
+            saveBtn.innerText = "UPLOADING...";
+            saveBtn.disabled = true;
 
-        function renderProducts(category) {
-            const grid = document.getElementById('product-grid');
-            const filtered = category === 'All' ? products : products.filter(p => p.category === category);
-            
-            grid.innerHTML = filtered.map(p => {
-                const imgUrl = GlowSync.getPublicImageUrl(p.img);
-                return `
-                <div class="bg-white rounded-[40px] p-6 shadow-xl border border-pink-50 hover:border-[#FF007F] transition-all group">
-                    <div class="relative overflow-hidden rounded-[30px] mb-6 aspect-square bg-gray-100">
-                        <img src="${imgUrl}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.src='https://via.placeholder.com/300?text=Glow+Coming+Soon'">
-                    </div>
-                    <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
-                    <p class="text-gray-500 text-sm mb-6">${p.description || 'Experience the royal glow with Vee.'}</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-2xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
-                        <button onclick="addToCart('${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-[#D4AF37] transition-all text-sm">Add To Cart</button>
-                    </div>
-                </div>
-            `}).join('');
-        }
-
-        function filterProducts(category) {
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('bg-[#FF007F]', 'text-white', 'border-[#FF007F]');
-                if(btn.innerText.trim() === category) {
-                    btn.classList.add('bg-[#FF007F]', 'text-white', 'border-[#FF007F]');
-                }
-            });
-            renderProducts(category);
-        }
-
-        function addToCart(name, price) {
-            cart.push({ name, price });
-            updateCartUI();
-            alert(name + " has been added to your Royal Cart!");
-        }
-
-        function updateCartUI() {
-            const counter = document.getElementById('cart-counter');
-            if(counter) counter.innerText = cart.length;
-        }
-
-        async function processPayment() {
-            if (cart.length === 0) return alert("Your cart is empty!");
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
-            const phone = prompt(`👑 Royal Checkout\nTotal: KES ${total}\nEnter M-Pesa Number:`);
-            
-            if(phone && phone.length >= 10) {
-                try {
-                    await GlowSync.syncOrder({ 
-                        customer_phone: phone, 
-                        total_amount: total, 
-                        items: JSON.stringify(cart),
-                        status: 'Pending'
-                    });
-                    alert("Order synced! We'll contact you for payment.");
-                    cart = [];
-                    updateCartUI();
-                } catch (err) {
-                    alert("Order saved locally. Check connection.");
-                }
+            const file = document.getElementById('prod-image').files[0];
+            if (!file) {
+                alert("Please select an image first!");
+                saveBtn.innerText = originalBtnText;
+                saveBtn.disabled = false;
+                return;
             }
-        }
 
-        window.onload = initCatalog;
+            const fileName = await uploadProductImage(file);
+            if (fileName) {
+                const { error } = await _supabase.from('products').insert([{
+                    name: document.getElementById('prod-title').value,
+                    category: document.getElementById('prod-category').value,
+                    price: parseFloat(document.getElementById('prod-price').value),
+                    description: document.getElementById('prod-desc').value,
+                    img: fileName
+                }]);
+
+                if (error) alert("Database Error: " + error.message);
+                else {
+                    alert("Success! Product added.");
+                    location.reload(); 
+                }
+            } else {
+                alert("Failed to upload image. Check Supabase Storage settings.");
+            }
+            saveBtn.innerText = originalBtnText;
+            saveBtn.disabled = false;
+        };
+
+        // Load categories on initial page load
+        window.onload = fetchCategories;
     </script>
 </body>
 </html>
