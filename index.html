@@ -30,8 +30,19 @@
         /* Category Hover */
         .category-card:hover { border-color: var(--fuchsia); transform: translateY(-5px); transition: all 0.3s ease; }
 
-        /* Cart Notification */
-        #cart-counter { position: absolute; top: -5px; right: -10px; background: #FF007F; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; }
+        /* Updated Cart Notification Style */
+        #cart-counter { 
+            position: absolute; 
+            top: -8px; 
+            right: -12px; 
+            background: #FF007F; 
+            color: white; 
+            border-radius: 999px; 
+            padding: 2px 7px; 
+            font-size: 11px; 
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
@@ -46,8 +57,8 @@
             <a href="ai-skin.html" class="hover:text-[#FF007F]">SKIN AI</a>
             <a href="about.html" class="hover:text-[#FF007F]">ABOUT</a>
             <a href="admin.html" class="hover:text-[#FF007F]">ADMIN</a>
-            <div class="relative cursor-pointer" onclick="processPayment()">
-                <span>🛒</span>
+            <div class="relative cursor-pointer hover:scale-110 transition-transform ml-4" onclick="processPayment()">
+                <span class="text-2xl">🛒</span>
                 <span id="cart-counter">0</span>
             </div>
         </div>
@@ -170,11 +181,11 @@
             }
 
             const total = cart.reduce((sum, item) => sum + item.price, 0);
-            const phone = prompt(`Your Total is KES ${total}. Please enter your M-Pesa Number (e.g. 0703859881) to complete the purchase:`);
+            const phone = prompt(`👑 Royal Checkout\n\nTotal: KES ${total}\n\nPlease enter your M-Pesa Number (e.g. 0703859881):`);
             
             if(phone && phone.length >= 10) {
                 alert("Processing... Please check your phone for the M-Pesa STK Push. Enter your PIN to finalize your Glow order.");
-                // Clear cart after simulation
+                // Reset cart after simulation
                 cart = [];
                 updateCartUI();
             } else if (phone !== null) {
