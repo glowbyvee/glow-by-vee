@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "name": "glow-by-vee",
+  "cleanUrls": true,
+  "framework": null,
+  "installCommand": "npx plugins add vercel/vercel-plugin",
+  "buildCommand": null
+}
