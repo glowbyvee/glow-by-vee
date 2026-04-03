@@ -3,38 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glow Login | Welcome Back</title>
+    <title>Glow Royalty | Member Entry</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --fuchsia: #FF007F; --gold: #D4AF37; }
+        body { font-family: 'Inter', sans-serif; background: #000; }
+        .royal-font { font-family: 'Cinzel', serif; }
         .bg-glow { background: linear-gradient(135deg, var(--fuchsia), var(--gold)); }
+        .glass-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(212, 175, 55, 0.2); }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-[40px] p-10 shadow-2xl text-center">
-        <h2 class="text-2xl font-bold text-[#FF007F] mb-6">Welcome to Glow</h2>
+<body class="min-h-screen flex items-center justify-center p-6">
+
+    <div class="glass-panel w-full max-w-md rounded-[40px] p-10 shadow-2xl text-center">
+        <div class="h-20 w-20 bg-no-repeat bg-contain mx-auto mb-6 rounded-full border-2 border-[#D4AF37]" style="background-image: url('logo.jpg');"></div>
+        <h2 class="royal-font text-2xl text-[#D4AF37] mb-2">Glow Royalty</h2>
+        <p class="text-gray-400 text-[10px] mb-8 uppercase tracking-[0.2em]">Exquisite Beauty Awaits</p>
+
         <form id="login-form" class="space-y-4">
-            <input id="email" type="email" placeholder="Email" required class="w-full border-2 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
-            <input id="password" type="password" placeholder="Password" required class="w-full border-2 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
-            <button type="submit" class="w-full bg-glow py-4 rounded-2xl font-bold text-white shadow-lg">START SHOPPING</button>
+            <input id="email" type="email" placeholder="Email Address" required 
+                class="w-full bg-white/5 border-2 border-white/10 rounded-2xl p-4 text-white outline-none focus:border-[#FF007F] transition-all">
+            
+            <input id="password" type="password" placeholder="Password" required 
+                class="w-full bg-white/5 border-2 border-white/10 rounded-2xl p-4 text-white outline-none focus:border-[#FF007F] transition-all">
+            
+            <button type="submit" id="login-btn" class="w-full bg-glow py-4 rounded-2xl font-bold text-white shadow-lg mt-4 hover:scale-[1.02] active:scale-95 transition-transform">
+                ENTER THE SHOP
+            </button>
         </form>
+
+        <div class="mt-8 text-gray-500 text-[10px] uppercase tracking-widest">
+            Don't have an account? <a href="#" class="text-[#FF007F] font-bold">Join the Club</a>
+        </div>
     </div>
 
     <script>
+        // Use your specific Supabase credentials here
         const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // Use your key
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault();
-            const { data, error } = await _supabase.auth.signInWithPassword({
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value,
-            });
-            if (error) alert(error.message);
-            else {
-                localStorage.setItem('glow_session', JSON.stringify(data.session));
+            const btn = document.getElementById('login-btn');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            btn.innerText = "VERIFYING...";
+            btn.disabled = true;
+
+            try {
+                const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+                
+                if (error) throw error;
+
+                // SAVE SESSION: This is what prevents needing to log in every time
+                localStorage.setItem('glow_user_session', JSON.stringify(data.session));
+                
+                // Redirect to your main store
+                window.location.href = 'index.html'; 
+
+            } catch (err) {
+                alert("❌ Access Denied: " + err.message);
+            } finally {
+                btn.innerText = "ENTER THE SHOP";
+                btn.disabled = false;
+            }
+        };
+
+        // AUTO-LOGIN: If they are already logged in, skip this page
+        window.onload = () => {
+            const savedSession = localStorage.getItem('glow_user_session');
+            if (savedSession) {
                 window.location.href = 'index.html';
             }
         };
