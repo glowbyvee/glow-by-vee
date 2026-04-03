@@ -26,6 +26,10 @@
         .hero-overlay { background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%); }
         #cart-counter { position: absolute; top: -8px; right: -12px; background: #FF007F; color: white; border-radius: 999px; padding: 2px 7px; font-size: 11px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .ai-glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(212, 175, 55, 0.3); }
+        
+        /* Slideshow Animation */
+        .slideshow-img { position: absolute; inset: 0; opacity: 0; transition: opacity 1s ease-in-out; }
+        .slideshow-img.active { opacity: 1; }
     </style>
 </head>
 <body>
@@ -73,6 +77,13 @@
             <div class="h-1 w-24 bg-[#FF007F] mx-auto mt-4"></div>
         </div>
 
+        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-20">
+            </div>
+
+        <div class="text-center mb-8">
+            <h3 class="royal-font text-2xl text-gray-400 italic">Browse Individual Elixirs</h3>
+        </div>
+
         <div id="category-filters" class="flex flex-wrap justify-center gap-4 mb-12">
             <button onclick="filterProducts('All')" class="category-btn px-8 py-2 rounded-full border-2 border-[#FF007F] bg-[#FF007F] text-white transition-all">All</button>
         </div>
@@ -113,7 +124,6 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // --- SECRET ACCESS CONFIG ---
         const MASTER_ADMIN_KEY = "GLOW_QUEEN_2026_SECURE";
 
         function accessAdmin() {
@@ -138,8 +148,10 @@
                 products = prodData || [];
 
                 updateMarquee();
+                renderCategoryCollections();
                 renderCategoryFilters();
                 renderProducts('All');
+                startSlideshows();
             } catch (err) {
                 console.error("Sync Error:", err);
             }
@@ -152,6 +164,47 @@
                 ...products.slice(0, 5).map(p => p.name)
             ];
             marquee.innerHTML = " ✨ " + highlights.join(" • ") + " ✨ ";
+        }
+
+        function renderCategoryCollections() {
+            const container = document.getElementById('category-grid');
+            container.innerHTML = categories.map(cat => {
+                const catProducts = products.filter(p => p.category === cat.name);
+                if (catProducts.length === 0) return '';
+
+                const imagesHtml = catProducts.map((p, idx) => {
+                    const { data } = _supabase.storage.from('product-images').getPublicUrl(p.img);
+                    return `<img src="${data.publicUrl}" class="slideshow-img w-full h-full object-cover ${idx === 0 ? 'active' : ''}" onerror="this.src='https://via.placeholder.com/400x500?text=Glow+Vee'">`;
+                }).join('');
+
+                return `
+                    <div class="relative group cursor-pointer overflow-hidden rounded-[40px] shadow-2xl bg-black h-[450px]" onclick="filterProducts('${cat.name}'); location.href='#category-filters'">
+                        <div class="absolute inset-0 slideshow-container">
+                            ${imagesHtml}
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+                        <div class="absolute bottom-0 left-0 p-8 w-full transform transition-transform group-hover:-translate-y-2">
+                            <h3 class="royal-font text-3xl text-[#D4AF37] mb-2">${cat.name}</h3>
+                            <p class="text-white/80 text-sm tracking-widest uppercase">${catProducts.length} Premium Items</p>
+                            <div class="h-1 w-0 bg-[#FF007F] group-hover:w-full transition-all duration-500 mt-4"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function startSlideshows() {
+            document.querySelectorAll('.slideshow-container').forEach(container => {
+                const images = container.querySelectorAll('.slideshow-img');
+                if (images.length <= 1) return;
+                
+                let current = 0;
+                setInterval(() => {
+                    images[current].classList.remove('active');
+                    current = (current + 1) % images.length;
+                    images[current].classList.add('active');
+                }, 3000 + Math.random() * 2000); // Randomize timing slightly for variety
+            });
         }
 
         function renderCategoryFilters() {
