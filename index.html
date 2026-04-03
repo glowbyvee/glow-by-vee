@@ -8,10 +8,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root { --fuchsia: #FF007F; --gold: #D4AF37; }
-        body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; overflow-x: hidden; }
+        
+        /* INCREASED GLOBAL FONT SIZES */
+        body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; overflow-x: hidden; font-size: 18px; }
+        @media (max-width: 768px) { body { font-size: 16px; } }
+        
         .royal-font { font-family: 'Cinzel', serif; }
         
         .glow-button {
@@ -21,13 +25,12 @@
         }
         @keyframes shimmer { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        .marquee { white-space: nowrap; overflow: hidden; background: #fdf2f8; padding: 15px 0; border-bottom: 2px solid var(--gold); }
-        .marquee-content { display: inline-block; animation: scroll 40s linear infinite; padding-left: 100%; }
+        .marquee { white-space: nowrap; overflow: hidden; background: #fdf2f8; padding: 20px 0; border-bottom: 2px solid var(--gold); }
+        .marquee-content { display: inline-block; animation: scroll 40s linear infinite; padding-left: 100%; font-size: 1.2rem; }
         @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
         
-        #cart-counter { position: absolute; top: -8px; right: -12px; background: var(--fuchsia); color: white; border-radius: 999px; padding: 2px 7px; font-size: 11px; font-weight: bold; }
+        #cart-counter { position: absolute; top: -10px; right: -15px; background: var(--fuchsia); color: white; border-radius: 999px; padding: 4px 10px; font-size: 14px; font-weight: bold; border: 2px solid white; }
         
-        /* Slideshow Styles for Category Cards */
         .cat-slideshow { position: absolute; inset: 0; width: 100%; height: 100%; }
         .cat-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.5s ease-in-out; object-fit: cover; width: 100%; height: 100%; }
         .cat-slide.active { opacity: 1; }
@@ -35,99 +38,143 @@
         #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
         #cart-sidebar.open { transform: translateX(0); }
         
-        .modal-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: none; }
+        .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; }
         .modal-overlay.active { display: flex; }
 
-        .dash-tab { padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s; font-weight: bold; color: #9ca3af; }
+        /* CENTERED CART NOTIFICATION */
+        #success-toast { 
+            visibility: hidden; 
+            min-width: 320px; 
+            background: white; 
+            color: var(--fuchsia); 
+            text-align: center; 
+            border-radius: 30px; 
+            padding: 30px; 
+            position: fixed; 
+            z-index: 300; 
+            left: 50%; 
+            top: 50%; 
+            transform: translate(-50%, -50%) scale(0.8); 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 4px solid var(--fuchsia);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #success-toast.show { visibility: visible; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+        .dash-tab { padding: 15px 25px; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; font-weight: bold; font-size: 1.1rem; color: #6b7280; }
         .dash-tab.active { color: var(--fuchsia); border-color: var(--fuchsia); }
         .dash-content { display: none; }
         .dash-content.active { display: block; }
 
-        .star-rating { color: #d1d5db; cursor: pointer; font-size: 1.5rem; transition: color 0.2s; }
+        .star-rating { color: #d1d5db; cursor: pointer; font-size: 2.5rem; transition: color 0.2s; }
         .star-rating.active { color: #fbbf24; }
-
-        #success-toast { visibility: hidden; min-width: 250px; background-color: #4CAF50; color: white; text-align: center; border-radius: 20px; padding: 16px; position: fixed; z-index: 200; left: 50%; bottom: 30px; transform: translateX(-50%); }
-        #success-toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
         #profile-menu { display: none; }
         #profile-menu.active { display: block; }
-        #map { height: 300px; width: 100%; border-radius: 20px; z-index: 10; }
+        #map { height: 450px; width: 100%; border-radius: 30px; z-index: 10; border: 3px solid #f3f4f6; }
+
+        /* FULL SCREEN DASHBOARD */
+        .full-screen-modal { width: 100vw; height: 100vh; max-width: 100% !important; max-height: 100% !important; border-radius: 0 !important; }
     </style>
 </head>
 <body>
-    <div id="success-toast">✨ Item Added to Bag! ✨</div>
+    <audio id="cart-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <div id="success-toast" class="flex flex-col items-center gap-4">
+        <span class="text-6xl">🛍️</span>
+        <h2 class="royal-font text-3xl font-bold">SUCCESS!</h2>
+        <p class="font-bold text-xl">Item Added to Bag</p>
+    </div>
 
     <div id="detail-modal" class="modal-overlay fixed inset-0 z-[120] items-center justify-center p-4">
-        <div class="bg-white rounded-[40px] max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col md:flex-row relative">
-            <button onclick="closeDetailModal()" class="absolute top-6 right-6 text-3xl text-gray-400 z-10">&times;</button>
+        <div class="bg-white rounded-[40px] max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col md:flex-row relative">
+            <button onclick="closeDetailModal()" class="absolute top-6 right-6 text-4xl text-gray-300 z-10">&times;</button>
             <div class="md:w-1/2 bg-gray-50"><img id="detail-img" src="" class="w-full h-full object-cover"></div>
-            <div class="md:w-1/2 p-10 flex flex-col overflow-y-auto">
-                <h2 id="detail-name" class="royal-font text-3xl text-[#D4AF37] mb-2"></h2>
-                <span id="detail-category" class="text-[#FF007F] text-xs font-bold uppercase mb-4 tracking-widest"></span>
-                <p id="detail-desc" class="text-gray-500 mb-6"></p>
-                <div class="mt-auto pt-6 border-t">
-                    <div class="text-3xl font-black text-[#FF007F] mb-6">KES <span id="detail-price">0</span></div>
-                    <button id="detail-add-btn" class="glow-button w-full py-4 rounded-2xl text-white font-bold uppercase tracking-widest">Add to Bag</button>
+            <div class="md:w-1/2 p-12 flex flex-col overflow-y-auto">
+                <h2 id="detail-name" class="royal-font text-4xl text-[#D4AF37] mb-4"></h2>
+                <span id="detail-category" class="text-[#FF007F] text-sm font-bold uppercase mb-6 tracking-widest"></span>
+                <p id="detail-desc" class="text-gray-500 mb-8 leading-relaxed text-lg"></p>
+                <div class="mt-auto pt-8 border-t">
+                    <div class="text-4xl font-black text-[#FF007F] mb-8">KES <span id="detail-price">0</span></div>
+                    <button id="detail-add-btn" class="glow-button w-full py-5 rounded-2xl text-white font-bold uppercase tracking-widest text-xl">Add to Bag</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="auth-modal" class="modal-overlay fixed inset-0 z-[150] items-center justify-center p-4">
-        <div class="bg-white rounded-[40px] p-8 max-w-md w-full shadow-2xl relative text-center">
-            <button onclick="closeAuthModal()" class="absolute top-6 right-6 text-2xl text-gray-300">&times;</button>
-            <h3 class="royal-font text-3xl text-[#D4AF37] mb-6" id="auth-title">Welcome to Glow</h3>
+        <div class="bg-white rounded-[40px] p-10 max-w-md w-full shadow-2xl relative text-center">
+            <button onclick="closeAuthModal()" class="absolute top-6 right-6 text-3xl text-gray-300">&times;</button>
+            <h3 class="royal-font text-4xl text-[#D4AF37] mb-8" id="auth-title">Welcome</h3>
             <div id="register-fields" class="hidden">
-                <input type="text" id="cust-name" placeholder="Full Name" class="w-full px-6 py-4 rounded-2xl border border-gray-100 mb-4 outline-none">
+                <input type="text" id="cust-name" placeholder="Your Full Name" class="w-full px-8 py-5 rounded-2xl border-2 border-gray-100 mb-6 outline-none text-lg">
             </div>
-            <input type="tel" id="cust-phone" placeholder="Phone Number" class="w-full px-6 py-4 rounded-2xl border border-gray-100 mb-4 outline-none">
-            <button onclick="handleAuthFlow()" class="glow-button w-full py-4 rounded-2xl text-white font-bold mb-4 uppercase">Continue</button>
-            <p class="text-xs text-gray-400 cursor-pointer underline" id="auth-toggle" onclick="toggleAuthMode()">New here? Create Account</p>
+            <input type="tel" id="cust-phone" placeholder="Phone Number" class="w-full px-8 py-5 rounded-2xl border-2 border-gray-100 mb-6 outline-none text-lg">
+            <button onclick="handleAuthFlow()" class="glow-button w-full py-5 rounded-2xl text-white font-bold mb-6 uppercase text-xl">Continue to Glow</button>
+            <p class="text-sm text-gray-400 cursor-pointer underline font-bold" id="auth-toggle" onclick="toggleAuthMode()">New here? Create Account</p>
         </div>
     </div>
 
-    <div id="dashboard-modal" class="modal-overlay fixed inset-0 z-[140] items-center justify-center p-4">
-        <div class="bg-white rounded-[40px] p-8 max-w-4xl w-full shadow-2xl relative max-h-[90vh] flex flex-col">
-            <button onclick="document.getElementById('dashboard-modal').classList.remove('active')" class="absolute top-6 right-6 text-2xl text-gray-300">&times;</button>
+    <div id="dashboard-modal" class="modal-overlay fixed inset-0 z-[140] items-center justify-center">
+        <div class="bg-white full-screen-modal p-6 md:p-12 shadow-2xl relative flex flex-col overflow-hidden">
+            <div class="flex justify-between items-center mb-10">
+                <h2 class="royal-font text-4xl md:text-5xl text-[#FF007F]">My Glow Portal</h2>
+                <button onclick="document.getElementById('dashboard-modal').classList.remove('active')" class="text-5xl text-gray-300 hover:text-black">&times;</button>
+            </div>
             
-            <div id="checkout-options" class="hidden py-10">
-                <h3 class="royal-font text-3xl mb-8 text-center">Checkout Method</h3>
-                <div class="grid grid-cols-2 gap-6">
-                    <div onclick="finalizeOrder('Online Payment')" class="cursor-pointer p-8 border-2 border-gray-100 rounded-[30px] hover:border-[#FF007F] text-center transition-all group">
-                        <span class="text-4xl block mb-2 group-hover:scale-110 transition-transform">💳</span>
-                        <h4 class="font-bold text-gray-700">Online Payment</h4>
+            <div id="checkout-options" class="hidden py-10 flex-1 flex flex-col items-center justify-center">
+                <h3 class="royal-font text-4xl mb-12 text-center text-[#D4AF37]">Select Checkout Method</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 w-full max-w-4xl">
+                    <div onclick="finalizeOrder('Online Payment')" class="cursor-pointer p-12 border-4 border-gray-100 rounded-[40px] hover:border-[#FF007F] text-center transition-all group bg-gray-50">
+                        <span class="text-7xl block mb-4 group-hover:scale-110 transition-transform">💳</span>
+                        <h4 class="font-bold text-2xl text-gray-700">Online Payment</h4>
                     </div>
-                    <div onclick="finalizeOrder('POD')" class="cursor-pointer p-8 border-2 border-gray-100 rounded-[30px] hover:border-[#FF007F] text-center transition-all group">
-                        <span class="text-4xl block mb-2 group-hover:scale-110 transition-transform">🚚</span>
-                        <h4 class="font-bold text-gray-700">Pay on Delivery</h4>
+                    <div onclick="finalizeOrder('POD')" class="cursor-pointer p-12 border-4 border-gray-100 rounded-[40px] hover:border-[#FF007F] text-center transition-all group bg-gray-50">
+                        <span class="text-7xl block mb-4 group-hover:scale-110 transition-transform">🚚</span>
+                        <h4 class="font-bold text-2xl text-gray-700">Pay on Delivery</h4>
                     </div>
                 </div>
             </div>
 
             <div id="user-dash-main" class="flex flex-col h-full">
-                <div class="flex gap-6 border-b mb-6 overflow-x-auto">
-                    <div class="dash-tab active" onclick="switchTab('tracking')">Live Tracking</div>
-                    <div class="dash-tab" onclick="switchTab('receipt')">My Receipt</div>
-                    <div class="dash-tab" onclick="switchTab('reviews')">Review Items</div>
+                <div class="flex gap-10 border-b-2 mb-10 overflow-x-auto">
+                    <div class="dash-tab active" onclick="switchTab('tracking')">Order Progress</div>
+                    <div class="dash-tab" onclick="switchTab('receipt')">Receipts & Billing</div>
+                    <div class="dash-tab" onclick="switchTab('reviews')">Leave Feedback</div>
                 </div>
-                <div class="flex-1 overflow-y-auto">
-                    <div id="tab-tracking" class="dash-content active">
-                        <div id="map" class="mb-4"></div>
-                        <div class="bg-fuchsia-50 p-4 rounded-2xl text-center">
-                            <p class="font-bold text-[#FF007F] animate-pulse">Rider Status: Dispatched 🛵</p>
+                <div class="flex-1 overflow-y-auto pb-20">
+                    <div id="tab-tracking" class="dash-content active max-w-5xl mx-auto">
+                        <div id="map" class="mb-8"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-green-50 p-8 rounded-3xl text-center border-2 border-green-200">
+                                <h4 class="font-black text-green-700 text-xl mb-2">Order Confirmed</h4>
+                                <p class="text-green-600">Admin has received your request</p>
+                            </div>
+                            <div id="dispatch-status" class="bg-fuchsia-50 p-8 rounded-3xl text-center border-2 border-fuchsia-200">
+                                <h4 class="font-black text-[#FF007F] text-xl mb-2">Processing</h4>
+                                <p class="text-[#FF007F]">Awaiting Dispatch Assignment</p>
+                            </div>
+                            <div class="bg-gray-50 p-8 rounded-3xl text-center border-2 border-gray-200">
+                                <h4 class="font-black text-gray-500 text-xl mb-2">Delivered</h4>
+                                <p class="text-gray-400">Completion Phase</p>
+                            </div>
                         </div>
                     </div>
-                    <div id="tab-receipt" class="dash-content">
-                        <div class="bg-gray-50 p-8 rounded-[30px] border-2 border-dashed border-gray-200">
-                            <h4 class="royal-font text-xl text-center mb-6">Payment Confirmation</h4>
-                            <div id="receipt-items-list" class="space-y-3 mb-6"></div>
-                            <div class="flex justify-between font-black text-xl border-t pt-4"><span>Total Paid</span><span id="receipt-total-val" class="text-[#FF007F]">0</span></div>
+                    <div id="tab-receipt" class="dash-content max-w-3xl mx-auto">
+                        <div class="bg-white p-12 rounded-[40px] border-4 border-dashed border-gray-100 shadow-sm">
+                            <div class="flex justify-center mb-8"><div class="h-20 w-20 bg-contain bg-no-repeat" style="background-image: url('logo.jpg');"></div></div>
+                            <h4 class="royal-font text-3xl text-center mb-10">Official Receipt</h4>
+                            <div id="receipt-items-list" class="space-y-6 mb-10 text-xl"></div>
+                            <div class="flex justify-between font-black text-3xl border-t-4 pt-8">
+                                <span>Total Amount Paid</span>
+                                <span id="receipt-total-val" class="text-[#FF007F]">KES 0</span>
+                            </div>
+                            <p class="text-center text-gray-400 mt-10 italic">Thank you for choosing Glow By Vee</p>
                         </div>
                     </div>
-                    <div id="tab-reviews" class="dash-content">
-                        <div id="review-items-container" class="space-y-6"></div>
+                    <div id="tab-reviews" class="dash-content max-w-3xl mx-auto">
+                        <div id="review-items-container" class="space-y-8"></div>
                     </div>
                 </div>
             </div>
@@ -135,92 +182,91 @@
     </div>
 
     <div id="admin-panel" class="modal-overlay fixed inset-0 z-[200] items-center justify-center p-4">
-        <div class="bg-white rounded-[40px] p-10 max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
-            <button onclick="document.getElementById('admin-panel').classList.remove('active')" class="absolute top-8 right-8 text-3xl text-gray-300">&times;</button>
-            <h2 class="royal-font text-4xl text-[#D4AF37] mb-10">Admin Command Center</h2>
-            <div class="grid md:grid-cols-2 gap-12">
-                <div class="space-y-6 bg-gray-50 p-8 rounded-[30px]">
-                    <h3 class="font-bold text-[#FF007F] text-xl">Upload New Elixir</h3>
-                    <input type="text" id="admin-pname" placeholder="Product Name" class="w-full px-6 py-4 rounded-2xl border-none shadow-sm outline-none">
-                    <textarea id="admin-pdesc" placeholder="Product Story/Description" class="w-full px-6 py-4 rounded-2xl border-none shadow-sm outline-none"></textarea>
-                    <input type="number" id="admin-pprice" placeholder="Price (KES)" class="w-full px-6 py-4 rounded-2xl border-none shadow-sm outline-none">
-                    <select id="admin-pcat" class="w-full px-6 py-4 rounded-2xl border-none shadow-sm outline-none"></select>
-                    <input type="file" id="admin-pimg" class="text-sm">
-                    <button onclick="uploadProduct()" class="glow-button w-full py-4 rounded-2xl text-white font-bold uppercase">Add to Store</button>
+        <div class="bg-white rounded-[40px] p-12 max-w-6xl w-full max-h-[95vh] overflow-y-auto shadow-2xl relative">
+            <button onclick="document.getElementById('admin-panel').classList.remove('active')" class="absolute top-8 right-8 text-4xl text-gray-300">&times;</button>
+            <h2 class="royal-font text-4xl text-[#D4AF37] mb-12 border-b pb-4">Control Panel</h2>
+            <div class="grid lg:grid-cols-2 gap-16">
+                <div class="space-y-8 bg-gray-50 p-10 rounded-[40px]">
+                    <h3 class="font-bold text-[#FF007F] text-2xl uppercase tracking-tighter">Add New Product</h3>
+                    <input type="text" id="admin-pname" placeholder="Product Name" class="w-full px-8 py-5 rounded-2xl border-none shadow-sm text-lg outline-none">
+                    <textarea id="admin-pdesc" placeholder="Product Details" class="w-full px-8 py-5 rounded-2xl border-none shadow-sm text-lg outline-none h-32"></textarea>
+                    <input type="number" id="admin-pprice" placeholder="Price (KES)" class="w-full px-8 py-5 rounded-2xl border-none shadow-sm text-lg outline-none">
+                    <select id="admin-pcat" class="w-full px-8 py-5 rounded-2xl border-none shadow-sm text-lg outline-none"></select>
+                    <input type="file" id="admin-pimg" class="text-sm font-bold">
+                    <button onclick="uploadProduct()" class="glow-button w-full py-5 rounded-2xl text-white font-bold uppercase text-xl">Confirm Upload</button>
                 </div>
                 <div>
-                    <h3 class="font-bold text-gray-400 uppercase tracking-widest text-sm mb-6">Incoming Orders</h3>
-                    <div id="admin-order-list" class="space-y-4"></div>
+                    <h3 class="font-bold text-gray-400 uppercase tracking-widest text-lg mb-8">Active Orders</h3>
+                    <div id="admin-order-list" class="space-y-6"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <nav class="flex justify-between items-center p-6 border-b-4 border-[#FF007F] sticky top-0 bg-white z-[60] shadow-sm">
-        <div class="flex items-center gap-2 cursor-pointer" onclick="location.href='index.html'">
-            <div class="h-12 w-12 bg-contain bg-no-repeat" style="background-image: url('logo.jpg');"></div>
-            <span class="royal-font text-2xl font-bold text-[#FF007F]">Glow By Vee</span>
+    <nav class="flex justify-between items-center px-6 py-8 md:px-12 border-b-8 border-[#FF007F] sticky top-0 bg-white z-[60] shadow-md">
+        <div class="flex items-center gap-4 cursor-pointer" onclick="location.href='index.html'">
+            <div class="h-16 w-16 bg-contain bg-no-repeat" style="background-image: url('logo.jpg');"></div>
+            <span class="royal-font text-3xl md:text-4xl font-bold text-[#FF007F] tracking-tighter">Glow By Vee</span>
         </div>
-        <div class="flex gap-8 items-center">
-            <div class="hidden md:flex gap-8 royal-font font-bold text-[#D4AF37] items-center text-lg">
+        
+        <div class="flex gap-10 items-center">
+            <div class="hidden lg:flex gap-10 royal-font font-bold text-[#D4AF37] items-center text-xl">
                 <a href="#catalog" class="hover:text-[#FF007F] transition-colors">SHOP</a>
                 <a href="ai-skin.html" class="hover:text-[#FF007F] transition-colors">SKIN AI</a>
                 <button id="nav-admin-tab" onclick="document.getElementById('admin-panel').classList.add('active')" class="hover:text-[#FF007F] transition-colors">ADMIN</button>
-                <button id="nav-customer-dash" onclick="openDashboard()" class="hidden hover:text-[#FF007F] transition-colors">DASHBOARD</button>
             </div>
             
-            <div id="user-section" class="hidden relative group">
-                <div class="flex items-center gap-3 cursor-pointer bg-pink-50 px-5 py-2 rounded-full border border-pink-100" onclick="toggleProfileMenu()">
-                    <span class="text-xl">👤</span>
-                    <span id="user-name-display" class="text-sm font-bold text-[#FF007F]"></span>
+            <div id="user-section" class="hidden flex items-center gap-6">
+                <div id="user-sticker" class="flex items-center gap-3 bg-pink-100 px-6 py-3 rounded-full border-2 border-pink-200 cursor-pointer hover:bg-pink-200 transition-all" onclick="openDashboard()">
+                    <span class="text-2xl">👑</span>
+                    <span id="user-name-display" class="font-black text-[#FF007F] text-lg uppercase tracking-widest"></span>
+                    <div class="h-3 w-3 bg-green-500 rounded-full animate-pulse ml-2"></div>
                 </div>
-                <div id="profile-menu" class="absolute right-0 mt-3 w-56 bg-white shadow-2xl rounded-2xl border overflow-hidden">
-                    <button onclick="openDashboard()" class="w-full text-left px-6 py-4 hover:bg-gray-50 font-bold text-gray-600 transition-colors">My Dashboard</button>
-                    <button onclick="logout()" class="w-full text-left px-6 py-4 hover:bg-red-50 font-bold text-red-500 border-t transition-colors">Logout</button>
-                </div>
+                <button onclick="logout()" class="text-red-500 font-bold text-lg hidden md:block">Exit</button>
             </div>
 
             <div class="relative cursor-pointer hover:scale-110 transition-transform" onclick="toggleCart()">
-                <span class="text-3xl">🛒</span>
+                <span class="text-4xl">🛒</span>
                 <span id="cart-counter">0</span>
             </div>
         </div>
     </nav>
 
-    <section class="relative h-[45vh] flex items-center justify-center text-center">
+    <section class="relative h-[60vh] flex items-center justify-center text-center">
         <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('hero-premium.jpg');"><div class="absolute inset-0 bg-black/40"></div></div>
         <div class="relative z-10 px-6">
-            <h1 class="royal-font text-5xl md:text-8xl text-white drop-shadow-2xl">BEYOND <br><span class="text-[#FF007F]">BEAUTY</span></h1>
+            <h1 class="royal-font text-6xl md:text-9xl text-white drop-shadow-2xl">ROYAL <br><span class="text-[#FF007F]">RADIANCE</span></h1>
+            <p class="text-white text-2xl mt-6 royal-font tracking-widest">Premium Organic Elixirs</p>
         </div>
     </section>
 
-    <div class="marquee"><div class="marquee-content royal-font text-[#FF007F] font-bold">✨ Premium Organic Skincare ✨ Custom Formulas ✨ Doorstep Delivery Within Nairobi ✨ Glow Today ✨</div></div>
+    <div class="marquee"><div class="marquee-content royal-font text-[#FF007F] font-bold">✨ Premium Organic Skincare ✨ Custom Formulas ✨ Doorstep Delivery Within Nairobi ✨ Glow Today ✨ Experience the Magic of Organic Beauty ✨</div></div>
 
-    <section id="catalog" class="py-20 px-6 max-w-7xl mx-auto">
-        <div class="text-center mb-16">
-            <h2 class="royal-font text-4xl text-[#D4AF37]">Glow By Vee's Collections</h2>
-            <div class="h-1 w-20 bg-[#FF007F] mx-auto mt-4"></div>
+    <section id="catalog" class="py-24 px-6 max-w-7xl mx-auto">
+        <div class="text-center mb-20">
+            <h2 class="royal-font text-5xl text-[#D4AF37]">Glow By Vee's Collections</h2>
+            <div class="h-1.5 w-32 bg-[#FF007F] mx-auto mt-6"></div>
         </div>
-        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-24"></div>
+        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-32"></div>
         
-        <div class="text-center mb-16 pt-10 border-t">
-            <h2 class="royal-font text-3xl text-[#FF007F]">Individual Products</h2>
-            <p class="text-gray-400 mt-2 font-medium">Browse our full range of luxury elixirs</p>
+        <div class="text-center mb-20 pt-20 border-t-2">
+            <h2 class="royal-font text-4xl text-[#FF007F]">Individual Products</h2>
+            <p class="text-gray-400 mt-4 text-xl font-medium">Find your perfect organic match below</p>
         </div>
-        <div id="category-filters" class="flex justify-center gap-4 mb-16 flex-wrap"></div>
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-12"></div>
+        <div id="category-filters" class="flex justify-center gap-6 mb-20 flex-wrap"></div>
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16"></div>
     </section>
 
-    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[420px] bg-white z-[100] shadow-2xl flex flex-col">
-        <div class="p-8 border-b flex justify-between items-center bg-gray-50">
-            <h2 class="royal-font text-3xl text-[#FF007F]">Your Bag</h2>
-            <button onclick="toggleCart()" class="text-4xl text-gray-300 hover:text-black">&times;</button>
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[500px] bg-white z-[100] shadow-2xl flex flex-col border-l-8 border-[#FF007F]">
+        <div class="p-10 border-b-2 flex justify-between items-center bg-gray-50">
+            <h2 class="royal-font text-4xl text-[#FF007F]">Your Bag</h2>
+            <button onclick="toggleCart()" class="text-5xl text-gray-300 hover:text-black">&times;</button>
         </div>
-        <div id="cart-items-container" class="flex-1 overflow-y-auto p-8 space-y-4"></div>
-        <div class="p-8 border-t space-y-6">
-            <div class="flex justify-between font-bold text-2xl"><span>Subtotal</span><span id="cart-total-val" class="text-[#FF007F]">0</span></div>
-            <button onclick="startCheckout()" class="glow-button w-full py-5 rounded-2xl text-white font-bold text-lg uppercase tracking-widest shadow-xl">Secure Checkout</button>
-            <p onclick="toggleCart()" class="text-center text-gray-400 font-bold cursor-pointer hover:text-[#FF007F]">Continue Shopping</p>
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-10 space-y-6"></div>
+        <div class="p-10 border-t-2 space-y-8 bg-white">
+            <div class="flex justify-between font-black text-3xl"><span>Total</span><span id="cart-total-val" class="text-[#FF007F]">KES 0</span></div>
+            <button onclick="startCheckout()" class="glow-button w-full py-6 rounded-2xl text-white font-bold text-xl uppercase tracking-widest shadow-2xl">Secure Checkout</button>
+            <p onclick="toggleCart()" class="text-center text-gray-400 font-bold text-lg cursor-pointer hover:text-[#FF007F]">Back to Elixirs</p>
         </div>
     </div>
 
@@ -230,7 +276,7 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let cart = JSON.parse(localStorage.getItem('glow_cart_vee')) || [];
-        let products = [], categories = [], map, marker, orderItemsForReview = [];
+        let products = [], categories = [], map, orderItemsForReview = [];
 
         async function initCatalog() {
             try {
@@ -248,19 +294,14 @@
                 checkAuth();
                 populateAdminOptions();
                 startCategorySlideshows();
-            } catch (err) { console.error("Initialization Failed:", err); }
+            } catch (err) { console.error("Error:", err); }
         }
 
         function checkAuth() {
             const user = JSON.parse(localStorage.getItem('glowCustomer'));
             if (user) {
                 document.getElementById('user-section').classList.remove('hidden');
-                document.getElementById('user-name-display').innerText = user.full_name.split(' ')[0];
-                document.getElementById('nav-customer-dash').classList.remove('hidden');
-                // Admin tab stays visible if role is admin or by default if specifically requested
-                if (user.role !== 'admin') {
-                   // Keep it for now as you requested it restored
-                }
+                document.getElementById('user-name-display').innerText = user.full_name.toUpperCase();
             }
         }
 
@@ -269,21 +310,16 @@
             grid.innerHTML = categories.map(cat => {
                 const catProducts = products.filter(x => x.category_id === cat.id);
                 if (catProducts.length === 0) return '';
-                
-                // Create slideshow images from all products in this category
                 const slidesHtml = catProducts.map((p, idx) => {
                     const src = p.image_url || _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
                     return `<img src="${src}" class="cat-slide ${idx === 0 ? 'active' : ''}" data-cat="${cat.id}">`;
                 }).join('');
-
-                return `<div class="group relative h-80 rounded-[40px] overflow-hidden cursor-pointer shadow-xl transition-all hover:scale-105" onclick="renderProducts('${cat.name}')">
-                    <div class="cat-slideshow" id="slides-cat-${cat.id}">
-                        ${slidesHtml}
-                    </div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-8">
+                return `<div class="group relative h-[450px] rounded-[50px] overflow-hidden cursor-pointer shadow-2xl transition-all hover:scale-[1.03]" onclick="renderProducts('${cat.name}')">
+                    <div class="cat-slideshow">${slidesHtml}</div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent flex items-end p-12">
                         <div>
-                            <span class="text-xs text-pink-300 font-bold tracking-widest uppercase">Collection</span>
-                            <h3 class="royal-font text-white text-3xl">${cat.name}</h3>
+                            <span class="text-sm text-pink-400 font-bold tracking-[0.3em] uppercase">The Collection</span>
+                            <h3 class="royal-font text-white text-4xl mt-2">${cat.name}</h3>
                         </div>
                     </div>
                 </div>`;
@@ -295,12 +331,11 @@
                 let current = 0;
                 const slides = document.querySelectorAll(`[data-cat="${cat.id}"]`);
                 if (slides.length <= 1) return;
-
                 setInterval(() => {
                     slides[current].classList.remove('active');
                     current = (current + 1) % slides.length;
                     slides[current].classList.add('active');
-                }, 4000); // Change image every 4 seconds
+                }, 4500);
             });
         }
 
@@ -309,15 +344,15 @@
             const filtered = filter === 'All' ? products : products.filter(p => p.cat_name === filter);
             grid.innerHTML = filtered.map(p => {
                 const src = p.image_url || _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
-                return `<div class="bg-white p-6 rounded-[45px] shadow-2xl border border-transparent hover:border-[#FF007F] transition-all group">
-                    <div class="overflow-hidden rounded-[35px] mb-6 relative">
+                return `<div class="bg-white p-8 rounded-[55px] shadow-2xl border-2 border-gray-50 hover:border-[#FF007F] transition-all group">
+                    <div class="overflow-hidden rounded-[45px] mb-8 relative">
                         <img src="${src}" class="w-full aspect-square object-cover group-hover:scale-110 transition-transform cursor-pointer" onclick="openDetailModal(${p.id})">
-                        <div class="absolute top-4 right-4 bg-white/90 px-3 py-1 rounded-full text-[10px] font-bold text-[#FF007F] uppercase tracking-tighter">${p.cat_name}</div>
+                        <div class="absolute top-6 right-6 bg-white px-5 py-2 rounded-full text-xs font-black text-[#FF007F] uppercase tracking-widest shadow-sm">${p.cat_name}</div>
                     </div>
-                    <h3 class="royal-font text-2xl text-[#D4AF37] mb-2 truncate">${p.name}</h3>
-                    <div class="flex justify-between items-center mt-6">
-                        <span class="text-2xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
-                        <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg hover:bg-black transition-all">Add</button>
+                    <h3 class="royal-font text-3xl text-[#D4AF37] mb-3 truncate px-2">${p.name}</h3>
+                    <div class="flex justify-between items-center mt-8 px-2">
+                        <span class="text-3xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
+                        <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-10 py-5 rounded-3xl text-sm font-black uppercase tracking-widest shadow-xl hover:bg-black transition-all">Add to Cart</button>
                     </div>
                 </div>`;
             }).join('');
@@ -327,8 +362,13 @@
         function addToBag(id, name, price) {
             cart.push({ id, name, price });
             updateCartUI();
+            
+            // Notification Logic
             const toast = document.getElementById('success-toast');
-            toast.className = "show"; setTimeout(() => toast.className = "", 3000);
+            const sound = document.getElementById('cart-sound');
+            sound.play();
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
         }
 
         function updateCartUI() {
@@ -341,19 +381,19 @@
         function renderCartItems() {
             const cont = document.getElementById('cart-items-container');
             cont.innerHTML = cart.length ? cart.map((i, idx) => `
-                <div class="flex items-center justify-between bg-gray-50 p-5 rounded-[25px] border border-gray-100">
+                <div class="flex items-center justify-between bg-gray-50 p-8 rounded-[35px] border-2 border-gray-100">
                     <div>
-                        <h4 class="font-bold text-gray-800">${i.name}</h4>
-                        <p class="text-[#FF007F] font-bold text-sm">KES ${i.price.toLocaleString()}</p>
+                        <h4 class="font-bold text-xl text-gray-800">${i.name}</h4>
+                        <p class="text-[#FF007F] font-black text-lg mt-1">KES ${i.price.toLocaleString()}</p>
                     </div>
-                    <button onclick="removeFromBag(${idx})" class="text-2xl text-red-300 hover:text-red-600 transition-colors">×</button>
-                </div>`).join('') : '<div class="text-center pt-20"><span class="text-6xl block mb-4">🧴</span><p class="text-gray-400 font-bold">Your bag is empty.</p></div>';
+                    <button onclick="removeFromBag(${idx})" class="text-4xl text-red-200 hover:text-red-500 transition-colors">×</button>
+                </div>`).join('') : '<div class="text-center pt-24"><span class="text-8xl block mb-6">🧴</span><p class="text-gray-400 font-bold text-2xl uppercase tracking-widest">Bag is empty</p></div>';
         }
 
         function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
 
         function startCheckout() {
-            if (cart.length === 0) return alert("Your bag is empty!");
+            if (cart.length === 0) return alert("Add elixirs to your bag first!");
             const user = JSON.parse(localStorage.getItem('glowCustomer'));
             if (!user) {
                 document.getElementById('auth-modal').classList.add('active');
@@ -368,13 +408,13 @@
         async function handleAuthFlow() {
             const phone = document.getElementById('cust-phone').value.trim();
             const name = document.getElementById('cust-name').value.trim();
-            if (!phone) return alert("Phone required");
+            if (!phone) return alert("Enter Phone Number");
 
             let { data: user } = await _supabase.from('profiles').select('*').eq('phone_number', phone).maybeSingle();
             
             if (!user) {
                 if (!name) {
-                    document.getElementById('auth-title').innerText = "Create Account";
+                    document.getElementById('auth-title').innerText = "Create Your Account";
                     document.getElementById('register-fields').classList.remove('hidden');
                     return;
                 }
@@ -392,15 +432,16 @@
             const { data: order } = await _supabase.from('orders').insert([{ 
                 customer_id: user.id, 
                 total_amount: total, 
-                status: 'Processing',
+                status: 'Confirmed',
                 payment_method: method
             }]).select().single();
 
+            // Receipt Display
             document.getElementById('receipt-total-val').innerText = 'KES ' + total.toLocaleString();
             document.getElementById('receipt-items-list').innerHTML = cart.map(i => `
-                <div class="flex justify-between text-sm font-medium text-gray-600">
+                <div class="flex justify-between font-bold text-gray-600">
                     <span>${i.name}</span>
-                    <span>KES ${i.price.toLocaleString()}</span>
+                    <span class="text-[#FF007F]">KES ${i.price.toLocaleString()}</span>
                 </div>`).join('');
 
             orderItemsForReview = [...cart];
@@ -415,13 +456,13 @@
         function renderReviewSection() {
             const cont = document.getElementById('review-items-container');
             cont.innerHTML = orderItemsForReview.map((item, idx) => `
-                <div class="bg-gray-50 p-6 rounded-[30px] border border-gray-100">
-                    <p class="font-bold text-gray-700 mb-3">Rate ${item.name}</p>
-                    <div class="flex gap-2 mb-4" id="stars-${idx}">
+                <div class="bg-gray-50 p-10 rounded-[40px] border-2 border-gray-100">
+                    <p class="font-black text-2xl text-gray-700 mb-6">How was the ${item.name}?</p>
+                    <div class="flex gap-4 mb-8" id="stars-${idx}">
                         ${[1,2,3,4,5].map(v => `<span class="star-rating" onclick="setStar(${idx}, ${v})" data-val="${v}">★</span>`).join('')}
                     </div>
-                    <textarea id="review-text-${idx}" class="w-full p-4 rounded-2xl text-sm border-none shadow-inner h-24 outline-none" placeholder="Share your glow results..."></textarea>
-                    <button onclick="submitReview(${idx}, ${item.id})" class="mt-4 bg-[#FF007F] text-white px-8 py-2 rounded-xl text-xs font-bold uppercase tracking-widest">Submit</button>
+                    <textarea id="review-text-${idx}" class="w-full p-6 rounded-3xl text-xl border-none shadow-inner h-40 outline-none" placeholder="Write your experience..."></textarea>
+                    <button onclick="submitReview(${idx}, ${item.id})" class="mt-8 bg-[#FF007F] text-white px-12 py-4 rounded-2xl font-bold uppercase tracking-widest text-lg">Send Feedback</button>
                 </div>
             `).join('');
         }
@@ -436,28 +477,27 @@
             const val = document.getElementById(`stars-${idx}`).dataset.chosen;
             const text = document.getElementById(`review-text-${idx}`).value;
             const user = JSON.parse(localStorage.getItem('glowCustomer'));
-            if (!val) return alert("Select stars first!");
+            if (!val) return alert("Select Stars!");
 
-            await _supabase.from('reviews').insert([{
-                product_id: productId,
-                profile_id: user.id,
-                rating: val,
-                comment: text
-            }]);
-            alert("Review shared! Thank you for the love. ✨");
-            document.querySelectorAll('#review-items-container > div')[idx].style.opacity = '0.4';
-            document.querySelectorAll('#review-items-container button')[idx].disabled = true;
+            await _supabase.from('reviews').insert([{ product_id: productId, profile_id: user.id, rating: val, comment: text }]);
+            alert("Feedback received! ✨");
+            document.querySelectorAll('#review-items-container > div')[idx].style.opacity = '0.3';
         }
 
         function initMap() {
             if (map) return;
-            map = L.map('map', { zoomControl: false }).setView([-1.286, 36.817], 13);
+            map = L.map('map', { zoomControl: false }).setView([-1.2863, 36.8172], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            L.marker([-1.286, 36.817]).addTo(map).bindPopup("Glow Rider is Dispatching!").openPopup();
+            L.marker([-1.2863, 36.8172]).addTo(map).bindPopup("<b style='font-size:16px'>Glow Courier</b><br>On Route!").openPopup();
         }
 
-        function toggleProfileMenu() { document.getElementById('profile-menu').classList.toggle('active'); }
-        function openDashboard() { document.getElementById('dashboard-modal').classList.add('active'); toggleProfileMenu(); setTimeout(initMap, 200); }
+        function openDashboard() { 
+            document.getElementById('dashboard-modal').classList.add('active'); 
+            document.getElementById('checkout-options').classList.add('hidden');
+            document.getElementById('user-dash-main').classList.remove('hidden');
+            setTimeout(initMap, 400); 
+        }
+
         function logout() { localStorage.removeItem('glowCustomer'); location.reload(); }
         function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
         function closeAuthModal() { document.getElementById('auth-modal').classList.remove('active'); }
@@ -478,7 +518,7 @@
             document.getElementById('detail-img').src = src;
             document.getElementById('detail-name').innerText = p.name;
             document.getElementById('detail-category').innerText = p.cat_name;
-            document.getElementById('detail-desc').innerText = p.description || "The ultimate organic formula for a royal, lasting glow.";
+            document.getElementById('detail-desc').innerText = p.description || "Crafted for royalty, this elixir ensures deep hydration and a natural glow.";
             document.getElementById('detail-price').innerText = p.price.toLocaleString();
             document.getElementById('detail-add-btn').onclick = () => { addToBag(p.id, p.name, p.price); closeDetailModal(); };
             document.getElementById('detail-modal').classList.add('active');
@@ -486,8 +526,8 @@
 
         function renderFilters() {
             const cont = document.getElementById('category-filters');
-            cont.innerHTML = `<button onclick="renderProducts('All')" class="px-8 py-3 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-black uppercase text-[10px] tracking-widest transition-all hover:bg-[#FF007F] hover:text-white">All</button>` + 
-                categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-8 py-3 rounded-full border-2 border-gray-100 hover:border-[#FF007F] text-gray-500 font-black uppercase text-[10px] tracking-widest transition-all">${c.name}</button>`).join('');
+            cont.innerHTML = `<button onclick="renderProducts('All')" class="px-12 py-4 rounded-full border-4 border-[#FF007F] text-[#FF007F] font-black uppercase text-xs tracking-widest transition-all hover:bg-[#FF007F] hover:text-white">All Elixirs</button>` + 
+                categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-12 py-4 rounded-full border-4 border-gray-100 hover:border-[#FF007F] text-gray-400 font-black uppercase text-xs tracking-widest transition-all">${c.name}</button>`).join('');
         }
 
         function populateAdminOptions() {
@@ -500,12 +540,12 @@
             const price = document.getElementById('admin-pprice').value;
             const catId = document.getElementById('admin-pcat').value;
             const file = document.getElementById('admin-pimg').files[0];
-            if(!name || !price || !file) return alert("Fill all details!");
+            if(!name || !price || !file) return alert("All fields are required!");
 
             const fileName = `${Date.now()}_${file.name}`;
             await _supabase.storage.from('product-images').upload(fileName, file);
             await _supabase.from('products').insert([{ name, price: parseInt(price), category_id: catId, img: fileName }]);
-            alert("New Elixir Added to the Throne!"); location.reload();
+            alert("New Elixir Unlocked! Refreshing Store..."); location.reload();
         }
 
         window.onload = initCatalog;
