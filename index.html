@@ -26,8 +26,7 @@
         .hero-overlay { background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%); }
         #cart-counter { position: absolute; top: -8px; right: -12px; background: #FF007F; color: white; border-radius: 999px; padding: 2px 7px; font-size: 11px; 
         font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .ai-glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(212, 175, 55, 0.3); }
-
+        
         .slideshow-container { position: absolute; inset: 0; width: 100%; height: 100%; }
         .slideshow-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out; }
         .slideshow-img.active { opacity: 1; }
@@ -37,23 +36,27 @@
         .modal-overlay.active { display: flex; }
         .zoom-img { transition: transform 0.3s ease; cursor: zoom-in; }
         .zoom-img:hover { transform: scale(1.1); }
-        /* Payment UI Styles */
+        
         .payment-option { border: 2px solid #f3f4f6; transition: all 0.3s ease; cursor: pointer; }
         .payment-option.selected { border-color: var(--fuchsia); background-color: #fff1f8; }
-        /* Tracking Styles */
+
         .track-step { position: relative; padding-bottom: 2rem; }
         .track-step::before { content: ''; position: absolute; left: 0.75rem; top: 1.5rem; height: 100%; width: 2px; background: #e5e7eb; }
         .track-step.active::before { background: var(--fuchsia); }
-        .track-step:last-child::before { display: none; }
         .dot { height: 1.5rem; width: 1.5rem; border-radius: 50%; background: #e5e7eb; position: relative; z-index: 10; border: 4px solid white; }
         .track-step.active .dot { background: var(--fuchsia); box-shadow: 0 0 10px var(--fuchsia); }
         .star-rating { color: #d1d5db; cursor: pointer; font-size: 1.5rem; }
         .star-rating.active { color: #fbbf24; }
-        /* Notification style */
-        #success-toast { visibility: hidden; min-width: 250px; background-color: #4CAF50; color: white; text-align: center; border-radius: 20px; padding: 16px; position: fixed; z-index: 200; left: 50%; bottom: 30px; transform: translateX(-50%); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        
+        #success-toast { visibility: hidden; min-width: 250px; background-color: #4CAF50; color: white; text-align: center; border-radius: 20px; padding: 16px; position: fixed; z-index: 200; left: 50%; bottom: 30px; transform: translateX(-50%); }
         #success-toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        .dash-tab { padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s; font-weight: bold; color: #9ca3af; }
+        .dash-tab.active { color: var(--fuchsia); border-color: var(--fuchsia); }
+        .dash-content { display: none; }
+        .dash-content.active { display: block; }
     </style>
 </head>
 <body>
@@ -66,165 +69,90 @@
                 <img id="detail-img" src="" class="w-full h-full object-cover zoom-img">
             </div>
             <div class="md:w-1/2 p-10 flex flex-col overflow-y-auto">
-                <h2 id="detail-name" class="royal-font text-3xl text-[#D4AF37] mb-4">Product Name</h2>
+                <h2 id="detail-name" class="royal-font text-3xl text-[#D4AF37] mb-2">Product Name</h2>
                 <span id="detail-category" class="text-[#FF007F] text-xs font-bold uppercase tracking-widest mb-4">Category</span>
-                <p id="detail-desc" class="text-gray-500 leading-relaxed mb-4">Detailed description goes here...</p>
+                <p id="detail-desc" class="text-gray-500 leading-relaxed mb-6">Description...</p>
                 
-                <div class="mb-6 p-4 bg-fuchsia-50 rounded-2xl border border-pink-100">
-                    <h4 class="font-bold text-xs uppercase tracking-widest text-[#FF007F] mb-1">Glow Experience</h4>
-                    <p class="text-xs text-gray-600">Rated ⭐⭐⭐⭐⭐ for quality service & royal delivery.</p>
-                </div>
-
                 <div class="mb-6">
                     <h4 class="font-bold text-sm uppercase tracking-widest text-gray-400 mb-4">Customer Reviews</h4>
-                    <div id="product-reviews-list" class="space-y-4">
-                        </div>
+                    <div id="product-reviews-list" class="space-y-4"></div>
                 </div>
 
                 <div class="mt-auto pt-6 border-t">
                     <div class="text-3xl font-black text-[#FF007F] mb-6">KES <span id="detail-price">0</span></div>
                     <button id="detail-add-btn" class="glow-button w-full py-4 rounded-2xl text-white font-bold uppercase tracking-widest shadow-lg">Add to Bag</button>
-                    <button onclick="closeDetailModal()" class="w-full mt-3 text-sm text-gray-400 font-bold hover:text-[#D4AF37] transition-colors uppercase tracking-widest">Keep Browsing</button>
+                    <button onclick="closeDetailModal()" class="w-full mt-3 text-sm text-gray-400 font-bold hover:text-[#D4AF37] transition-colors uppercase tracking-widest">Back to Gallery</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[400px] bg-white z-[100] shadow-2xl flex flex-col">
-        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-            <h2 class="royal-font text-2xl text-[#FF007F]">Your Royal Cart</h2>
-            <button onclick="toggleCart()" class="text-3xl text-gray-400 hover:text-black">&times;</button>
-        </div>
-        <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4">
-        </div>
-        <div class="p-6 border-t border-gray-100 space-y-4">
-            <div class="flex justify-between items-center royal-font text-xl">
-                <span>Total</span>
-                <span id="cart-total" class="text-[#FF007F] font-bold">KES 0</span>
-            </div>
-            <button onclick="checkAuthAndPay()" class="glow-button w-full py-4 rounded-2xl text-white font-bold uppercase tracking-widest shadow-lg">Checkout Now</button>
-        </div>
-    </div>
-
-    <div id="auth-modal" class="modal-overlay fixed inset-0 z-[110] items-center justify-center p-4">
+    <div id="auth-modal" class="modal-overlay fixed inset-0 z-[150] items-center justify-center p-4">
         <div class="bg-white rounded-[40px] p-8 max-w-md w-full shadow-2xl relative">
             <button onclick="closeAuthModal()" class="absolute top-6 right-6 text-2xl text-gray-300">&times;</button>
             <div class="text-center mb-8">
-                <h3 class="royal-font text-3xl text-[#D4AF37] mb-2">Claim Your Glow</h3>
-                <p class="text-gray-400 text-sm">Enter your details to finalize your order.</p>
+                <h3 class="royal-font text-3xl text-[#D4AF37] mb-2">Welcome to Glow</h3>
+                <p class="text-gray-400 text-sm" id="auth-subtext">Enter your phone to continue your royal journey.</p>
             </div>
             <div class="space-y-4">
-                <input type="text" id="cust-name" placeholder="Full Name" class="w-full px-6 py-4 rounded-2xl border border-gray-100 focus:border-[#FF007F] outline-none transition-all">
-                <input type="tel" id="cust-phone" placeholder="Phone Number" class="w-full px-6 py-4 rounded-2xl border border-gray-100 focus:border-[#FF007F] outline-none transition-all">
-                <button onclick="handleAuthSubmit()" class="glow-button w-full py-4 rounded-2xl text-white font-bold uppercase tracking-widest">Continue to Payment</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="payment-modal" class="modal-overlay fixed inset-0 z-[130] items-center justify-center p-4">
-        <div class="bg-white rounded-[40px] p-8 max-w-lg w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="document.getElementById('payment-modal').classList.remove('active')" class="absolute top-6 right-6 text-2xl text-gray-300">&times;</button>
-            <h3 class="royal-font text-2xl text-[#D4AF37] text-center mb-6">Payment Method</h3>
-            
-            <div class="space-y-4 mb-8">
-                <div onclick="selectPayment('mpesa')" id="opt-mpesa" class="payment-option p-6 rounded-3xl flex items-center justify-between selected">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center text-white font-bold">M</div>
-                        <div>
-                            <p class="font-bold">M-Pesa (Send Money)</p>
-                            <p class="text-xs text-gray-400">Instant verification</p>
-                        </div>
-                    </div>
-                    <div class="w-6 h-6 rounded-full border-2 border-[#FF007F] flex items-center justify-center"><div class="w-3 h-3 bg-[#FF007F] rounded-full"></div></div>
+                <div id="register-fields" class="space-y-4 hidden">
+                    <input type="text" id="cust-name" placeholder="Full Name" class="w-full px-6 py-4 rounded-2xl border border-gray-100 focus:border-[#FF007F] outline-none">
                 </div>
-                <div onclick="selectPayment('pod')" id="opt-pod" class="payment-option p-6 rounded-3xl flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center text-gray-500">🚚</div>
-                        <div>
-                            <p class="font-bold">Pay On Delivery (POD)</p>
-                            <p class="text-xs text-gray-400">Pay when you receive</p>
-                        </div>
-                    </div>
-                    <div class="w-6 h-6 rounded-full border-2 border-gray-200"></div>
-                </div>
+                <input type="tel" id="cust-phone" placeholder="Phone Number (e.g. 07...)" class="w-full px-6 py-4 rounded-2xl border border-gray-100 focus:border-[#FF007F] outline-none">
+                <button id="auth-action-btn" onclick="handleAuthFlow()" class="glow-button w-full py-4 rounded-2xl text-white font-bold uppercase tracking-widest">Identify Me</button>
+                <p class="text-center text-xs text-gray-400 mt-4 cursor-pointer" id="auth-toggle" onclick="toggleAuthMode()">New here? Create Account</p>
             </div>
-            <div id="mpesa-instructions" class="bg-gray-50 p-6 rounded-3xl mb-6">
-                <div class="flex items-center gap-2 mb-4 text-green-600 font-bold">
-                    <span>M-PESA Instructions</span>
-                </div>
-                <p class="text-sm mb-2">1. Send <b>KES <span id="pay-amount">0</span></b> to:</p>
-                <p class="text-xl font-black text-center py-2 bg-white rounded-xl mb-4">0703 859881</p>
-                <input type="text" id="mpesa-code-input" placeholder="Enter M-Pesa Transaction Code" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 outline-none focus:border-green-500 uppercase">
-            </div>
-            <button onclick="confirmOrder()" class="glow-button w-full py-4 rounded-2xl text-white font-bold uppercase tracking-widest shadow-lg">Confirm Order</button>
         </div>
     </div>
 
     <div id="dashboard-modal" class="modal-overlay fixed inset-0 z-[140] items-center justify-center p-4">
-        <div class="bg-white rounded-[40px] p-8 max-w-2xl w-full shadow-2xl relative max-h-[95vh] overflow-y-auto">
+        <div class="bg-white rounded-[40px] p-8 max-w-4xl w-full shadow-2xl relative max-h-[95vh] overflow-hidden flex flex-col">
             <button onclick="document.getElementById('dashboard-modal').classList.remove('active')" class="absolute top-6 right-6 text-2xl text-gray-300">&times;</button>
             
-            <div id="order-success-header" class="text-center mb-8">
-                <div class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4">✔</div>
-                <h3 class="royal-font text-3xl text-[#D4AF37]">Order Confirmed!</h3>
-                <p class="text-gray-400" id="dash-order-id">#GLW-000000</p>
+            <div class="flex gap-6 border-b border-gray-100 mb-6">
+                <div class="dash-tab active" onclick="switchTab('tracking')">Live Status</div>
+                <div class="dash-tab" onclick="switchTab('receipt')">Receipt</div>
+                <div class="dash-tab" onclick="switchTab('reviews')">Reviews</div>
             </div>
-            <div class="grid md:grid-cols-2 gap-8 mb-8">
-                <div class="bg-gray-100 rounded-[30px] h-64 relative overflow-hidden flex flex-col items-center justify-center text-gray-400">
-                    <div class="absolute inset-0 opacity-30" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/ec/Map_grid.png'); background-size: 50px;"></div>
-                    <div id="rider-marker" class="absolute transition-all duration-1000" style="bottom: 20%; left: 20%;">
-                        <div class="bg-[#FF007F] p-2 rounded-full shadow-lg animate-bounce">🛵</div>
+
+            <div class="flex-1 overflow-y-auto pr-2">
+                <div id="tab-tracking" class="dash-content active">
+                    <div class="text-center mb-6">
+                        <h3 class="royal-font text-2xl text-[#D4AF37]">Order #<span id="dash-order-id">GLW-000</span></h3>
                     </div>
-                    <div class="bg-white px-4 py-2 rounded-full shadow-lg text-xs font-bold text-black z-10">Live Delivery Map</div>
-                </div>
-                <div class="space-y-2">
-                    <div class="track-step active">
-                        <div class="flex gap-4 items-start">
-                            <div class="dot"></div>
-                            <div><p class="font-bold text-sm">Order Placed</p><p class="text-xs text-gray-400">We've received your request</p></div>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="bg-gray-100 rounded-[30px] h-64 relative overflow-hidden flex items-center justify-center">
+                             <div class="absolute inset-0 opacity-20" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/ec/Map_grid.png');"></div>
+                             <div id="rider-marker" class="absolute transition-all duration-1000" style="bottom: 10%; left: 10%;">🛵</div>
+                             <button class="bg-white px-4 py-2 rounded-full shadow-lg text-xs font-bold z-10 border border-[#FF007F]">View Full Screen Map</button>
                         </div>
-                    </div>
-                    <div class="track-step active" id="step-processing">
-                        <div class="flex gap-4 items-start">
-                            <div class="dot"></div>
-                            <div><p class="font-bold text-sm">Processing</p><p class="text-xs text-gray-400">Preparing your elixirs</p></div>
-                        </div>
-                    </div>
-                    <div class="track-step" id="step-transit">
-                        <div class="flex gap-4 items-start">
-                            <div class="dot"></div>
-                            <div><p class="font-bold text-sm">In Transit</p><p class="text-xs text-gray-400" id="rider-info">Waiting for rider assignment</p></div>
-                        </div>
-                    </div>
-                    <div class="track-step" id="step-delivered">
-                        <div class="flex gap-4 items-start">
-                            <div class="dot"></div>
-                            <div><p class="font-bold text-sm">Delivered</p><p class="text-xs text-gray-400">Order received & paid</p></div>
+                        <div class="space-y-4">
+                            <div class="track-step active"><div class="dot"></div><p class="text-sm font-bold">Order Received</p></div>
+                            <div class="track-step" id="step-processing"><div class="dot"></div><p class="text-sm font-bold">Processing Elixirs</p></div>
+                            <div class="track-step" id="step-transit"><div class="dot"></div><p class="text-sm font-bold">In Transit</p></div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div id="receipt-section" class="border-t-2 border-dashed border-gray-100 py-6 mb-6">
-                <h4 class="font-bold mb-4 uppercase text-xs tracking-widest text-gray-400 text-center">Digital Receipt</h4>
-                <div id="receipt-items" class="space-y-2 text-sm"></div>
-                <div class="flex justify-between font-bold text-lg mt-4 text-[#FF007F]">
-                    <span>Grand Total</span>
-                    <span id="receipt-total">KES 0</span>
+
+                <div id="tab-receipt" class="dash-content">
+                    <div class="bg-fuchsia-50 p-8 rounded-[40px] border-2 border-dashed border-pink-200">
+                        <h4 class="text-center royal-font text-xl mb-6">Royal Receipt</h4>
+                        <div id="receipt-items" class="space-y-4 mb-6"></div>
+                        <div class="flex justify-between font-black text-2xl text-[#FF007F] border-t pt-4">
+                            <span>Total</span>
+                            <span id="receipt-total">KES 0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-reviews" class="dash-content">
+                    <div id="review-list-container" class="space-y-6">
+                        <p class="text-center text-gray-400 italic">Complete your first order to leave a review! ✨</p>
+                    </div>
                 </div>
             </div>
-            <div id="review-section" class="hidden bg-pink-50 p-6 rounded-3xl text-center">
-                <h4 class="royal-font text-xl text-[#FF007F] mb-2">Share Your Glow</h4>
-                <p class="text-sm text-gray-500 mb-4">How was your experience with these elixirs?</p>
-                <div class="flex justify-center gap-2 mb-4">
-                    <span class="star-rating" data-val="1">★</span>
-                    <span class="star-rating" data-val="2">★</span>
-                    <span class="star-rating" data-val="3">★</span>
-                    <span class="star-rating" data-val="4">★</span>
-                    <span class="star-rating" data-val="5">★</span>
-                </div>
-                <textarea id="review-text" placeholder="Tell us more about the products..." class="w-full p-4 rounded-xl border-none outline-none text-sm mb-4"></textarea>
-                <button onclick="submitReview()" class="bg-[#FF007F] text-white px-8 py-3 rounded-xl font-bold">Submit Review</button>
-            </div>
+            
+            <button onclick="goHomeFromDash()" class="mt-6 w-full py-4 border-2 border-gray-100 rounded-2xl font-bold text-gray-400 hover:text-[#FF007F] transition-all uppercase tracking-widest">Back to Homepage</button>
         </div>
     </div>
 
@@ -236,9 +164,7 @@
         <div class="hidden md:flex gap-10 royal-font font-bold text-[#D4AF37] items-center text-xl">
             <a href="#catalog" class="hover:text-[#FF007F]">SHOP</a>
             <a href="ai-skin.html" class="hover:text-[#FF007F]">SKIN AI</a>
-            <a href="about.html" class="hover:text-[#FF007F]">ABOUT</a>
-            <button onclick="accessAdmin()" class="hover:text-[#FF007F] uppercase">ADMIN</button>
-            
+            <div id="user-pill" class="hidden text-sm bg-pink-50 px-4 py-1 rounded-full text-[#FF007F]">Hi, <span id="user-name-display">...</span></div>
             <div class="relative cursor-pointer hover:scale-110 transition-transform ml-4" onclick="toggleCart()">
                 <span class="text-3xl">🛒</span>
                 <span id="cart-counter">0</span>
@@ -246,404 +172,264 @@
         </div>
     </nav>
 
-    <section class="relative h-[50vh] md:h-[60vh] flex items-center justify-center text-white text-center">
-        <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" style="background-image: url('hero-premium.jpg');">
+    <section class="relative h-[50vh] flex items-center justify-center text-white text-center">
+        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('hero-premium.jpg');">
             <div class="absolute inset-0 hero-overlay"></div>
         </div>
-        <div class="relative z-10 px-6 mt-5">
-            <h1 class="royal-font text-4xl md:text-7xl mb-4 drop-shadow-2xl leading-tight">
-                REVEAL YOUR <br><span class="text-[#FF007F] drop-shadow-[0_2px_10px_rgba(255,0,127,0.6)]">INNER RADIANCE</span>
-            </h1>
-            <p class="text-lg md:text-xl font-light tracking-[0.2em] italic mb-6 drop-shadow-md">Your skin, your goals, our science.</p>
-            <a href="#catalog" class="glow-button px-10 py-4 rounded-full text-white font-bold shadow-2xl inline-block hover:scale-105 transition-transform uppercase tracking-widest text-md">Explore Catalog</a>
+        <div class="relative z-10 px-6">
+            <h1 class="royal-font text-4xl md:text-7xl mb-4">REVEAL YOUR <br><span class="text-[#FF007F]">INNER RADIANCE</span></h1>
+            <a href="#catalog" class="glow-button px-10 py-4 rounded-full text-white font-bold inline-block">Explore Catalog</a>
         </div>
     </section>
 
-    <div class="marquee">
-        <div id="marquee-text" class="marquee-content royal-font text-[#FF007F] font-bold text-lg uppercase">
-            ✨ Loading Royal Collection Highlights... ✨
-        </div>
-    </div>
+    <div class="marquee"><div id="marquee-text" class="marquee-content royal-font text-[#FF007F] font-bold">✨ Loading... ✨</div></div>
 
     <section id="catalog" class="py-16 px-6 max-w-7xl mx-auto">
-        <div class="text-center mb-12">
-            <h2 class="royal-font text-4xl md:text-5xl text-[#D4AF37]">Glow By Vee's Collections</h2>
-            <div class="h-1 w-24 bg-[#FF007F] mx-auto mt-4"></div>
-        </div>
-        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-20">
-        </div>
-        <div class="text-center mb-8">
-            <h3 class="royal-font text-2xl text-gray-400 italic">Browse Individual Elixirs</h3>
-        </div>
-        <div id="category-filters" class="flex flex-wrap justify-center gap-4 mb-12">
-            <button onclick="filterProducts('All')" class="category-btn px-8 py-2 rounded-full border-2 border-[#FF007F] bg-[#FF007F] text-white transition-all">All</button>
-        </div>
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <p class="col-span-full text-center text-gray-400">Fetching the latest elixirs...</p>
-        </div>
+        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-20"></div>
+        <div id="category-filters" class="flex flex-wrap justify-center gap-4 mb-12"></div>
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-10"></div>
     </section>
 
-    <footer class="bg-gray-900 text-white py-16 px-10">
-        <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-12 text-center md:text-left">
-            <div><h3 class="royal-font text-2xl text-[#FF007F] mb-6">Glow By Vee</h3><p class="text-gray-400">Practical skincare solutions.</p></div>
-            <div><h4 class="font-bold mb-6">VISIT US</h4><p class="text-gray-400">Tom Mboya Street, Nairobi</p></div>
-            <div><h4 class="font-bold mb-6">CONTACT</h4><p class="text-gray-400">0703 859881</p></div>
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[400px] bg-white z-[100] shadow-2xl flex flex-col">
+        <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+            <h2 class="royal-font text-2xl text-[#FF007F]">Royal Cart</h2>
+            <button onclick="toggleCart()" class="text-3xl text-gray-400">&times;</button>
         </div>
-    </footer>
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+        <div class="p-6 border-t space-y-4">
+            <div class="flex justify-between items-center text-xl">
+                <span>Total</span><span id="cart-total" class="text-[#FF007F] font-bold">KES 0</span>
+            </div>
+            <button id="checkout-btn" onclick="startCheckout()" class="glow-button w-full py-4 rounded-2xl text-white font-bold">Checkout Now</button>
+        </div>
+    </div>
 
     <script>
         const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const MASTER_ADMIN_KEY = "GLOW_QUEEN_2026_SECURE";
-
-        function accessAdmin() {
-            const entry = prompt("Royal Clearance Required. Please enter the Master Admin Key:");
-            if (entry === MASTER_ADMIN_KEY) {
-                window.location.href = "admin.html";
-            } else {
-                alert("❌ Unauthorized Access. Your attempt has been logged.");
-            }
-        }
 
         let cart = JSON.parse(localStorage.getItem('glow_cart')) || [];
-        let products = [];
-        let categories = [];
-        let selectedPaymentMethod = 'mpesa';
-        let currentOrderId = null;
+        let products = [], categories = [];
+        let isRegistering = false;
         let selectedRating = 0;
+        let activeOrderId = null;
 
         async function initCatalog() {
             try {
-                const { data: catData, error: catError } = await _supabase.from('categories').select('*').order('name');
-                if (catError) throw catError;
+                const { data: catData } = await _supabase.from('categories').select('*').order('name');
                 categories = catData || [];
-
-                const { data: prodData, error: prodError } = await _supabase.from('products').select('*');
-                if (prodError) throw prodError;
-                
-                products = (prodData || []).map(p => {
-                    const categoryObj = categories.find(c => c.id === p.category_id);
-                    return {
-                        ...p,
-                        category_name: categoryObj ? categoryObj.name : 'Uncategorized'
-                    };
-                });
-
-                updateMarquee();
+                const { data: prodData } = await _supabase.from('products').select('*');
+                products = (prodData || []).map(p => ({
+                    ...p, category_name: (categories.find(c => c.id === p.category_id) || {}).name || 'Uncategorized'
+                }));
                 renderCategoryCollections();
                 renderCategoryFilters();
                 renderProducts('All');
-                startSlideshows();
                 updateCartUI();
-                initReviewStars();
-            } catch (err) {
-                console.error("Sync Error:", err);
+                checkSavedUser();
+            } catch (err) { console.error("Sync Error:", err); }
+        }
+
+        function checkSavedUser() {
+            const user = JSON.parse(localStorage.getItem('glowCustomer'));
+            if (user) {
+                document.getElementById('user-pill').classList.remove('hidden');
+                document.getElementById('user-name-display').innerText = user.full_name;
             }
         }
 
-        function updateMarquee() {
-            const marquee = document.getElementById('marquee-text');
-            if(!marquee) return;
-            const highlights = [...categories.map(c => c.name), ...products.slice(0, 5).map(p => p.name)];
-            marquee.innerHTML = " ✨ " + highlights.join(" • ") + " ✨ ";
+        function toggleAuthMode() {
+            isRegistering = !isRegistering;
+            document.getElementById('register-fields').classList.toggle('hidden', !isRegistering);
+            document.getElementById('auth-subtext').innerText = isRegistering ? "Create your account for royal benefits." : "Enter your phone to continue.";
+            document.getElementById('auth-action-btn').innerText = isRegistering ? "Create Account" : "Identify Me";
+            document.getElementById('auth-toggle').innerText = isRegistering ? "Already have an account? Login" : "New here? Create Account";
         }
 
-        function renderCategoryCollections() {
-            const container = document.getElementById('category-grid');
-            if (!container) return;
-            container.innerHTML = categories.map(cat => {
-                const catProducts = products.filter(p => p.category_name === cat.name);
-                if (catProducts.length === 0) return '';
-                const imagesHtml = catProducts.map((p, idx) => {
-                    const imgSource = p.image_url ? p.image_url : _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
-                    return `<img src="${imgSource}" class="slideshow-img ${idx === 0 ? 'active' : ''}" onerror="this.src='https://via.placeholder.com/400x500?text=Glow+By+Vee'">`;
-                }).join('');
-                return `
-                    <div class="relative group cursor-pointer overflow-hidden rounded-[40px] shadow-2xl bg-gray-900 h-[450px]" onclick="filterProducts('${cat.name}'); location.href='#category-filters'">
-                        <div class="slideshow-container">${imagesHtml}</div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70"></div>
-                        <div class="absolute bottom-0 left-0 p-8 w-full transform transition-all group-hover:-translate-y-2">
-                            <h3 class="royal-font text-3xl text-[#D4AF37] mb-2">${cat.name}</h3>
-                            <p class="text-white/80 text-sm tracking-widest uppercase">${catProducts.length} Royal Products</p>
-                        </div>
-                    </div>`;
-            }).join('');
-        }
+        async function handleAuthFlow() {
+            const phone = document.getElementById('cust-phone').value.trim();
+            const name = document.getElementById('cust-name').value.trim();
 
-        function startSlideshows() {
-            const containers = document.querySelectorAll('.slideshow-container');
-            containers.forEach(container => {
-                const imgs = container.querySelectorAll('.slideshow-img');
-                if (imgs.length <= 1) return;
-                let currentIndex = 0;
-                setInterval(() => {
-                    imgs[currentIndex].classList.remove('active');
-                    currentIndex = (currentIndex + 1) % imgs.length;
-                    imgs[currentIndex].classList.add('active');
-                }, 4000);
-            });
-        }
-
-        function renderCategoryFilters() {
-            const container = document.getElementById('category-filters');
-            if(!container) return;
-            let html = `<button onclick="filterProducts('All')" class="category-btn px-8 py-2 rounded-full border-2 border-[#FF007F] bg-[#FF007F] text-white transition-all">All</button>`;
-            categories.forEach(cat => {
-                html += `<button onclick="filterProducts('${cat.name}')" class="category-btn px-8 py-2 rounded-full border-2 border-gray-100 hover:border-[#D4AF37] transition-all">${cat.name}</button>`;
-            });
-            container.innerHTML = html;
-        }
-
-        function renderProducts(filter) {
-            const grid = document.getElementById('product-grid');
-            if(!grid) return;
-            const filtered = filter === 'All' ? products : products.filter(p => p.category_name === filter);
-            if (filtered.length === 0) {
-                grid.innerHTML = `<p class="col-span-full text-center text-gray-400">No elixirs found.</p>`;
-                return;
-            }
-            grid.innerHTML = filtered.map(p => {
-                const imgSource = p.image_url ? p.image_url : _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
-                return `
-                    <div class="bg-white rounded-[40px] p-6 shadow-xl border border-pink-50 hover:border-[#FF007F] transition-all group">
-                        <div class="relative overflow-hidden rounded-[30px] mb-6 aspect-square bg-gray-50 cursor-pointer" onclick="openDetailModal(${p.id})">
-                            <img src="${imgSource}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        </div>
-                        <h3 class="royal-font text-2xl text-[#D4AF37] mb-2 cursor-pointer" onclick="openDetailModal(${p.id})">${p.name}</h3>
-                        <div class="flex justify-between items-center mt-4">
-                            <span class="text-2xl font-black text-[#FF007F]">KES ${(p.price || 0).toLocaleString()}</span>
-                            <button onclick="addToCart(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-6 py-3 rounded-2xl font-bold shadow-lg text-sm">Add To Cart</button>
-                        </div>
-                    </div>`;
-            }).join('');
-        }
-
-        function filterProducts(categoryName) {
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('bg-[#FF007F]', 'text-white', 'border-[#FF007F]');
-                btn.classList.add('border-gray-100', 'text-gray-500');
-                if(btn.innerText.trim() === categoryName) {
-                    btn.classList.add('bg-[#FF007F]', 'text-white', 'border-[#FF007F]');
-                    btn.classList.remove('border-gray-100', 'text-gray-500');
-                }
-            });
-            renderProducts(categoryName);
-        }
-
-        async function openDetailModal(id) {
-            const p = products.find(prod => prod.id === id);
-            if(!p) return;
-            const imgSource = p.image_url ? p.image_url : _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
-
-            document.getElementById('detail-img').src = imgSource;
-            document.getElementById('detail-name').innerText = p.name;
-            document.getElementById('detail-category').innerText = p.category_name;
-            document.getElementById('detail-desc').innerText = p.description || 'Premium Formulation';
-            document.getElementById('detail-price').innerText = p.price.toLocaleString();
-            document.getElementById('detail-add-btn').onclick = () => addToCart(p.id, p.name, p.price);
-
-            // Fetch Reviews for this product
-            const { data: reviews } = await _supabase.from('reviews').select('*').eq('product_id', id).order('created_at', { ascending: false });
-            const reviewContainer = document.getElementById('product-reviews-list');
-            if (reviews && reviews.length > 0) {
-                reviewContainer.innerHTML = reviews.map(r => `
-                    <div class="bg-gray-50 p-4 rounded-2xl">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-xs">${"⭐".repeat(r.rating)}</span>
-                            <span class="text-[10px] text-gray-400">${new Date(r.created_at).toLocaleDateString()}</span>
-                        </div>
-                        <p class="text-xs text-gray-600 italic">"${r.comment}"</p>
-                    </div>
-                `).join('');
-            } else {
-                reviewContainer.innerHTML = `<p class="text-xs text-gray-400 italic">No reviews yet. Be the first to glow!</p>`;
-            }
-            document.getElementById('detail-modal').classList.add('active');
-        }
-
-        function closeDetailModal() {
-            document.getElementById('detail-modal').classList.remove('active');
-        }
-
-        function toggleCart() {
-            document.getElementById('cart-sidebar').classList.toggle('open');
-            renderCartItems();
-        }
-
-        function addToCart(id, name, price) {
-            cart.push({ id, name, price });
-            updateCartUI();
+            if (!phone) return alert("Phone is required!");
             
-            // Show Success Notification
-            const toast = document.getElementById('success-toast');
-            toast.className = "show";
-            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+            try {
+                let { data: profile } = await _supabase.from('profiles').select('*').eq('phone_number', phone).maybeSingle();
+                
+                if (isRegistering) {
+                    if (profile) return alert("User already exists. Please login instead.");
+                    if (!name) return alert("Please enter your name!");
+                    const { data: newUser } = await _supabase.from('profiles').insert([{ full_name: name, phone_number: phone }]).select().single();
+                    profile = newUser;
+                } else {
+                    if (!profile) return alert("Account not found. Please create one!");
+                }
 
-            // Automatically close the product detail form
+                localStorage.setItem('glowCustomer', JSON.stringify(profile));
+                checkSavedUser();
+                closeAuthModal();
+                // We stay in the cart/detail view so the user can finish checkout
+            } catch (e) { alert("Auth error"); }
+        }
+
+        function startCheckout() {
+            if (!localStorage.getItem('glowCustomer')) {
+                document.getElementById('auth-modal').classList.add('active');
+            } else {
+                // Procedural order placement (simplified for brevity)
+                confirmRoyalOrder();
+            }
+        }
+
+        async function confirmRoyalOrder() {
+            const user = JSON.parse(localStorage.getItem('glowCustomer'));
+            const total = cart.reduce((s, i) => s + i.price, 0);
+            const tid = 'GLW-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+
+            const { data: order } = await _supabase.from('orders').insert([{
+                customer_id: user.id, total_amount: total, status: 'Processing', tracking_id: tid
+            }]).select().single();
+
+            activeOrderId = order.id;
+            
+            // Populate Receipt
+            document.getElementById('dash-order-id').innerText = tid;
+            document.getElementById('receipt-total').innerText = 'KES ' + total.toLocaleString();
+            document.getElementById('receipt-items').innerHTML = cart.map(i => `<div class="flex justify-between"><span>${i.name}</span><span>KES ${i.price.toLocaleString()}</span></div>`).join('');
+            
+            // Set up Reviews Tab
+            document.getElementById('review-list-container').innerHTML = cart.map(i => `
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-pink-100">
+                    <p class="font-bold text-[#FF007F] mb-2">${i.name}</p>
+                    <div class="flex gap-2 mb-4">
+                        ${[1,2,3,4,5].map(v => `<span class="star-rating" onclick="rateProduct(this, ${v})">★</span>`).join('')}
+                    </div>
+                    <textarea id="rev-text-${i.id}" class="w-full p-3 bg-gray-50 rounded-xl text-sm outline-none" placeholder="How was this elixir?"></textarea>
+                    <button onclick="submitProductReview(${i.id}, ${order.id})" class="mt-3 bg-[#FF007F] text-white px-6 py-2 rounded-xl text-xs font-bold">Save Review</button>
+                </div>
+            `).join('');
+
+            document.getElementById('dashboard-modal').classList.add('active');
+            cart = [];
+            updateCartUI();
+            toggleCart();
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.dash-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
+        function rateProduct(el, val) {
+            const parent = el.parentElement;
+            parent.dataset.rating = val;
+            Array.from(parent.children).forEach((s, idx) => s.classList.toggle('active', idx < val));
+        }
+
+        async function submitProductReview(prodId, orderId) {
+            const user = JSON.parse(localStorage.getItem('glowCustomer'));
+            const rating = event.target.parentElement.querySelector('.flex').dataset.rating;
+            const comment = document.getElementById(`rev-text-${prodId}`).value;
+
+            if (!rating) return alert("Please select stars!");
+
+            await _supabase.from('reviews').insert([{
+                product_id: prodId, profile_id: user.id, rating: rating, comment: comment
+            }]);
+            
+            event.target.innerText = "SAVED ✨";
+            event.target.disabled = true;
+            initCatalog(); 
+        }
+
+        function goHomeFromDash() {
+            document.getElementById('dashboard-modal').classList.remove('active');
             closeDetailModal();
         }
 
-        function removeFromCart(index) {
-            cart.splice(index, 1);
+        function closeAuthModal() { document.getElementById('auth-modal').classList.remove('active'); }
+        
+        function addToCart(id, name, price) {
+            cart.push({ id, name, price });
             updateCartUI();
-            renderCartItems();
+            const toast = document.getElementById('success-toast');
+            toast.className = "show";
+            setTimeout(() => { toast.className = ""; }, 3000);
+            closeDetailModal();
         }
 
         function updateCartUI() {
             localStorage.setItem('glow_cart', JSON.stringify(cart));
-            const counter = document.getElementById('cart-counter');
-            if(counter) counter.innerText = cart.length;
+            document.getElementById('cart-counter').innerText = cart.length;
             const total = cart.reduce((sum, item) => sum + item.price, 0);
             document.getElementById('cart-total').innerText = `KES ${total.toLocaleString()}`;
         }
 
+        async function openDetailModal(id) {
+            const p = products.find(prod => prod.id === id);
+            const imgSource = p.image_url || _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
+            document.getElementById('detail-img').src = imgSource;
+            document.getElementById('detail-name').innerText = p.name;
+            document.getElementById('detail-category').innerText = p.category_name;
+            document.getElementById('detail-price').innerText = p.price.toLocaleString();
+            document.getElementById('detail-add-btn').onclick = () => addToCart(p.id, p.name, p.price);
+
+            const { data: revs } = await _supabase.from('reviews').select('*').eq('product_id', id);
+            document.getElementById('product-reviews-list').innerHTML = revs?.length ? revs.map(r => `
+                <div class="bg-gray-50 p-4 rounded-2xl text-xs">
+                    <div class="flex justify-between mb-1"><span class="text-yellow-500">${"★".repeat(r.rating)}</span></div>
+                    <p class="italic text-gray-500">"${r.comment}"</p>
+                </div>`).join('') : '<p class="text-xs text-gray-400">No reviews yet.</p>';
+
+            document.getElementById('detail-modal').classList.add('active');
+        }
+
+        function closeDetailModal() { document.getElementById('detail-modal').classList.remove('active'); }
+        function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); renderCartItems(); }
         function renderCartItems() {
             const container = document.getElementById('cart-items-container');
-            if(cart.length === 0) {
-                container.innerHTML = `<div class="text-center py-20 text-gray-400 italic">Your cart is empty.</div>`;
-                return;
-            }
-            container.innerHTML = cart.map((item, idx) => `
-                <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-pink-50">
-                    <div>
-                        <h4 class="font-bold text-gray-800">${item.name}</h4>
-                        <p class="text-[#FF007F] text-sm">KES ${item.price.toLocaleString()}</p>
+            container.innerHTML = cart.length ? cart.map((item, idx) => `
+                <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl">
+                    <div><h4 class="font-bold text-gray-800">${item.name}</h4><p class="text-[#FF007F] text-sm">KES ${item.price.toLocaleString()}</p></div>
+                    <button onclick="removeFromCart(${idx})" class="text-red-400 text-xl">&times;</button>
+                </div>`).join('') : '<p class="text-center py-20 text-gray-400">Your bag is empty.</p>';
+        }
+        function removeFromCart(idx) { cart.splice(idx, 1); updateCartUI(); renderCartItems(); }
+
+        function renderProducts(filter) {
+            const grid = document.getElementById('product-grid');
+            const filtered = filter === 'All' ? products : products.filter(p => p.category_name === filter);
+            grid.innerHTML = filtered.map(p => `
+                <div class="bg-white rounded-[40px] p-6 shadow-xl border border-pink-50 hover:border-[#FF007F] transition-all group">
+                    <div class="relative overflow-hidden rounded-[30px] mb-6 aspect-square bg-gray-50 cursor-pointer" onclick="openDetailModal(${p.id})">
+                        <img src="${p.image_url || _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl}" class="w-full h-full object-cover">
                     </div>
-                    <button onclick="removeFromCart(${idx})" class="text-red-400 hover:text-red-600 font-bold text-xl">&times;</button>
+                    <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
+                    <div class="flex justify-between items-center mt-4">
+                        <span class="text-2xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
+                        <button onclick="addToCart(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-6 py-3 rounded-2xl font-bold shadow-lg">Add To Cart</button>
+                    </div>
                 </div>`).join('');
         }
 
-        function checkAuthAndPay() {
-            if (cart.length === 0) return alert("Your cart is empty!");
-            const savedUser = localStorage.getItem('glowCustomer');
-            if (savedUser) {
-                showPaymentModal();
-            } else {
-                document.getElementById('auth-modal').classList.add('active');
-            }
+        function renderCategoryCollections() {
+            const container = document.getElementById('category-grid');
+            container.innerHTML = categories.slice(0, 3).map(cat => `
+                <div class="relative group cursor-pointer overflow-hidden rounded-[40px] h-[400px] bg-gray-100" onclick="filterProducts('${cat.name}')">
+                    <div class="absolute inset-0 bg-black/40 z-10"></div>
+                    <div class="absolute bottom-8 left-8 z-20"><h3 class="royal-font text-3xl text-[#D4AF37]">${cat.name}</h3></div>
+                </div>`).join('');
         }
 
-        function closeAuthModal() {
-            document.getElementById('auth-modal').classList.remove('active');
+        function renderCategoryFilters() {
+            const container = document.getElementById('category-filters');
+            container.innerHTML = `<button onclick="filterProducts('All')" class="px-8 py-2 rounded-full border-2 border-[#FF007F] bg-[#FF007F] text-white">All</button>` + 
+            categories.map(cat => `<button onclick="filterProducts('${cat.name}')" class="px-8 py-2 rounded-full border-2 border-gray-100 hover:border-[#FF007F]">${cat.name}</button>`).join('');
         }
 
-        async function handleAuthSubmit() {
-            const name = document.getElementById('cust-name').value.trim();
-            const phone = document.getElementById('cust-phone').value.trim();
-            if(!name || !phone) return alert("Please enter both Name and Number!");
-            try {
-                let { data: profile } = await _supabase.from('profiles').select('*').eq('phone_number', phone).maybeSingle();
-                if (!profile) {
-                    const { data: newProfile } = await _supabase.from('profiles').insert([{ full_name: name, phone_number: phone }]).select().single();
-                    profile = newProfile;
-                }
-                localStorage.setItem('glowCustomer', JSON.stringify(profile));
-                closeAuthModal();
-                showPaymentModal();
-            } catch (err) { alert("Auth failed"); }
-        }
-
-        function showPaymentModal() {
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
-            document.getElementById('pay-amount').innerText = total.toLocaleString();
-            document.getElementById('payment-modal').classList.add('active');
-        }
-
-        function selectPayment(method) {
-            selectedPaymentMethod = method;
-            document.getElementById('opt-mpesa').className = `payment-option p-6 rounded-3xl flex items-center justify-between ${method === 'mpesa' ? 'selected' : ''}`;
-            document.getElementById('opt-pod').className = `payment-option p-6 rounded-3xl flex items-center justify-between ${method === 'pod' ? 'selected' : ''}`;
-            document.getElementById('mpesa-instructions').style.display = method === 'mpesa' ? 'block' : 'none';
-        }
-
-        async function confirmOrder() {
-            const user = JSON.parse(localStorage.getItem('glowCustomer'));
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
-            const mpesaCode = document.getElementById('mpesa-code-input').value.trim();
-            if (selectedPaymentMethod === 'mpesa' && !mpesaCode) return alert("Please enter M-Pesa code!");
-            try {
-                const trackingId = 'GLW-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-                const { data: order, error } = await _supabase.from('orders').insert([{
-                    customer_id: user.id,
-                    total_amount: total,
-                    payment_method: selectedPaymentMethod,
-                    mpesa_code: selectedPaymentMethod === 'mpesa' ? mpesaCode.toUpperCase() : 'POD',
-                    status: selectedPaymentMethod === 'mpesa' ? 'pending_payment' : 'pending_delivery',
-                    tracking_id: trackingId
-                }]).select().single();
-                if (error) throw error;
-                currentOrderId = order.id;
-                await _supabase.from('order_items').insert(cart.map(item => ({
-                    order_id: order.id,
-                    product_id: item.id,
-                    quantity: 1,
-                    unit_price: item.price
-                })));
-                showDashboard(order, trackingId);
-                cart = [];
-                updateCartUI();
-                document.getElementById('payment-modal').classList.remove('active');
-            } catch (err) { alert("Error placing order: " + err.message); }
-        }
-
-        function showDashboard(order, trackingId) {
-            document.getElementById('dash-order-id').innerText = '#' + trackingId;
-            document.getElementById('receipt-total').innerText = 'KES ' + order.total_amount.toLocaleString();
-            document.getElementById('receipt-items').innerHTML = cart.map(i => `
-                <div class="flex justify-between"><span>${i.name}</span><span>KES ${i.price.toLocaleString()}</span></div>
-            `).join('');
-            document.getElementById('dashboard-modal').classList.add('active');
-
-            // Mock Tracking Logic
-            setTimeout(() => {
-                document.getElementById('step-processing').classList.add('active');
-                document.getElementById('rider-marker').style.left = "50%";
-            }, 3000);
-            setTimeout(() => {
-                document.getElementById('step-transit').classList.add('active');
-                document.getElementById('rider-info').innerText = "Rider: Kevin (0712345678) is 5 mins away";
-                document.getElementById('rider-marker').style.bottom = "60%";
-                document.getElementById('rider-marker').style.left = "70%";
-            }, 7000);
-            setTimeout(() => {
-                document.getElementById('step-delivered').classList.add('active');
-                document.getElementById('review-section').classList.remove('hidden');
-            }, 12000);
-        }
-
-        function initReviewStars() {
-            document.querySelectorAll('.star-rating').forEach(star => {
-                star.onclick = () => {
-                    selectedRating = star.dataset.val;
-                    document.querySelectorAll('.star-rating').forEach(s => {
-                        s.classList.toggle('active', s.dataset.val <= selectedRating);
-                    });
-                };
-            });
-        }
-
-        async function submitReview() {
-            if (selectedRating === 0) return alert("Please select a star rating!");
-            const comment = document.getElementById('review-text').value.trim();
-            const user = JSON.parse(localStorage.getItem('glowCustomer'));
-            try {
-                // We add a review for the first product in the original cart for simplicity in this logic
-                const { data: items } = await _supabase.from('order_items').select('product_id').eq('order_id', currentOrderId);
-                
-                for(let item of items) {
-                    await _supabase.from('reviews').insert([{
-                        product_id: item.product_id,
-                        profile_id: user.id,
-                        rating: selectedRating,
-                        comment: comment
-                    }]);
-                }
-                alert("Thank you for your review! ✨");
-                document.getElementById('dashboard-modal').classList.remove('active');
-                initCatalog(); // Refresh products to show reviews
-            } catch (err) { alert("Review error"); }
-        }
+        function filterProducts(cat) { renderProducts(cat); }
 
         window.onload = initCatalog;
     </script>
