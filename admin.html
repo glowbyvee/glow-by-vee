@@ -167,6 +167,7 @@
                 alert("✅ Category Saved!");
                 toggleModal('category-modal');
                 e.target.reset();
+                location.reload(); // Refresh to ensure categories list updates
             } catch (err) { alert("Error: " + err.message); }
         };
 
@@ -207,9 +208,10 @@
                     name: document.getElementById('prod-name').value,
                     category_id: document.getElementById('prod-category').value,
                     description: document.getElementById('prod-desc').value,
-                    price: document.getElementById('prod-price').value,
-                    stock: document.getElementById('prod-stock').value,
-                    image_url: urlData.publicUrl
+                    price: parseFloat(document.getElementById('prod-price').value),
+                    stock: parseInt(document.getElementById('prod-stock').value),
+                    image_url: urlData.publicUrl,
+                    img: fileName // Ensure this matches index.html fallback
                 }]);
 
                 if (prodErr) throw prodErr;
@@ -218,6 +220,7 @@
                 toggleModal('product-modal');
                 e.target.reset();
                 await logActivity('ADD_PRODUCT', `Added ${document.getElementById('prod-name').value}`);
+                location.reload(); // Refresh dashboard
             } catch (err) {
                 alert("Error: " + err.message);
             } finally {
@@ -226,7 +229,7 @@
             }
         };
 
-        // AUTH & SESSION (Your existing code)
+        // AUTH & SESSION
         function toggleAuthMode() {
             isRegistering = !isRegistering;
             document.getElementById('auth-title').innerText = isRegistering ? "Register Admin" : "Admin Login";
