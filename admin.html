@@ -60,6 +60,7 @@
             <nav class="space-y-2">
                 <a href="#" class="block p-3 rounded-xl bg-[#FF007F]/10 text-[#FF007F] font-bold">OVERVIEW</a>
                 <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all text-[#D4AF37]">ORDERS</a>
+                <button onclick="toggleModal('manage-modal')" class="w-full text-left p-3 rounded-xl hover:bg-white/5 transition-all text-[#D4AF37]">MANAGE DATA</button>
                 <button onclick="logout()" class="w-full text-left p-3 rounded-xl hover:bg-red-500/10 text-red-400 transition-all">LOGOUT</button>
             </nav>
         </aside>
@@ -135,6 +136,33 @@
                     <button type="submit" id="prod-save-btn" class="flex-1 bg-glow-gradient py-3 rounded-xl font-bold text-white shadow-lg">PUBLISH PRODUCT</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div id="manage-modal" class="hidden fixed inset-0 z-[110] modal-overlay flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-3xl p-8 shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="royal-font text-xl text-[#FF007F]">Data Management</h3>
+                <button onclick="toggleModal('manage-modal')" class="text-gray-400 text-2xl">&times;</button>
+            </div>
+
+            <div class="mb-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <h4 class="font-bold text-sm text-[#D4AF37] mb-4 uppercase">Search & Delete Categories</h4>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="search-cat" placeholder="Search Category Name..." class="flex-1 border-2 border-gray-100 rounded-xl p-2 text-sm outline-none">
+                    <button onclick="searchAndDeleteCategory()" class="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-bold">SEARCH & DELETE</button>
+                </div>
+                <p class="text-[10px] text-gray-400 italic">Warning: Deleting a category may affect products linked to it.</p>
+            </div>
+
+            <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <h4 class="font-bold text-sm text-[#D4AF37] mb-4 uppercase">Clean Duplicate Products</h4>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="dup-product-name" placeholder="Exact Product Name..." class="flex-1 border-2 border-gray-100 rounded-xl p-2 text-sm outline-none">
+                    <button onclick="deleteDuplicateProducts()" class="bg-orange-500 text-white px-4 py-2 rounded-xl text-xs font-bold">REMOVE DUPLICATES</button>
+                </div>
+                <p class="text-[10px] text-gray-400 italic">This will keep the newest version and delete older products with the same name.</p>
+            </div>
         </div>
     </div>
 
@@ -228,6 +256,43 @@
                 btn.disabled = false;
             }
         };
+
+        // NEW DATA MANAGEMENT FUNCTIONS
+        async function searchAndDeleteCategory() {
+            const searchTerm = document.getElementById('search-cat').value;
+            if(!searchTerm) return alert("Please enter a category name to search.");
+
+            if(confirm(`Are you sure you want to delete categories matching "${searchTerm}"?`)) {
+                try {
+                    const { error } = await _supabase.from('categories').delete().ilike('name', `%${searchTerm}%`);
+                    if(error) throw error;
+                    alert("✅ Category clean-up complete!");
+                    location.reload();
+                } catch(err) { alert("Error deleting category: " + err.message); }
+            }
+        }
+
+        async function deleteDuplicateProducts() {
+            const prodName = document.getElementById('dup-product-name').value;
+            if(!prodName) return alert("Please enter the exact product name.");
+
+            try {
+                // Get all products with this name ordered by creation date
+                const { data, error } = await _supabase.from('products').select('id').eq('name', prodName).order('created_at', { ascending: false });
+                
+                if(error) throw error;
+                if(data.length <= 1) return alert("No duplicates found for this product.");
+
+                // Keep the first (newest) one, delete the rest
+                const idsToDelete = data.slice(1).map(item => item.id);
+                const { error: delError } = await _supabase.from('products').delete().in('id', idsToDelete);
+                
+                if(delError) throw delError;
+                alert(`✅ Successfully removed ${idsToDelete.length} duplicates.`);
+                location.reload();
+
+            } catch(err) { alert("Error cleaning products: " + err.message); }
+        }
 
         // AUTH & SESSION
         function toggleAuthMode() {
