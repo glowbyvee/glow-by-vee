@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glow Login | Welcome Back</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --fuchsia: #FF007F; --gold: #D4AF37; }
+        .bg-glow { background: linear-gradient(135deg, var(--fuchsia), var(--gold)); }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-[40px] p-10 shadow-2xl text-center">
+        <h2 class="text-2xl font-bold text-[#FF007F] mb-6">Welcome to Glow</h2>
+        <form id="login-form" class="space-y-4">
+            <input id="email" type="email" placeholder="Email" required class="w-full border-2 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+            <input id="password" type="password" placeholder="Password" required class="w-full border-2 rounded-2xl p-4 outline-none focus:border-[#FF007F]">
+            <button type="submit" class="w-full bg-glow py-4 rounded-2xl font-bold text-white shadow-lg">START SHOPPING</button>
+        </form>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // Use your key
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        document.getElementById('login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const { data, error } = await _supabase.auth.signInWithPassword({
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+            });
+            if (error) alert(error.message);
+            else {
+                localStorage.setItem('glow_session', JSON.stringify(data.session));
+                window.location.href = 'index.html';
+            }
+        };
+    </script>
+</body>
+</html>
