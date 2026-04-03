@@ -167,7 +167,7 @@
                 alert("✅ Category Saved!");
                 toggleModal('category-modal');
                 e.target.reset();
-                location.reload(); // Refresh to ensure categories list updates
+                location.reload(); 
             } catch (err) { alert("Error: " + err.message); }
         };
 
@@ -194,16 +194,16 @@
             const fileName = `${Date.now()}_${file.name}`;
 
             try {
-                // 1. Upload Image
+                // 1. Upload Image to Storage bucket
                 const { data: imgData, error: imgErr } = await _supabase.storage
                     .from('product-images')
                     .upload(fileName, file);
                 if (imgErr) throw imgErr;
 
-                // 2. Get Public URL
+                // 2. Get the Public URL for display
                 const { data: urlData } = _supabase.storage.from('product-images').getPublicUrl(fileName);
 
-                // 3. Insert to Products Table
+                // 3. Insert to Products Table (Ensuring 'stock' column is included)
                 const { error: prodErr } = await _supabase.from('products').insert([{
                     name: document.getElementById('prod-name').value,
                     category_id: document.getElementById('prod-category').value,
@@ -211,7 +211,7 @@
                     price: parseFloat(document.getElementById('prod-price').value),
                     stock: parseInt(document.getElementById('prod-stock').value),
                     image_url: urlData.publicUrl,
-                    img: fileName // Ensure this matches index.html fallback
+                    img: fileName 
                 }]);
 
                 if (prodErr) throw prodErr;
@@ -220,7 +220,7 @@
                 toggleModal('product-modal');
                 e.target.reset();
                 await logActivity('ADD_PRODUCT', `Added ${document.getElementById('prod-name').value}`);
-                location.reload(); // Refresh dashboard
+                location.reload();
             } catch (err) {
                 alert("Error: " + err.message);
             } finally {
