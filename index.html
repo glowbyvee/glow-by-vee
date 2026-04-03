@@ -88,7 +88,6 @@
         <div class="bg-white rounded-[40px] p-8 max-w-md w-full shadow-2xl relative text-center">
             <button onclick="closeAuthModal()" class="absolute top-6 right-6 text-2xl text-gray-300">&times;</button>
             <h3 class="royal-font text-3xl text-[#D4AF37] mb-2" id="auth-title">Welcome Back</h3>
-            <p class="text-gray-400 text-sm mb-8" id="auth-subtext">Enter your details to continue.</p>
             <div class="space-y-4">
                 <div id="register-fields" class="hidden">
                     <input type="text" id="cust-name" placeholder="Your Full Name" class="w-full px-6 py-4 rounded-2xl border border-gray-100 outline-none mb-4">
@@ -113,11 +112,6 @@
                     <div id="map-area" class="h-64 bg-gray-100 rounded-3xl mb-6 flex items-center justify-center relative overflow-hidden">
                         <span class="z-10 bg-white px-4 py-1 rounded-full shadow text-xs font-bold">Rider is 10 mins away 🛵</span>
                     </div>
-                    <div class="space-y-4 px-4">
-                        <div class="track-step active"><div class="dot"></div><p class="text-sm font-bold">Order Received</p></div>
-                        <div class="track-step active"><div class="dot"></div><p class="text-sm font-bold">Preparing Elixirs</p></div>
-                        <div class="track-step"><div class="dot"></div><p class="text-sm font-bold">In Transit</p></div>
-                    </div>
                 </div>
                 <div id="tab-receipt" class="dash-content">
                     <div class="bg-fuchsia-50 p-6 rounded-3xl border-2 border-dashed border-pink-200">
@@ -139,18 +133,15 @@
             <h2 class="royal-font text-4xl text-[#D4AF37] mb-10">Royal Command Center</h2>
             <div class="grid md:grid-cols-2 gap-12">
                 <div class="space-y-6 bg-gray-50 p-8 rounded-[30px]">
-                    <h3 class="font-bold text-xl text-[#FF007F] mb-4">Add New Elixir</h3>
-                    <input type="text" id="admin-pname" placeholder="Product Name" class="w-full px-6 py-4 rounded-2xl border-none shadow-inner">
-                    <textarea id="admin-pdesc" placeholder="Product Description" class="w-full px-6 py-4 rounded-2xl border-none shadow-inner h-32"></textarea>
-                    <input type="number" id="admin-pprice" placeholder="Price (KES)" class="w-full px-6 py-4 rounded-2xl border-none shadow-inner">
+                    <h3 class="font-bold text-xl text-[#FF007F]">Add New Product</h3>
+                    <input type="text" id="admin-pname" placeholder="Name" class="w-full px-6 py-4 rounded-2xl border-none shadow-inner">
+                    <textarea id="admin-pdesc" placeholder="Description" class="w-full px-6 py-4 rounded-2xl border-none shadow-inner"></textarea>
+                    <input type="number" id="admin-pprice" placeholder="Price" class="w-full px-6 py-4 rounded-2xl border-none shadow-inner">
                     <select id="admin-pcat" class="w-full px-6 py-4 rounded-2xl border-none shadow-inner"></select>
-                    <input type="file" id="admin-pimg" class="text-sm text-gray-400">
-                    <button onclick="uploadProduct()" class="glow-button w-full py-4 rounded-2xl text-white font-bold">Manifest Product</button>
+                    <input type="file" id="admin-pimg" class="text-sm">
+                    <button onclick="uploadProduct()" class="glow-button w-full py-4 rounded-2xl text-white font-bold">Manifest Elixir</button>
                 </div>
-                <div class="bg-gray-50 p-8 rounded-[30px]">
-                    <h3 class="font-bold text-xl text-[#FF007F] mb-6">Recent Royal Decrees (Orders)</h3>
-                    <div id="admin-orders" class="space-y-4"></div>
-                </div>
+                <div id="admin-orders" class="space-y-4"></div>
             </div>
         </div>
     </div>
@@ -178,7 +169,7 @@
                 </div>
             </div>
 
-            <div class="relative cursor-pointer hover:scale-110 transition-transform" onclick="toggleCart()">
+            <div class="relative cursor-pointer hover:scale-110" onclick="toggleCart()">
                 <span class="text-3xl">🛒</span>
                 <span id="cart-counter">0</span>
             </div>
@@ -193,26 +184,36 @@
         </div>
     </section>
 
-    <div class="marquee"><div id="marquee-text" class="marquee-content royal-font text-[#FF007F] font-bold text-lg">✨ Royal Collections Loading... ✨</div></div>
+    <div class="marquee"><div class="marquee-content royal-font text-[#FF007F] font-bold text-lg">✨ Royal Collections Loading... ✨</div></div>
 
     <section id="catalog" class="py-16 px-6 max-w-7xl mx-auto">
         <div class="text-center mb-12">
             <h2 class="royal-font text-4xl text-[#D4AF37]">Glow By Vee's Collections</h2>
             <div class="h-1 w-24 bg-[#FF007F] mx-auto mt-4"></div>
         </div>
+        
         <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-20"></div>
+
+        <hr class="border-gray-100 mb-20">
+
+        <div class="text-center mb-12">
+            <h2 class="royal-font text-3xl text-[#FF007F]">Individual Products</h2>
+            <p class="text-gray-400 mt-2">Filter and browse our premium elixirs</p>
+        </div>
+
         <div id="category-filters" class="flex flex-wrap justify-center gap-4 mb-12"></div>
+        
         <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-10"></div>
     </section>
 
     <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[400px] bg-white z-[100] shadow-2xl flex flex-col">
-        <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+        <div class="p-6 border-b flex justify-between bg-gray-50">
             <h2 class="royal-font text-2xl text-[#FF007F]">Royal Cart</h2>
             <button onclick="toggleCart()" class="text-3xl text-gray-400">&times;</button>
         </div>
         <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
         <div class="p-6 border-t space-y-4">
-            <div class="flex justify-between items-center text-xl font-bold"><span>Total</span><span id="cart-total" class="text-[#FF007F]">KES 0</span></div>
+            <div class="flex justify-between font-bold"><span>Total</span><span id="cart-total" class="text-[#FF007F]">KES 0</span></div>
             <button onclick="startCheckout()" class="glow-button w-full py-4 rounded-2xl text-white font-bold">Checkout Now</button>
         </div>
     </div>
@@ -251,44 +252,12 @@
                 document.getElementById('user-section').classList.remove('hidden');
                 document.getElementById('user-name-display').innerText = user.full_name;
                 if (user.role === 'admin') document.getElementById('admin-tab-btn').classList.remove('hidden');
-            } else {
-                document.getElementById('user-section').classList.add('hidden');
-                document.getElementById('admin-tab-btn').classList.add('hidden');
             }
         }
 
-        function logout() {
-            localStorage.removeItem('glowCustomer');
-            location.reload();
-        }
-
-        function toggleProfileMenu() {
-            document.getElementById('profile-menu').classList.toggle('active');
-        }
-
-        function toggleAuthMode() {
-            isRegistering = !isRegistering;
-            document.getElementById('register-fields').classList.toggle('hidden', !isRegistering);
-            document.getElementById('auth-title').innerText = isRegistering ? "Create Account" : "Welcome Back";
-            document.getElementById('auth-toggle').innerText = isRegistering ? "Back to Login" : "New here? Create Account";
-        }
-
-        async function handleAuthFlow() {
-            const phone = document.getElementById('cust-phone').value.trim();
-            const name = document.getElementById('cust-name').value.trim();
-            if (!phone) return alert("Phone is required!");
-            
-            let { data: profile } = await _supabase.from('profiles').select('*').eq('phone_number', phone).maybeSingle();
-            
-            if (isRegistering) {
-                if (profile) return alert("Account exists. Login instead.");
-                const { data } = await _supabase.from('profiles').insert([{ full_name: name, phone_number: phone, role: 'customer' }]).select().single();
-                profile = data;
-            } else if (!profile) return alert("Account not found.");
-            
-            localStorage.setItem('glowCustomer', JSON.stringify(profile));
-            checkAuth(); closeAuthModal();
-        }
+        function toggleProfileMenu() { document.getElementById('profile-menu').classList.toggle('active'); }
+        function logout() { localStorage.removeItem('glowCustomer'); location.reload(); }
+        function openUserDashboard() { document.getElementById('dashboard-modal').classList.add('active'); toggleProfileMenu(); }
 
         function renderCategoryCollections() {
             const container = document.getElementById('category-grid');
@@ -299,15 +268,11 @@
                     const src = p.image_url || _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
                     return `<img src="${src}" class="slideshow-img ${idx === 0 ? 'active' : ''}">`;
                 }).join('');
-                return `
-                    <div class="relative group cursor-pointer overflow-hidden rounded-[40px] shadow-2xl bg-gray-900 h-[400px]" onclick="filterProducts('${cat.name}')">
-                        <div class="slideshow-container">${imgsHtml}</div>
-                        <div class="absolute inset-0 bg-black/40"></div>
-                        <div class="absolute bottom-8 left-8 z-20">
-                            <h3 class="royal-font text-3xl text-[#D4AF37]">${cat.name}</h3>
-                            <p class="text-white/70 text-xs uppercase tracking-widest">${catProds.length} Products</p>
-                        </div>
-                    </div>`;
+                return `<div class="relative overflow-hidden rounded-[40px] shadow-xl bg-gray-900 h-[350px] cursor-pointer" onclick="filterProducts('${cat.name}')">
+                    <div class="slideshow-container">${imgsHtml}</div>
+                    <div class="absolute inset-0 bg-black/30"></div>
+                    <div class="absolute bottom-6 left-6"><h3 class="royal-font text-2xl text-[#D4AF37]">${cat.name}</h3></div>
+                </div>`;
             }).join('');
         }
 
@@ -329,15 +294,12 @@
             const filtered = filter === 'All' ? products : products.filter(p => p.category_name === filter);
             grid.innerHTML = filtered.map(p => {
                 const src = p.image_url || _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
-                return `
-                <div class="bg-white rounded-[40px] p-6 shadow-xl border border-pink-50 hover:border-[#FF007F] transition-all group">
-                    <div class="relative overflow-hidden rounded-[30px] mb-6 aspect-square bg-gray-50 cursor-pointer" onclick="openDetailModal(${p.id})">
-                        <img src="${src}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                    </div>
-                    <h3 class="royal-font text-2xl text-[#D4AF37] mb-2 cursor-pointer" onclick="openDetailModal(${p.id})">${p.name}</h3>
+                return `<div class="bg-white rounded-[40px] p-6 shadow-xl border border-pink-50 hover:border-[#FF007F] transition-all">
+                    <img src="${src}" class="w-full aspect-square object-cover rounded-[30px] mb-4 cursor-pointer" onclick="openDetailModal(${p.id})">
+                    <h3 class="royal-font text-xl text-[#D4AF37]">${p.name}</h3>
                     <div class="flex justify-between items-center mt-4">
-                        <span class="text-2xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
-                        <button onclick="addToCart(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-6 py-3 rounded-2xl font-bold">Add to Bag</button>
+                        <span class="font-bold text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
+                        <button onclick="addToCart(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-5 py-2 rounded-xl text-sm font-bold">Add to Bag</button>
                     </div>
                 </div>`;
             }).join('');
@@ -349,15 +311,8 @@
             document.getElementById('detail-img').src = src;
             document.getElementById('detail-name').innerText = p.name;
             document.getElementById('detail-category').innerText = p.category_name;
-            document.getElementById('detail-desc').innerText = p.description || "Premium royal skincare.";
+            document.getElementById('detail-desc').innerText = p.description || "Premium skincare.";
             document.getElementById('detail-price').innerText = p.price.toLocaleString();
-            document.getElementById('detail-add-btn').onclick = () => addToCart(p.id, p.name, p.price);
-
-            const { data: revs } = await _supabase.from('reviews').select('*').eq('product_id', id);
-            document.getElementById('product-reviews-list').innerHTML = revs?.length ? revs.map(r => `
-                <div class="bg-gray-50 p-3 rounded-xl"><span class="text-yellow-500">${"★".repeat(r.rating)}</span><p class="italic text-gray-500">"${r.comment}"</p></div>
-            `).join('') : '<p class="text-gray-400">Be the first to review!</p>';
-
             document.getElementById('detail-modal').classList.add('active');
         }
 
@@ -366,7 +321,6 @@
             updateCartUI();
             const toast = document.getElementById('success-toast');
             toast.className = "show"; setTimeout(() => toast.className = "", 3000);
-            closeDetailModal();
         }
 
         function updateCartUI() {
@@ -375,82 +329,25 @@
             document.getElementById('cart-total').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
         }
 
-        function startCheckout() {
-            if (!localStorage.getItem('glowCustomer')) {
-                document.getElementById('auth-modal').classList.add('active');
-            } else {
-                confirmOrder();
-            }
+        function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); renderCartItems(); }
+        function renderCartItems() {
+            const cont = document.getElementById('cart-items-container');
+            cont.innerHTML = cart.length ? cart.map((i, idx) => `<div class="flex justify-between bg-gray-50 p-4 rounded-xl"><div><h4 class="font-bold">${i.name}</h4><p class="text-[#FF007F]">KES ${i.price.toLocaleString()}</p></div><button onclick="removeFromCart(${idx})" class="text-red-400">×</button></div>`).join('') : '<p class="text-center mt-20 text-gray-400">Empty</p>';
         }
-
-        async function confirmOrder() {
-            const user = JSON.parse(localStorage.getItem('glowCustomer'));
-            const total = cart.reduce((s, i) => s + i.price, 0);
-            const tid = 'GLW-' + Math.random().toString(36).substr(2, 5).toUpperCase();
-            const { data: order } = await _supabase.from('orders').insert([{ customer_id: user.id, total_amount: total, tracking_id: tid }]).select().single();
-            
-            document.getElementById('receipt-total').innerText = 'KES ' + total.toLocaleString();
-            document.getElementById('receipt-items').innerHTML = cart.map(i => `<div class="flex justify-between text-sm"><span>${i.name}</span><span>KES ${i.price.toLocaleString()}</span></div>`).join('');
-            document.getElementById('review-submission-list').innerHTML = cart.map(i => `
-                <div class="bg-gray-50 p-4 rounded-2xl">
-                    <p class="font-bold mb-2">${i.name}</p>
-                    <div class="flex gap-2 mb-2" data-pid="${i.id}">${[1,2,3,4,5].map(v => `<span class="star-rating" onclick="rate(this, ${v})">★</span>`).join('')}</div>
-                    <textarea class="w-full p-2 text-xs rounded-lg" placeholder="Write review..."></textarea>
-                    <button onclick="postReview(this, ${i.id}, ${order.id})" class="mt-2 bg-[#FF007F] text-white px-4 py-1 rounded-lg text-xs">Submit</button>
-                </div>`).join('');
-
-            cart = []; updateCartUI(); toggleCart();
-            document.getElementById('dashboard-modal').classList.add('active');
+        function removeFromCart(idx) { cart.splice(idx, 1); updateCartUI(); renderCartItems(); }
+        
+        function renderCategoryFilters() {
+            const cont = document.getElementById('category-filters');
+            cont.innerHTML = `<button onclick="filterProducts('All')" class="px-6 py-2 rounded-full border-2 border-[#FF007F] bg-[#FF007F] text-white">All</button>` + 
+            categories.map(c => `<button onclick="filterProducts('${c.name}')" class="px-6 py-2 rounded-full border-2 border-gray-100 hover:border-[#FF007F]">${c.name}</button>`).join('');
         }
-
-        function rate(el, v) {
-            el.parentElement.dataset.rating = v;
-            Array.from(el.parentElement.children).forEach((s, idx) => s.classList.toggle('active', idx < v));
-        }
-
-        async function postReview(btn, pid, oid) {
-            const rating = btn.parentElement.querySelector('.flex').dataset.rating;
-            const comment = btn.parentElement.querySelector('textarea').value;
-            const user = JSON.parse(localStorage.getItem('glowCustomer'));
-            await _supabase.from('reviews').insert([{ product_id: pid, profile_id: user.id, rating, comment }]);
-            btn.innerText = "POSTED"; btn.disabled = true;
-        }
-
-        function switchTab(t) {
-            document.querySelectorAll('.dash-tab').forEach(x => x.classList.remove('active'));
-            document.querySelectorAll('.dash-content').forEach(x => x.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('tab-' + t).classList.add('active');
-        }
-
+        function filterProducts(c) { renderProducts(c); }
+        function closeDetailModal() { document.getElementById('detail-modal').classList.remove('active'); }
+        function closeAuthModal() { document.getElementById('auth-modal').classList.remove('active'); }
         function populateAdminCats() {
             const select = document.getElementById('admin-pcat');
             if (select) select.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
         }
-
-        async function uploadProduct() {
-            const name = document.getElementById('admin-pname').value;
-            const desc = document.getElementById('admin-pdesc').value;
-            const price = document.getElementById('admin-pprice').value;
-            const catId = document.getElementById('admin-pcat').value;
-            const file = document.getElementById('admin-pimg').files[0];
-            
-            const fileName = `${Date.now()}_${file.name}`;
-            await _supabase.storage.from('product-images').upload(fileName, file);
-            await _supabase.from('products').insert([{ name, description: desc, price: parseInt(price), category_id: catId, img: fileName }]);
-            alert("Product Added!"); location.reload();
-        }
-
-        function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); renderCartItems(); }
-        function renderCartItems() {
-            const cont = document.getElementById('cart-items-container');
-            cont.innerHTML = cart.length ? cart.map((i, idx) => `<div class="flex justify-between bg-gray-50 p-4 rounded-2xl"><div><h4 class="font-bold">${i.name}</h4><p class="text-[#FF007F]">KES ${i.price.toLocaleString()}</p></div><button onclick="removeFromCart(${idx})" class="text-red-400">×</button></div>`).join('') : '<p class="text-center mt-20 text-gray-400 italic">Bag is empty</p>';
-        }
-        function removeFromCart(idx) { cart.splice(idx, 1); updateCartUI(); renderCartItems(); }
-        function filterProducts(c) { renderProducts(c); }
-        function openUserDashboard() { document.getElementById('dashboard-modal').classList.add('active'); toggleProfileMenu(); }
-        function closeAuthModal() { document.getElementById('auth-modal').classList.remove('active'); }
-        function closeDetailModal() { document.getElementById('detail-modal').classList.remove('active'); }
 
         window.onload = initCatalog;
     </script>
