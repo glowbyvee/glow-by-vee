@@ -122,7 +122,7 @@
 
     <script>
         const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const MASTER_ADMIN_KEY = "GLOW_QUEEN_2026_SECURE";
@@ -191,8 +191,9 @@
                 if (catProducts.length === 0) return '';
 
                 const imagesHtml = catProducts.map((p, idx) => {
-                    const { data } = _supabase.storage.from('product-images').getPublicUrl(p.image_url || p.img);
-                    return `<img src="${data.publicUrl}" class="slideshow-img ${idx === 0 ? 'active' : ''}" onerror="this.src='https://via.placeholder.com/400x500?text=Glow+By+Vee'">`;
+                    // Use image_url (direct URL) if available, otherwise use storage link via img column
+                    const imgSource = p.image_url ? p.image_url : _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
+                    return `<img src="${imgSource}" class="slideshow-img ${idx === 0 ? 'active' : ''}" onerror="this.src='https://via.placeholder.com/400x500?text=Glow+By+Vee'">`;
                 }).join('');
 
                 return `
@@ -252,11 +253,13 @@
             }
 
             grid.innerHTML = filtered.map(p => {
-                const { data } = _supabase.storage.from('product-images').getPublicUrl(p.image_url || p.img);
+                // Priority: image_url (Public Link) -> img (Storage key)
+                const imgSource = p.image_url ? p.image_url : _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
+                
                 return `
                 <div class="bg-white rounded-[40px] p-6 shadow-xl border border-pink-50 hover:border-[#FF007F] transition-all group">
                     <div class="relative overflow-hidden rounded-[30px] mb-6 aspect-square bg-gray-50">
-                        <img src="${data.publicUrl}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.src='https://via.placeholder.com/300?text=Glow+Coming+Soon'">
+                        <img src="${imgSource}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.src='https://via.placeholder.com/300?text=Glow+Coming+Soon'">
                     </div>
                     <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
                     <p class="text-gray-500 text-sm mb-6 line-clamp-2">${p.description || 'Premium Royal Formulation'}</p>
