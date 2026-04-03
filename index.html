@@ -31,9 +31,46 @@
         .slideshow-container { position: absolute; inset: 0; width: 100%; height: 100%; }
         .slideshow-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out; }
         .slideshow-img.active { opacity: 1; }
+
+        /* NEW: Cart & Modal Styles */
+        #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
+        #cart-sidebar.open { transform: translateX(0); }
+        .modal-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: none; }
+        .modal-overlay.active { display: flex; }
     </style>
 </head>
 <body>
+
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[400px] bg-white z-[100] shadow-2xl flex flex-col">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+            <h2 class="royal-font text-2xl text-[#FF007F]">Your Royal Cart</h2>
+            <button onclick="toggleCart()" class="text-3xl text-gray-400 hover:text-black">&times;</button>
+        </div>
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4">
+            </div>
+        <div class="p-6 border-t border-gray-100 space-y-4">
+            <div class="flex justify-between items-center royal-font text-xl">
+                <span>Total</span>
+                <span id="cart-total" class="text-[#FF007F] font-bold">KES 0</span>
+            </div>
+            <button onclick="checkAuthAndPay()" class="glow-button w-full py-4 rounded-2xl text-white font-bold uppercase tracking-widest shadow-lg">Checkout Now</button>
+        </div>
+    </div>
+
+    <div id="auth-modal" class="modal-overlay fixed inset-0 z-[110] items-center justify-center p-4">
+        <div class="bg-white rounded-[40px] p-8 max-w-md w-full shadow-2xl relative">
+            <button onclick="closeAuthModal()" class="absolute top-6 right-6 text-2xl text-gray-300">&times;</button>
+            <div class="text-center mb-8">
+                <h3 class="royal-font text-3xl text-[#D4AF37] mb-2">Claim Your Glow</h3>
+                <p class="text-gray-400 text-sm">Enter your details to finalize your order.</p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="cust-name" placeholder="Full Name" class="w-full px-6 py-4 rounded-2xl border border-gray-100 focus:border-[#FF007F] outline-none transition-all">
+                <input type="tel" id="cust-phone" placeholder="Phone Number (M-Pesa)" class="w-full px-6 py-4 rounded-2xl border border-gray-100 focus:border-[#FF007F] outline-none transition-all">
+                <button onclick="handleAuthSubmit()" class="glow-button w-full py-4 rounded-2xl text-white font-bold uppercase tracking-widest">Continue to Payment</button>
+            </div>
+        </div>
+    </div>
 
     <nav class="flex justify-between items-center p-6 border-b-4 border-[#FF007F] shadow-sm sticky top-0 bg-white z-50">
         <div class="flex items-center gap-2">
@@ -46,7 +83,7 @@
             <a href="about.html" class="hover:text-[#FF007F]">ABOUT</a>
             <button onclick="accessAdmin()" class="hover:text-[#FF007F] uppercase">ADMIN</button>
             
-            <div class="relative cursor-pointer hover:scale-110 transition-transform ml-4" onclick="processPayment()">
+            <div class="relative cursor-pointer hover:scale-110 transition-transform ml-4" onclick="toggleCart()">
                 <span class="text-3xl">🛒</span>
                 <span id="cart-counter">0</span>
             </div>
@@ -191,7 +228,6 @@
                 if (catProducts.length === 0) return '';
 
                 const imagesHtml = catProducts.map((p, idx) => {
-                    // Use image_url (direct URL) if available, otherwise use storage link via img column
                     const imgSource = p.image_url ? p.image_url : _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
                     return `<img src="${imgSource}" class="slideshow-img ${idx === 0 ? 'active' : ''}" onerror="this.src='https://via.placeholder.com/400x500?text=Glow+By+Vee'">`;
                 }).join('');
@@ -253,7 +289,6 @@
             }
 
             grid.innerHTML = filtered.map(p => {
-                // Priority: image_url (Public Link) -> img (Storage key)
                 const imgSource = p.image_url ? p.image_url : _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
                 
                 return `
@@ -265,7 +300,7 @@
                     <p class="text-gray-500 text-sm mb-6 line-clamp-2">${p.description || 'Premium Royal Formulation'}</p>
                     <div class="flex justify-between items-center">
                         <span class="text-2xl font-black text-[#FF007F]">KES ${(p.price || 0).toLocaleString()}</span>
-                        <button onclick="addToCart('${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-[#D4AF37] transition-all text-sm">Add To Cart</button>
+                        <button onclick="addToCart(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-[#D4AF37] transition-all text-sm">Add To Cart</button>
                     </div>
                 </div>`;
             }).join('');
@@ -283,31 +318,128 @@
             renderProducts(categoryName);
         }
 
-        function addToCart(name, price) {
-            cart.push({ name, price });
-            const counter = document.getElementById('cart-counter');
-            if(counter) counter.innerText = cart.length;
+        // --- NEW UPDATED FUNCTIONS ---
+
+        function toggleCart() {
+            document.getElementById('cart-sidebar').classList.toggle('open');
+            renderCartItems();
         }
 
-        async function processPayment() {
-            if (cart.length === 0) return alert("Your cart is empty!");
+        function addToCart(id, name, price) {
+            cart.push({ id, name, price });
+            updateCartUI();
+            // Animation feedback
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "Added ✨";
+            setTimeout(() => btn.innerText = originalText, 1000);
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+            renderCartItems();
+        }
+
+        function updateCartUI() {
+            const counter = document.getElementById('cart-counter');
+            if(counter) counter.innerText = cart.length;
             const total = cart.reduce((sum, item) => sum + item.price, 0);
-            const phone = prompt(`Total: KES ${total}\nEnter M-Pesa Number:`);
-            if(phone) {
-                const { error } = await _supabase.from('orders').insert([{ 
-                    customer_phone: phone, 
-                    total_amount: total, 
-                    items: JSON.stringify(cart),
-                    status: 'Incoming'
-                }]);
-                if(!error) { 
-                    alert("👑 Royal Order Sent! We will contact you soon."); 
-                    cart = []; 
-                    const counter = document.getElementById('cart-counter');
-                    if(counter) counter.innerText = "0"; 
-                } else {
-                    alert("Error: " + error.message);
+            document.getElementById('cart-total').innerText = `KES ${total.toLocaleString()}`;
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cart-items-container');
+            if(cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-20 text-gray-400 italic">Your cart is empty. Your radiance is waiting!</div>`;
+                return;
+            }
+            container.innerHTML = cart.map((item, idx) => `
+                <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-pink-50">
+                    <div>
+                        <h4 class="font-bold text-gray-800">${item.name}</h4>
+                        <p class="text-[#FF007F] text-sm">KES ${item.price.toLocaleString()}</p>
+                    </div>
+                    <button onclick="removeFromCart(${idx})" class="text-red-400 hover:text-red-600 font-bold text-xl">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        function checkAuthAndPay() {
+            if (cart.length === 0) return alert("Your cart is empty!");
+            
+            const savedUser = localStorage.getItem('glowCustomer');
+            if (savedUser) {
+                processFinalPayment(JSON.parse(savedUser));
+            } else {
+                document.getElementById('auth-modal').classList.add('active');
+            }
+        }
+
+        function closeAuthModal() {
+            document.getElementById('auth-modal').classList.remove('active');
+        }
+
+        async function handleAuthSubmit() {
+            const name = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            
+            if(!name || !phone) return alert("Please enter both Name and Number!");
+
+            try {
+                // Frictionless logic: Check or Create profile
+                let { data: profile, error } = await _supabase.from('profiles').select('*').eq('phone_number', phone).single();
+                
+                if (!profile) {
+                    const { data: newProfile, error: insError } = await _supabase.from('profiles').insert([{ full_name: name, phone_number: phone }]).select().single();
+                    if(insError) throw insError;
+                    profile = newProfile;
                 }
+
+                localStorage.setItem('glowCustomer', JSON.stringify(profile));
+                closeAuthModal();
+                processFinalPayment(profile);
+
+            } catch (err) {
+                alert("Auth Error: " + err.message);
+            }
+        }
+
+        async function processFinalPayment(user) {
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            const mpesaCode = prompt(`FINAL STEP: KES ${total.toLocaleString()}\n\nPlease pay to M-Pesa Number: 0703 859881\n\nAfter paying, enter your M-Pesa Transaction Code below:`);
+            
+            if(!mpesaCode) return;
+
+            try {
+                // 1. Create Order
+                const { data: order, error: orderErr } = await _supabase.from('orders').insert([{
+                    customer_id: user.id,
+                    total_amount: total,
+                    mpesa_code: mpesaCode,
+                    status: 'pending_payment'
+                }]).select().single();
+
+                if(orderErr) throw orderErr;
+
+                // 2. Create Order Items
+                const itemsToInsert = cart.map(item => ({
+                    order_id: order.id,
+                    product_id: item.id,
+                    quantity: 1,
+                    unit_price: item.price
+                }));
+
+                const { error: itemErr } = await _supabase.from('order_items').insert(itemsToInsert);
+                if(itemErr) throw itemErr;
+
+                alert("👑 SUCCESS! Your order is placed. We will verify your payment and notify you for delivery.");
+                cart = [];
+                updateCartUI();
+                toggleCart();
+
+            } catch (err) {
+                alert("Order Error: " + err.message);
             }
         }
 
