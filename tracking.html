@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Glow | Glow By Vee</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --fuchsia: #FF007F; --gold: #D4AF37; }
+        .royal-font { font-family: 'Cinzel', serif; }
+        .status-dot { height: 12px; width: 12px; border-radius: 50%; display: inline-block; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-6">
+    <div class="max-w-md mx-auto bg-white rounded-[40px] shadow-2xl overflow-hidden mt-10 border border-[#D4AF37]/20">
+        <div class="bg-gray-900 p-8 text-center">
+            <h1 class="royal-font text-[#D4AF37] text-2xl">Order Tracking</h1>
+            <p id="display-order-id" class="text-gray-400 text-xs mt-2 tracking-widest uppercase"></p>
+        </div>
+        
+        <div class="p-8 space-y-8">
+            <div id="status-container" class="text-center">
+                <div id="status-badge" class="px-6 py-2 rounded-full text-xs font-bold uppercase tracking-tighter inline-block mb-4">
+                    Retrieving Status...
+                </div>
+                <p id="status-msg" class="text-gray-500 text-sm italic">Our Royal Courier is preparing your package.</p>
+            </div>
+
+            <div id="review-section" class="hidden border-t pt-8 text-center">
+                <p class="royal-font text-[#FF007F] mb-4">Rate Your Experience</p>
+                <div class="flex justify-center gap-2 text-3xl text-gray-200" id="star-rating">
+                    <span class="cursor-pointer hover:text-yellow-400" onclick="submitRate(1)">★</span>
+                    <span class="cursor-pointer hover:text-yellow-400" onclick="submitRate(2)">★</span>
+                    <span class="cursor-pointer hover:text-yellow-400" onclick="submitRate(3)">★</span>
+                    <span class="cursor-pointer hover:text-yellow-400" onclick="submitRate(4)">★</span>
+                    <span class="cursor-pointer hover:text-yellow-400" onclick="submitRate(5)">★</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('order');
+        document.getElementById('display-order-id').innerText = orderId;
+
+        async function fetchStatus() {
+            const { data, error } = await _supabase.from('orders').select('status').eq('tracking_id', orderId).single();
+            if (data) {
+                const badge = document.getElementById('status-badge');
+                badge.innerText = data.status.replace('_', ' ');
+                
+                if (data.status === 'delivered') {
+                    badge.className = "px-6 py-2 rounded-full text-xs font-bold uppercase bg-green-100 text-green-600";
+                    document.getElementById('review-section').classList.remove('hidden');
+                } else {
+                    badge.className = "px-6 py-2 rounded-full text-xs font-bold uppercase bg-orange-100 text-orange-600";
+                }
+            }
+        }
+
+        setInterval(fetchStatus, 10000); // Update every 10 seconds
+        fetchStatus();
+    </script>
+</body>
+</html>
