@@ -12,6 +12,7 @@
         body { font-family: 'Inter', sans-serif; }
         .royal-font { font-family: 'Cinzel', serif; }
         .category-btn.active { background-color: var(--fuchsia); color: white; border-color: var(--fuchsia); }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 </head>
 <body class="bg-white">
@@ -20,8 +21,8 @@
         <h2 class="royal-font text-3xl md:text-4xl text-[#FF007F] mb-6 text-center md:text-left">Royal Collection</h2>
         
         <div id="category-bar" class="flex flex-wrap gap-3 mb-10 justify-center md:justify-start">
-            <button onclick="filterProducts('All')" class="category-btn active border-2 border-gray-100 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all hover:border-[#FF007F]">All</button>
-            </div>
+            <button id="btn-all" onclick="filterProducts('All', this)" class="category-btn active border-2 border-gray-100 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all hover:border-[#FF007F]">All</button>
+        </div>
 
         <div id="loading-spinner" class="text-center py-20">
             <p class="text-gray-400 animate-pulse italic">Fetching the latest glow essentials...</p>
@@ -34,14 +35,20 @@
     <script>
         // SUPABASE CONFIGURATION
         const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
+        // NOTE: If "Invalid API Key" persists, copy the 'anon/public' key from Supabase Project Settings > API
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
+        
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allProducts = [];
 
         async function initializeCatalog() {
-            await fetchCategories();
-            await fetchCatalog();
+            try {
+                await fetchCategories();
+                await fetchCatalog();
+            } catch (err) {
+                console.error("Initialization Failed:", err);
+            }
         }
 
         async function fetchCategories() {
@@ -49,7 +56,7 @@
             try {
                 const { data: categories, error } = await _supabase
                     .from('categories')
-                    .select('name')
+                    .select('id, name')
                     .order('name');
 
                 if (error) throw error;
@@ -67,8 +74,8 @@
         }
 
         async function fetchCatalog() {
-            const grid = document.getElementById('product-grid');
             const loader = document.getElementById('loading-spinner');
+            const grid = document.getElementById('product-grid');
 
             try {
                 const { data: products, error } = await _supabase
@@ -83,41 +90,49 @@
 
             } catch (err) {
                 console.error("Catalog Fetch Error:", err);
-                loader.innerHTML = `<p class="text-red-400">Failed to load the collection. Please refresh.</p>`;
+                loader.innerHTML = `
+                    <div class="text-center">
+                        <p class="text-red-400 mb-4">Error loading catalog: ${err.message || 'Invalid API Key'}</p>
+                        <button onclick="location.reload()" class="bg-[#FF007F] text-white px-4 py-2 rounded-lg text-sm">Retry Connection</button>
+                    </div>
+                `;
             }
         }
 
         function renderProducts(products) {
             const grid = document.getElementById('product-grid');
             
-            if (products.length === 0) {
+            if (!products || products.length === 0) {
                 grid.innerHTML = `<p class="col-span-full text-center text-gray-400 py-10 italic">No products found in this category.</p>`;
                 return;
             }
 
             grid.innerHTML = products.map(product => {
-                const { data: imgData } = _supabase.storage
-                    .from('product-images')
-                    .getPublicUrl(product.img);
+                // Determine image source
+                let imageUrl = 'https://via.placeholder.com/300?text=Glow+Coming+Soon';
+                if (product.image_url) {
+                    const { data } = _supabase.storage.from('product-images').getPublicUrl(product.image_url);
+                    imageUrl = data.publicUrl;
+                }
 
                 return `
                     <div class="group border border-pink-50 rounded-[32px] p-3 md:p-5 shadow-sm hover:shadow-xl hover:border-[#D4AF37] transition-all bg-white flex flex-col justify-between">
                         <div>
                             <div class="h-40 md:h-56 bg-gray-50 rounded-2xl mb-4 overflow-hidden">
-                                <img src="${imgData.publicUrl}" 
+                                <img src="${imageUrl}" 
                                      alt="${product.name}" 
                                      class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                     onerror="this.src='https://via.placeholder.com/300?text=Glow+Coming+Soon'">
+                                     onerror="this.src='https://via.placeholder.com/300?text=Image+Not+Found'">
                             </div>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] mb-1 block">${product.category}</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] mb-1 block">${product.category || 'Skincare'}</span>
                             <h3 class="font-bold text-gray-800 text-sm md:text-base leading-tight mb-1">${product.name}</h3>
-                            <p class="text-[11px] text-gray-400 line-clamp-2 mb-4">${product.description || 'No description available'}</p>
+                            <p class="text-[11px] text-gray-400 line-clamp-2 mb-4">${product.description || 'Elevate your routine with our royal selection.'}</p>
                         </div>
                         
                         <div class="flex justify-between items-center pt-2 border-t border-gray-50">
                             <div class="flex flex-col">
                                 <span class="text-[10px] text-gray-400 font-bold uppercase">Price</span>
-                                <span class="text-[#FF007F] font-black text-sm md:text-lg">KES ${product.price.toLocaleString()}</span>
+                                <span class="text-[#FF007F] font-black text-sm md:text-lg">KES ${(product.price || 0).toLocaleString()}</span>
                             </div>
                             <button onclick="addToCart('${product.id}')" 
                                     class="bg-[#D4AF37] hover:bg-[#FF007F] text-white w-10 h-10 rounded-xl font-bold transition-all flex items-center justify-center shadow-lg shadow-yellow-100 active:scale-90">
@@ -132,18 +147,15 @@
         }
 
         function filterProducts(category, clickedBtn) {
-            // Update Active Button UI
             document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
             if (clickedBtn) {
                 clickedBtn.classList.add('active');
-            } else {
-                document.querySelector('.category-btn').classList.add('active'); // Fallback to 'All'
             }
 
-            // Filter Logic
             if (category === 'All') {
                 renderProducts(allProducts);
             } else {
+                // Support filtering by category name
                 const filtered = allProducts.filter(p => p.category === category);
                 renderProducts(filtered);
             }
