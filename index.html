@@ -37,9 +37,31 @@
         #cart-sidebar.open { transform: translateX(0); }
         .modal-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: none; }
         .modal-overlay.active { display: flex; }
+
+        /* Product Detail Modal Zoom */
+        .zoom-img { transition: transform 0.3s ease; cursor: zoom-in; }
+        .zoom-img:hover { transform: scale(1.1); }
     </style>
 </head>
 <body>
+
+    <div id="detail-modal" class="modal-overlay fixed inset-0 z-[120] items-center justify-center p-4">
+        <div class="bg-white rounded-[40px] max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col md:flex-row relative">
+            <button onclick="closeDetailModal()" class="absolute top-6 right-6 text-3xl text-gray-400 z-10">&times;</button>
+            <div class="md:w-1/2 overflow-hidden bg-gray-50">
+                <img id="detail-img" src="" class="w-full h-full object-cover zoom-img">
+            </div>
+            <div class="md:w-1/2 p-10 flex flex-col">
+                <h2 id="detail-name" class="royal-font text-3xl text-[#D4AF37] mb-4">Product Name</h2>
+                <span id="detail-category" class="text-[#FF007F] text-xs font-bold uppercase tracking-widest mb-4">Category</span>
+                <p id="detail-desc" class="text-gray-500 leading-relaxed mb-8">Detailed description goes here...</p>
+                <div class="mt-auto">
+                    <div class="text-3xl font-black text-[#FF007F] mb-6">KES <span id="detail-price">0</span></div>
+                    <button id="detail-add-btn" class="glow-button w-full py-4 rounded-2xl text-white font-bold uppercase tracking-widest shadow-lg">Add to Bag</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[400px] bg-white z-[100] shadow-2xl flex flex-col">
         <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
@@ -173,7 +195,7 @@
             }
         }
 
-        let cart = [];
+        let cart = JSON.parse(localStorage.getItem('glow_cart')) || []; // Persistent Cart
         let products = [];
         let categories = [];
 
@@ -202,6 +224,7 @@
                 renderCategoryFilters();
                 renderProducts('All');
                 startSlideshows();
+                updateCartUI(); // Load existing cart items
             } catch (err) {
                 console.error("Sync Error:", err);
                 const grid = document.getElementById('product-grid');
@@ -293,10 +316,10 @@
                 
                 return `
                 <div class="bg-white rounded-[40px] p-6 shadow-xl border border-pink-50 hover:border-[#FF007F] transition-all group">
-                    <div class="relative overflow-hidden rounded-[30px] mb-6 aspect-square bg-gray-50">
+                    <div class="relative overflow-hidden rounded-[30px] mb-6 aspect-square bg-gray-50 cursor-pointer" onclick="openDetailModal(${p.id})">
                         <img src="${imgSource}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.src='https://via.placeholder.com/300?text=Glow+Coming+Soon'">
                     </div>
-                    <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
+                    <h3 class="royal-font text-2xl text-[#D4AF37] mb-2 cursor-pointer" onclick="openDetailModal(${p.id})">${p.name}</h3>
                     <p class="text-gray-500 text-sm mb-6 line-clamp-2">${p.description || 'Premium Royal Formulation'}</p>
                     <div class="flex justify-between items-center">
                         <span class="text-2xl font-black text-[#FF007F]">KES ${(p.price || 0).toLocaleString()}</span>
@@ -318,7 +341,31 @@
             renderProducts(categoryName);
         }
 
-        // --- NEW UPDATED FUNCTIONS ---
+        // --- MODAL FUNCTIONS ---
+
+        function openDetailModal(id) {
+            const p = products.find(prod => prod.id === id);
+            if(!p) return;
+            const imgSource = p.image_url ? p.image_url : _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
+            
+            document.getElementById('detail-img').src = imgSource;
+            document.getElementById('detail-name').innerText = p.name;
+            document.getElementById('detail-category').innerText = p.category_name;
+            document.getElementById('detail-desc').innerText = p.description || 'A unique blend of royal ingredients designed for maximum glow.';
+            document.getElementById('detail-price').innerText = p.price.toLocaleString();
+            document.getElementById('detail-add-btn').onclick = () => {
+                addToCart(p.id, p.name, p.price);
+                closeDetailModal();
+            };
+            
+            document.getElementById('detail-modal').classList.add('active');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.remove('active');
+        }
+
+        // --- CART & PERSISTENCE ---
 
         function toggleCart() {
             document.getElementById('cart-sidebar').classList.toggle('open');
@@ -329,10 +376,12 @@
             cart.push({ id, name, price });
             updateCartUI();
             // Animation feedback
-            const btn = event.target;
-            const originalText = btn.innerText;
-            btn.innerText = "Added ✨";
-            setTimeout(() => btn.innerText = originalText, 1000);
+            if(event && event.target) {
+                const btn = event.target;
+                const originalText = btn.innerText;
+                btn.innerText = "Added ✨";
+                setTimeout(() => btn.innerText = originalText, 1000);
+            }
         }
 
         function removeFromCart(index) {
@@ -342,6 +391,7 @@
         }
 
         function updateCartUI() {
+            localStorage.setItem('glow_cart', JSON.stringify(cart));
             const counter = document.getElementById('cart-counter');
             if(counter) counter.innerText = cart.length;
             const total = cart.reduce((sum, item) => sum + item.price, 0);
@@ -387,7 +437,6 @@
             if(!name || !phone) return alert("Please enter both Name and Number!");
 
             try {
-                // Frictionless logic: Check or Create profile
                 let { data: profile, error } = await _supabase.from('profiles').select('*').eq('phone_number', phone).single();
                 
                 if (!profile) {
@@ -407,22 +456,23 @@
 
         async function processFinalPayment(user) {
             const total = cart.reduce((sum, item) => sum + item.price, 0);
-            const mpesaCode = prompt(`FINAL STEP: KES ${total.toLocaleString()}\n\nPlease pay to M-Pesa Number: 0703 859881\n\nAfter paying, enter your M-Pesa Transaction Code below:`);
+            const orderId = 'GLW-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            
+            const mpesaCode = prompt(`ORDER ID: ${orderId}\nTOTAL: KES ${total.toLocaleString()}\n\nPlease pay to M-Pesa: 0703 859881\n\nEnter Transaction Code:`);
             
             if(!mpesaCode) return;
 
             try {
-                // 1. Create Order
                 const { data: order, error: orderErr } = await _supabase.from('orders').insert([{
                     customer_id: user.id,
                     total_amount: total,
-                    mpesa_code: mpesaCode,
-                    status: 'pending_payment'
+                    mpesa_code: mpesaCode.toUpperCase(),
+                    status: 'pending_payment',
+                    tracking_id: orderId
                 }]).select().single();
 
                 if(orderErr) throw orderErr;
 
-                // 2. Create Order Items
                 const itemsToInsert = cart.map(item => ({
                     order_id: order.id,
                     product_id: item.id,
@@ -433,7 +483,7 @@
                 const { error: itemErr } = await _supabase.from('order_items').insert(itemsToInsert);
                 if(itemErr) throw itemErr;
 
-                alert("👑 SUCCESS! Your order is placed. We will verify your payment and notify you for delivery.");
+                alert(`👑 SUCCESS!\nOrder ID: ${orderId}\nWe are verifying your payment.`);
                 cart = [];
                 updateCartUI();
                 toggleCart();
