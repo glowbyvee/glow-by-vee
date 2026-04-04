@@ -14,34 +14,37 @@
         body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; overflow-x: hidden; scroll-behavior: smooth; }
         .royal-font { font-family: 'Cinzel', serif; }
 
-        /* The Premium Glow Look */
-        .glow-button {
-            background: linear-gradient(135deg, var(--fuchsia) 0%, #ff69b4 50%, var(--gold) 100%);
-            background-size: 200% 200%;
-            animation: shimmer 3s ease infinite;
+        /* Premium UI Elements */
+        .glow-hero {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('hero-premium.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
-        @keyframes shimmer { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        .btn-dark-pink { background-color: var(--dark-pink) !important; transition: all 0.3s ease; color: white !important; font-weight: 900; text-transform: uppercase; }
-        
-        .marquee { white-space: nowrap; overflow: hidden; background: #fdf2f8; padding: 20px 0; border-bottom: 2px solid var(--gold); }
-        .marquee-content { display: inline-block; animation: scroll 40s linear infinite; font-size: 1.2rem; font-weight: 700; color: var(--fuchsia); }
+        .btn-dark-pink { background-color: var(--dark-pink) !important; transition: all 0.3s ease; color: white !important; font-weight: 900; text-transform: uppercase; border: none; cursor: pointer; }
+        .btn-dark-pink:hover { background-color: #cc0066 !important; transform: scale(1.02); }
+
+        .marquee { white-space: nowrap; overflow: hidden; background: #fdf2f8; padding: 25px 0; border-bottom: 3px solid var(--gold); }
+        .marquee-content { display: inline-block; animation: scroll 30s linear infinite; font-size: 1.3rem; font-weight: 800; color: var(--fuchsia); text-transform: uppercase; letter-spacing: 2px; }
         @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
 
-        /* FIXED SLIDESHOW CSS */
-        .cat-slideshow-container { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50px; overflow: hidden; background: #fafafa; }
-        .cat-slide { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1.2s ease-in-out; object-fit: cover; }
-        .cat-slide.active { opacity: 1; z-index: 5; }
+        /* Slideshow System */
+        .cat-slideshow-box { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50px; overflow: hidden; background: #f9f9f9; }
+        .cat-slide { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1.5s ease-in-out; object-fit: cover; }
+        .cat-slide.active { opacity: 1; z-index: 10; }
         
         #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); z-index: 200; }
         #cart-sidebar.open { transform: translateX(0); }
-        .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; position: fixed; inset: 0; z-index: 300; align-items: center; justify-content: center; }
+        
+        .modal-overlay { background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); display: none; position: fixed; inset: 0; z-index: 300; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
+
         #success-toast {
             visibility: hidden; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: white; border: 5px solid var(--fuchsia); padding: 40px; border-radius: 40px; z-index: 1000;
+            background: white; border: 6px solid var(--fuchsia); padding: 50px; border-radius: 50px; z-index: 1000; box-shadow: 0 0 50px rgba(0,0,0,0.3);
         }
-        #success-toast.show { visibility: visible; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #success-toast.show { visibility: visible; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
     </style>
 </head>
@@ -49,69 +52,72 @@
     <audio id="cart-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
     
     <div id="success-toast" class="text-center">
-        <span class="text-7xl">🛍️</span>
-        <h2 class="royal-font text-4xl font-black text-[#FF007F] mt-4">GLOW ADDED!</h2>
+        <span class="text-8xl">👑</span>
+        <h2 class="royal-font text-5xl font-black text-[#FF007F] mt-6">ROYAL ADD!</h2>
+        <p class="font-bold text-xl uppercase tracking-widest mt-2">Added to your bag</p>
     </div>
 
-    <nav class="flex justify-between items-center px-6 py-8 md:px-16 border-b-8 border-[#FF007F] sticky top-0 bg-white z-[60] shadow-xl">
-        <div class="flex items-center gap-4 cursor-pointer" onclick="location.reload()">
-            <img src="logo.jpg" class="h-14 w-14 rounded-full" alt="Logo">
-            <span class="royal-font text-2xl md:text-4xl font-black text-[#FF007F]">Glow By Vee</span>
+    <nav class="flex justify-between items-center px-6 py-8 md:px-16 border-b-8 border-[#FF007F] sticky top-0 bg-white z-[60] shadow-2xl">
+        <div class="flex items-center gap-4 cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+            <img src="logo.jpg" class="h-16 w-16 rounded-full border-2 border-[#D4AF37]" alt="Logo">
+            <span class="royal-font text-2xl md:text-5xl font-black text-[#FF007F] tracking-tighter">Glow By Vee</span>
         </div>
-        <div class="flex gap-6 items-center font-black text-[#D4AF37] text-sm md:text-lg">
-            <a href="#catalog" class="hover:text-[#FF007F]">SHOP</a>
-            <button onclick="document.getElementById('admin-auth-modal').classList.add('active')">ADMIN</button>
-            <div class="relative cursor-pointer" onclick="toggleCart()">
-                <span class="text-4xl">🛒</span>
-                <span id="cart-counter" class="absolute -top-2 -right-2 bg-[#FF007F] text-white text-xs rounded-full px-2 py-1">0</span>
+        <div class="flex gap-8 items-center font-black text-[#D4AF37] text-sm md:text-xl">
+            <a href="#catalog" class="hover:text-[#FF007F] transition-colors">SHOP</a>
+            <button onclick="document.getElementById('admin-modal').classList.add('active')" class="hover:text-[#FF007F]">ADMIN</button>
+            <div class="relative cursor-pointer hover:scale-110 transition-transform" onclick="toggleCart()">
+                <span class="text-5xl">🛒</span>
+                <span id="cart-counter" class="absolute -top-2 -right-3 bg-[#FF007F] text-white text-sm rounded-full px-2 py-1 border-2 border-white">0</span>
             </div>
         </div>
     </nav>
 
-    <div id="admin-auth-modal" class="modal-overlay">
-        <div class="bg-white p-12 rounded-[40px] max-w-sm w-full text-center shadow-2xl">
-            <h3 class="royal-font text-3xl text-[#D4AF37] mb-6">Admin Key</h3>
-            <input type="password" id="admin-pass-key" class="w-full p-4 border-2 rounded-2xl mb-6 text-center text-xl">
-            <button onclick="verifyAdmin()" class="glow-button w-full py-4 rounded-2xl text-white font-bold">ENTER</button>
-            <p onclick="this.parentElement.parentElement.classList.remove('active')" class="mt-4 text-gray-400 cursor-pointer uppercase text-xs font-bold">Cancel</p>
+    <div id="admin-modal" class="modal-overlay">
+        <div class="bg-white p-16 rounded-[60px] max-w-sm w-full text-center shadow-2xl">
+            <h3 class="royal-font text-3xl text-[#D4AF37] mb-8">Access Key</h3>
+            <input type="password" id="admin-key" class="w-full p-5 border-4 border-pink-50 rounded-3xl mb-8 text-center text-2xl outline-none focus:border-[#FF007F]">
+            <button onclick="checkAdmin()" class="btn-dark-pink w-full py-5 rounded-3xl text-xl">Enter Portal</button>
+            <p onclick="this.parentElement.parentElement.classList.remove('active')" class="mt-6 text-gray-400 cursor-pointer font-bold uppercase text-xs">Close</p>
         </div>
     </div>
 
-    <section class="relative h-[50vh] flex items-center justify-center text-center bg-pink-50">
-        <div class="absolute inset-0 opacity-40 bg-cover bg-center" style="background-image: url('hero-premium.jpg');"></div>
-        <div class="relative z-10"><h1 class="royal-font text-6xl md:text-8xl text-[#FF007F]">ROYAL RADIANCE</h1></div>
+    <section class="relative h-[70vh] flex items-center justify-center text-center glow-hero">
+        <div class="relative z-10">
+            <h1 class="royal-font text-7xl md:text-[10rem] text-white leading-none">ROYAL<br><span class="text-[#FF007F]">GLOW</span></h1>
+            <p class="text-white font-bold tracking-[10px] mt-4 text-xl md:text-2xl">ESTABLISHED 2024</p>
+        </div>
     </section>
 
-    <div class="marquee"><div class="marquee-content"> ✨ PREMIUM ORGANIC SKINCARE ✨ SAME DAY DELIVERY ✨ 5000+ QUEENS GLOWING ✨ </div></div>
+    <div class="marquee"><div class="marquee-content"> ✨ LUXURY ORGANIC SKINCARE ✨ NATIONWIDE DELIVERY ✨ JOIN THE ROYAL FAMILY ✨ GLOW BY VEE ✨ </div></div>
 
-    <section id="catalog" class="py-20 px-6 max-w-7xl mx-auto">
-        <div class="text-center mb-16">
-            <h2 class="royal-font text-5xl text-[#D4AF37]">Categories</h2>
-            <div class="h-1 w-40 bg-[#FF007F] mx-auto mt-4"></div>
+    <section id="catalog" class="py-32 px-6 max-w-7xl mx-auto">
+        <div class="text-center mb-20">
+            <h2 class="royal-font text-6xl text-[#D4AF37]">Glow By Vee's Collections</h2>
+            <div class="h-2 w-64 bg-[#FF007F] mx-auto mt-6 rounded-full"></div>
         </div>
         
-        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-32">
-            <p class="col-span-full text-center text-gray-400 animate-pulse">Syncing with Royal Database...</p>
+        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-40">
+            <p class="col-span-full text-center py-20 text-2xl font-bold text-pink-200 animate-pulse">Invoking the Royal Glow...</p>
         </div>
 
-        <div class="text-center mb-16">
-            <h2 class="royal-font text-4xl text-[#FF007F]">All Glow Products</h2>
-            <div id="filter-bar" class="flex justify-center gap-4 mt-8 flex-wrap"></div>
+        <div class="text-center mb-20">
+            <h2 class="royal-font text-5xl text-[#FF007F]">Individual Products</h2>
+            <div id="filter-container" class="flex justify-center gap-4 mt-12 flex-wrap"></div>
         </div>
 
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
             </div>
     </section>
 
-    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-white shadow-2xl flex flex-col border-l-8 border-[#FF007F]">
-        <div class="p-8 border-b-2 flex justify-between items-center">
-            <h2 class="royal-font text-2xl text-[#FF007F]">Your Bag</h2>
-            <button onclick="toggleCart()" class="text-5xl text-gray-300">&times;</button>
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[500px] bg-white shadow-2xl flex flex-col border-l-[12px] border-[#FF007F]">
+        <div class="p-10 border-b-4 border-gray-50 flex justify-between items-center bg-pink-50">
+            <h2 class="royal-font text-3xl text-[#FF007F]">My Bag</h2>
+            <button onclick="toggleCart()" class="text-7xl text-gray-200 hover:text-red-400">&times;</button>
         </div>
-        <div id="cart-items" class="flex-1 overflow-y-auto p-8 space-y-4"></div>
-        <div class="p-8 border-t-4">
-            <div class="flex justify-between font-black text-2xl mb-6"><span>Total</span><span id="cart-total">KES 0</span></div>
-            <button onclick="alert('Checking out...')" class="btn-dark-pink w-full py-5 rounded-2xl text-xl">Order Now</button>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-10 space-y-6"></div>
+        <div class="p-10 border-t-8 border-gray-50 bg-white">
+            <div class="flex justify-between font-black text-3xl mb-10 text-[#D4AF37]"><span>Total</span><span id="cart-total">KES 0</span></div>
+            <button onclick="alert('Proceeding to M-Pesa...')" class="btn-dark-pink w-full py-7 rounded-[30px] text-2xl">Complete Order</button>
         </div>
     </div>
 
@@ -122,117 +128,120 @@
 
         let products = [], categories = [], cart = [];
 
-        async function init() {
-            // STEP 1: Fetch Categories
-            const { data: catData } = await _supabase.from('categories').select('*');
-            categories = catData || [];
+        async function fetchRoyalData() {
+            try {
+                // Fetch Categories
+                const { data: cats } = await _supabase.from('categories').select('*').order('name');
+                categories = cats || [];
 
-            // STEP 2: Fetch Products
-            const { data: prodData } = await _supabase.from('products').select('*');
-            products = prodData || [];
+                // Fetch Products
+                const { data: prods } = await _supabase.from('products').select('*');
+                products = prods || [];
 
-            renderEverything();
+                if (categories.length > 0) {
+                    renderUI();
+                } else {
+                    setTimeout(fetchRoyalData, 2000); // Retry if empty
+                }
+            } catch (e) {
+                console.error("Connection error:", e);
+            }
         }
 
-        function renderEverything() {
+        function renderUI() {
             renderCategories();
             renderFilters();
             renderProducts('All');
-            startGlobalSlideshows();
+            startSlideshows();
         }
 
         function renderCategories() {
-            const container = document.getElementById('category-grid');
-            container.innerHTML = categories.map(cat => {
-                // Find images belonging to this category
+            const grid = document.getElementById('category-grid');
+            grid.innerHTML = categories.map(cat => {
                 const catImages = products.filter(p => p.category_id === cat.id).map(p => p.image_url);
                 
-                let slidesHtml = catImages.length > 0 
-                    ? catImages.map((img, i) => `<img src="${img}" class="cat-slide ${i === 0 ? 'active' : ''}" data-cat-group="${cat.id}">`).join('')
+                const slides = catImages.length > 0 
+                    ? catImages.map((img, i) => `<img src="${img}" class="cat-slide ${i === 0 ? 'active' : ''}" data-group="${cat.id}">`).join('')
                     : `<img src="logo.jpg" class="cat-slide active">`;
 
                 return `
-                    <div class="relative h-80 rounded-[40px] overflow-hidden shadow-xl cursor-pointer hover:scale-105 transition-transform" onclick="renderProducts('${cat.name}')">
-                        <div class="cat-slideshow-container">${slidesHtml}</div>
-                        <div class="absolute inset-0 bg-black/30 flex items-center justify-center z-10">
-                            <h3 class="royal-font text-white text-xl font-bold uppercase tracking-widest">${cat.name}</h3>
+                    <div class="relative h-96 rounded-[60px] overflow-hidden shadow-2xl cursor-pointer hover:rotate-1 transition-transform border-4 border-gray-50" onclick="renderProducts('${cat.name}')">
+                        <div class="cat-slideshow-box">${slides}</div>
+                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center z-20 hover:bg-black/20">
+                            <h3 class="royal-font text-white text-2xl font-bold uppercase tracking-widest px-6 text-center">${cat.name}</h3>
                         </div>
                     </div>`;
             }).join('');
         }
 
-        function startGlobalSlideshows() {
+        function renderProducts(filter) {
+            const grid = document.getElementById('product-grid');
+            const filtered = filter === 'All' ? products : products.filter(p => {
+                const c = categories.find(cat => cat.id === p.category_id);
+                return c && c.name === filter;
+            });
+
+            grid.innerHTML = filtered.map(p => `
+                <div class="bg-white p-8 rounded-[50px] shadow-xl border-4 border-transparent hover:border-[#FF007F] transition-all">
+                    <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[40px] mb-6 shadow-md">
+                    <h3 class="royal-font text-2xl text-[#D4AF37] mb-2 font-bold">${p.name}</h3>
+                    <p class="text-3xl font-black text-[#FF007F] mb-8">KES ${p.price.toLocaleString()}</p>
+                    <button onclick="addToBag(${p.id}, '${p.name.replace(/'/g, "")}', ${p.price})" class="btn-dark-pink w-full py-5 rounded-[25px] text-lg">Add to Bag</button>
+                </div>
+            `).join('');
+
+            if(filter !== 'All') window.scrollTo({ top: grid.offsetTop - 200, behavior: 'smooth' });
+        }
+
+        function renderFilters() {
+            const container = document.getElementById('filter-container');
+            container.innerHTML = `<button onclick="renderProducts('All')" class="px-8 py-3 rounded-full border-4 border-[#FF007F] text-[#FF007F] font-black uppercase text-sm">View All</button>` +
+                categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-8 py-3 rounded-full border-4 border-gray-100 hover:border-[#FF007F] font-bold uppercase text-sm transition-all">${c.name}</button>`).join('');
+        }
+
+        function startSlideshows() {
             categories.forEach(cat => {
-                const group = document.querySelectorAll(`[data-cat-group="${cat.id}"]`);
-                if (group.length > 1) {
-                    let current = 0;
+                const images = document.querySelectorAll(`[data-group="${cat.id}"]`);
+                if (images.length > 1) {
+                    let idx = 0;
                     setInterval(() => {
-                        group[current].classList.remove('active');
-                        current = (current + 1) % group.length;
-                        group[current].classList.add('active');
-                    }, 3000);
+                        images[idx].classList.remove('active');
+                        idx = (idx + 1) % images.length;
+                        images[idx].classList.add('active');
+                    }, 4000);
                 }
             });
         }
 
-        function renderProducts(filter) {
-            const container = document.getElementById('product-grid');
-            const filtered = filter === 'All' ? products : products.filter(p => {
-                const cat = categories.find(c => c.id === p.category_id);
-                return cat && cat.name === filter;
-            });
-
-            container.innerHTML = filtered.map(p => `
-                <div class="bg-white p-6 rounded-[40px] shadow-lg border-2 border-gray-50 hover:border-[#FF007F] transition-all flex flex-col">
-                    <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[30px] mb-4">
-                    <h3 class="royal-font text-xl text-[#D4AF37] font-bold">${p.name}</h3>
-                    <p class="text-2xl font-black text-[#FF007F] mb-6">KES ${p.price.toLocaleString()}</p>
-                    <button onclick="addToBag(${p.id}, '${p.name.replace(/'/g, "")}', ${p.price})" class="btn-dark-pink w-full py-4 rounded-2xl">Add to Bag</button>
-                </div>
-            `).join('');
-            
-            if(filter !== 'All') window.scrollTo({ top: container.offsetTop - 150, behavior: 'smooth' });
-        }
-
-        function renderFilters() {
-            const bar = document.getElementById('filter-bar');
-            bar.innerHTML = `<button onclick="renderProducts('All')" class="px-6 py-2 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-bold">ALL</button>` +
-                categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-6 py-2 rounded-full border-2 border-gray-100 hover:border-[#FF007F] font-bold uppercase text-xs">${c.name}</button>`).join('');
-        }
-
         function addToBag(id, name, price) {
             cart.push({id, name, price});
-            document.getElementById('cart-counter').innerText = cart.length;
-            document.getElementById('cart-total').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
-            document.getElementById('cart-items').innerHTML = cart.map((item, idx) => `
-                <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
-                    <span class="font-bold text-sm">${item.name}</span>
-                    <button onclick="removeFromCart(${idx})" class="text-2xl text-red-300">×</button>
-                </div>`).join('');
-            
+            updateCart();
+            document.getElementById('cart-sound').play();
             const toast = document.getElementById('success-toast');
             toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2500);
-            document.getElementById('cart-sound').play();
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        function removeFromCart(idx) {
-            cart.splice(idx, 1);
+        function updateCart() {
             document.getElementById('cart-counter').innerText = cart.length;
             document.getElementById('cart-total').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
-            renderEverything(); // Refresh to update cart list
+            document.getElementById('cart-items').innerHTML = cart.map((i, idx) => `
+                <div class="flex justify-between items-center bg-gray-50 p-5 rounded-3xl border-b-2 border-pink-100">
+                    <span class="font-bold text-sm">${i.name}</span>
+                    <button onclick="cart.splice(${idx}, 1); updateCart()" class="text-4xl text-red-200">×</button>
+                </div>`).join('');
+        }
+
+        function checkAdmin() {
+            if(document.getElementById('admin-key').value === 'VEEROYAL254') {
+                alert("Admin Access Authorized");
+                document.getElementById('admin-modal').classList.remove('active');
+            } else alert("Key Denied");
         }
 
         function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
-        
-        function verifyAdmin() {
-            if(document.getElementById('admin-pass-key').value === 'VEEROYAL254') {
-                alert("Admin Access Granted");
-                document.getElementById('admin-auth-modal').classList.remove('active');
-            } else alert("Access Denied");
-        }
 
-        window.onload = init;
+        window.onload = fetchRoyalData;
     </script>
 </body>
 </html>
