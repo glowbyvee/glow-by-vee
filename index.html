@@ -43,6 +43,8 @@
         .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; }
         .modal-overlay.active { display: flex; }
 
+        .online-sticker { width: 12px; height: 12px; background: #22c55e; border-radius: 50%; border: 2px solid white; display: inline-block; box-shadow: 0 0 10px #22c55e; }
+
         #success-toast { 
             visibility: hidden; min-width: 320px; background: white; color: var(--fuchsia); text-align: center; border-radius: 40px; 
             padding: 40px; position: fixed; z-index: 500; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.7); 
@@ -79,9 +81,14 @@
             <div class="hidden lg:flex gap-10 royal-font font-black text-[#D4AF37] text-xl uppercase tracking-widest items-center">
                 <a href="#catalog" class="hover:text-[#FF007F] transition-all">SHOP</a>
                 <a href="ai-skin.html" class="hover:text-[#FF007F] transition-all">AI FEATURES</a>
-                <button onclick="openAdminGate()" class="hover:text-[#FF007F] transition-all">ADMIN</button>
-                <button onclick="openDashboard()" class="bg-pink-100 px-6 py-3 rounded-full text-[#FF007F] border-2 border-pink-200 hover:scale-105 transition-all">
+                
+                <button onclick="handleAdminClick()" class="flex items-center gap-2 hover:text-[#FF007F] transition-all relative">
+                    ADMIN <span id="admin-status" class="hidden online-sticker"></span>
+                </button>
+
+                <button onclick="handlePortalClick()" class="bg-pink-100 px-6 py-3 rounded-full text-[#FF007F] border-2 border-pink-200 hover:scale-105 transition-all flex items-center gap-2">
                     👑 <span id="user-name-display">PORTAL</span>
+                    <span id="user-status-sticker" class="hidden online-sticker"></span>
                 </button>
             </div>
             <div class="relative cursor-pointer hover:scale-110 transition-transform" onclick="toggleCart()">
@@ -89,6 +96,17 @@
             </div>
         </div>
     </nav>
+
+    <div id="session-modal" class="modal-overlay fixed inset-0 z-[300] items-center justify-center p-4">
+        <div class="bg-white rounded-[50px] p-12 max-w-sm w-full shadow-2xl text-center">
+            <h3 class="royal-font text-3xl text-[#D4AF37] mb-8" id="session-title">Account Options</h3>
+            <div class="space-y-4">
+                <button onclick="goToDashboardFromSession()" class="w-full py-5 bg-gray-100 rounded-2xl font-black text-[#FF007F] uppercase">Go to Dashboard</button>
+                <button onclick="handleLogout()" class="w-full py-5 bg-red-50 rounded-2xl font-black text-red-500 uppercase">Logout / Exit</button>
+            </div>
+            <p onclick="document.getElementById('session-modal').classList.remove('active')" class="mt-6 text-gray-400 cursor-pointer font-bold uppercase text-xs">Cancel</p>
+        </div>
+    </div>
 
     <div id="admin-auth-modal" class="modal-overlay fixed inset-0 z-[300] items-center justify-center p-4">
         <div class="bg-white rounded-[50px] p-12 max-w-md w-full shadow-2xl text-center">
@@ -163,12 +181,7 @@
                     <h2 id="detail-name" class="royal-font text-5xl text-[#D4AF37] mb-6"></h2>
                     <p id="detail-desc" class="text-gray-500 mb-10 leading-relaxed text-xl"></p>
                     <div class="text-4xl font-black text-[#FF007F] mb-10">KES <span id="detail-price">0</span></div>
-                    
-                    <div class="mt-4 mb-10">
-                        <h3 class="royal-font text-2xl mb-4">Customer Reviews</h3>
-                        <div id="product-reviews-list" class="space-y-4 max-h-[150px] overflow-y-auto"></div>
-                    </div>
-
+                    <div id="product-reviews-list" class="space-y-4 max-h-[150px] overflow-y-auto mb-10"></div>
                     <button id="detail-add-btn" class="btn-dark-pink w-full py-6 rounded-3xl text-white font-black uppercase text-2xl">Add to Bag</button>
                 </div>
             </div>
@@ -177,9 +190,7 @@
 
     <section class="relative h-[60vh] flex items-center justify-center text-center">
         <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('hero-premium.jpg');"><div class="absolute inset-0 bg-black/40"></div></div>
-        <div class="relative z-10">
-            <h1 class="royal-font text-7xl md:text-[8rem] text-white">ROYAL<br><span class="text-[#FF007F]">GLOW</span></h1>
-        </div>
+        <div class="relative z-10"><h1 class="royal-font text-7xl md:text-[8rem] text-white">ROYAL<br><span class="text-[#FF007F]">GLOW</span></h1></div>
     </section>
 
     <div class="marquee"><div class="marquee-content">✨ Premium Organic Formulas ✨ Same Day Delivery ✨ Trusted by 5000+ Queens ✨ Royal Radiance Only ✨</div></div>
@@ -189,9 +200,7 @@
             <h2 class="royal-font text-6xl text-[#D4AF37]">Glow By Vee's Collection</h2>
             <div class="h-2 w-60 bg-[#FF007F] mx-auto mt-8 rounded-full"></div>
         </div>
-
         <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-40"></div>
-
         <div class="text-center mb-20">
             <h2 class="royal-font text-5xl text-[#FF007F]">Individual Products</h2>
             <div id="category-filters" class="flex justify-center gap-6 mt-12 mb-20 flex-wrap"></div>
@@ -226,7 +235,7 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let cart = JSON.parse(localStorage.getItem('glow_cart_vee')) || [];
-        let products = [], categories = [], reviews = [], map;
+        let products = [], categories = [], reviews = [], map, currentSessionTarget = '';
 
         async function initCatalog() {
             const { data: cats } = await _supabase.from('categories').select('*');
@@ -234,9 +243,7 @@
             const { data: revs } = await _supabase.from('reviews').select('*, profiles(full_name)');
             categories = cats || [];
             reviews = revs || [];
-            products = (prods || []).map(p => ({
-                ...p, cat_name: categories.find(c => c.id === p.category_id)?.name || 'Royal'
-            }));
+            products = (prods || []).map(p => ({ ...p, cat_name: categories.find(c => c.id === p.category_id)?.name || 'Royal' }));
             renderCategories();
             renderFilters();
             renderProducts('All');
@@ -245,19 +252,91 @@
             startSlides();
         }
 
+        function handlePortalClick() {
+            const user = JSON.parse(localStorage.getItem('glowCustomer'));
+            if (!user) {
+                document.getElementById('auth-modal').classList.add('active');
+            } else {
+                currentSessionTarget = 'customer';
+                document.getElementById('session-title').innerText = "Client Portal";
+                document.getElementById('session-modal').classList.add('active');
+            }
+        }
+
+        function handleAdminClick() {
+            const isAdmin = localStorage.getItem('glowAdminActive');
+            if (isAdmin) {
+                currentSessionTarget = 'admin';
+                document.getElementById('session-title').innerText = "Admin Portal";
+                document.getElementById('session-modal').classList.add('active');
+            } else {
+                document.getElementById('admin-auth-modal').classList.add('active');
+            }
+        }
+
+        function goToDashboardFromSession() {
+            document.getElementById('session-modal').classList.remove('active');
+            if (currentSessionTarget === 'admin') {
+                window.location.href = 'admin.html';
+            } else {
+                openDashboard();
+            }
+        }
+
+        function handleLogout() {
+            if (currentSessionTarget === 'admin') {
+                localStorage.removeItem('glowAdminActive');
+            } else {
+                localStorage.removeItem('glowCustomer');
+            }
+            location.reload();
+        }
+
+        function verifyAdminAccess() {
+            const key = document.getElementById('admin-pass-key').value;
+            if (key === 'VEEROYAL254') {
+                localStorage.setItem('glowAdminActive', 'true');
+                location.reload();
+            } else {
+                alert("Invalid Key");
+            }
+        }
+
+        function checkAuth() {
+            const user = JSON.parse(localStorage.getItem('glowCustomer'));
+            const isAdmin = localStorage.getItem('glowAdminActive');
+            if (user) {
+                document.getElementById('user-name-display').innerText = user.full_name.split(' ')[0].toUpperCase();
+                document.getElementById('user-status-sticker').classList.remove('hidden');
+            }
+            if (isAdmin) {
+                document.getElementById('admin-status').classList.remove('hidden');
+            }
+        }
+
+        async function handleAuthFlow() {
+            const name = document.getElementById('cust-name').value;
+            const phone = document.getElementById('cust-phone').value;
+            if(!name || !phone) return alert("Details required");
+            let { data: user } = await _supabase.from('profiles').select('*').eq('phone_number', phone).maybeSingle();
+            if(!user) {
+                const { data } = await _supabase.from('profiles').insert([{ full_name: name, phone_number: phone }]).select().single();
+                user = data;
+            }
+            localStorage.setItem('glowCustomer', JSON.stringify(user));
+            location.reload();
+        }
+
         function renderCategories() {
             const grid = document.getElementById('category-grid');
             grid.innerHTML = categories.map(cat => {
                 const catProds = products.filter(p => p.category_id === cat.id);
                 if (!catProds.length) return '';
                 const slides = catProds.map((p, idx) => `<img src="${p.image_url}" class="cat-slide ${idx === 0 ? 'active' : ''}" data-cat="${cat.id}">`).join('');
-                return `
-                    <div class="relative h-[450px] rounded-[50px] overflow-hidden shadow-2xl cursor-pointer" onclick="renderProducts('${cat.name}')">
-                        <div class="cat-slideshow">${slides}</div>
-                        <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
-                            <h3 class="royal-font text-white text-4xl z-10">${cat.name}</h3>
-                        </div>
-                    </div>`;
+                return `<div class="relative h-[450px] rounded-[50px] overflow-hidden shadow-2xl cursor-pointer" onclick="renderProducts('${cat.name}')">
+                    <div class="cat-slideshow">${slides}</div>
+                    <div class="absolute inset-0 bg-black/30 flex items-center justify-center"><h3 class="royal-font text-white text-4xl z-10">${cat.name}</h3></div>
+                </div>`;
             }).join('');
         }
 
@@ -265,13 +344,11 @@
             categories.forEach(cat => {
                 let i = 0;
                 const slides = document.querySelectorAll(`[data-cat="${cat.id}"]`);
-                if (slides.length > 1) {
-                    setInterval(() => {
-                        slides[i].classList.remove('active');
-                        i = (i + 1) % slides.length;
-                        slides[i].classList.add('active');
-                    }, 4000);
-                }
+                if (slides.length > 1) setInterval(() => {
+                    slides[i].classList.remove('active');
+                    i = (i + 1) % slides.length;
+                    slides[i].classList.add('active');
+                }, 4000);
             });
         }
 
@@ -290,7 +367,7 @@
         function addToBag(id, name, price) {
             cart.push({ id, name, price });
             updateCartUI();
-            triggerToast('🛍️', 'SUCCESS!', 'Item Successfully Added to cart');
+            triggerToast('🛍️', 'SUCCESS!', 'Item Added');
         }
 
         function triggerToast(icon, title, msg) {
@@ -308,11 +385,7 @@
             document.getElementById('cart-counter').innerText = cart.length;
             document.getElementById('cart-total-val').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
             const cont = document.getElementById('cart-items-container');
-            cont.innerHTML = cart.map((i, idx) => `
-                <div class="flex justify-between bg-gray-50 p-4 rounded-2xl">
-                    <div><p class="font-bold">${i.name}</p><p class="text-[#FF007F] font-black">KES ${i.price.toLocaleString()}</p></div>
-                    <button onclick="removeFromBag(${idx})" class="text-2xl text-red-300">×</button>
-                </div>`).join('') || '<p class="text-center opacity-30 mt-10">Bag is empty</p>';
+            cont.innerHTML = cart.map((i, idx) => `<div class="flex justify-between bg-gray-50 p-4 rounded-2xl"><div><p class="font-bold">${i.name}</p><p class="text-[#FF007F] font-black">KES ${i.price.toLocaleString()}</p></div><button onclick="removeFromBag(${idx})" class="text-2xl text-red-300">×</button></div>`).join('') || '<p class="text-center opacity-30 mt-10">Bag is empty</p>';
         }
 
         function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
@@ -326,19 +399,6 @@
             document.getElementById('dashboard-modal').classList.add('active');
         }
 
-        async function handleAuthFlow() {
-            const name = document.getElementById('cust-name').value;
-            const phone = document.getElementById('cust-phone').value;
-            if(!name || !phone) return alert("Please fill details");
-            let { data: user } = await _supabase.from('profiles').select('*').eq('phone_number', phone).maybeSingle();
-            if(!user) {
-                const { data } = await _supabase.from('profiles').insert([{ full_name: name, phone_number: phone }]).select().single();
-                user = data;
-            }
-            localStorage.setItem('glowCustomer', JSON.stringify(user));
-            location.reload();
-        }
-
         function showMpesaForm() {
             document.getElementById('mpesa-amount').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
             document.getElementById('checkout-options').classList.add('hidden');
@@ -348,13 +408,7 @@
         async function finalizeOrder(method) {
             const user = JSON.parse(localStorage.getItem('glowCustomer'));
             const code = document.getElementById('mpesa-code').value;
-            await _supabase.from('orders').insert([{ 
-                customer_id: user.id, 
-                total_amount: cart.reduce((s, i) => s + i.price, 0), 
-                status: 'Received', 
-                payment_method: method,
-                transaction_code: code 
-            }]);
+            await _supabase.from('orders').insert([{ customer_id: user.id, total_amount: cart.reduce((s, i) => s + i.price, 0), status: 'Received', payment_method: method, transaction_code: code }]);
             cart = []; updateCartUI();
             document.getElementById('mpesa-form').classList.add('hidden');
             document.getElementById('user-dash-main').classList.remove('hidden');
@@ -368,22 +422,14 @@
             document.getElementById('detail-name').innerText = p.name;
             document.getElementById('detail-desc').innerText = p.description || "Premium formula.";
             document.getElementById('detail-price').innerText = p.price.toLocaleString();
-            
             const prodRevs = reviews.filter(r => r.product_id === id);
-            document.getElementById('product-reviews-list').innerHTML = prodRevs.map(r => `
-                <div class="bg-gray-100 p-4 rounded-2xl"><p class="font-bold text-[#FF007F] text-sm">${r.profiles?.full_name}</p><p class="text-xs italic">"${r.comment}"</p></div>
-            `).join('') || '<p class="text-xs opacity-50">No reviews yet.</p>';
-            
+            document.getElementById('product-reviews-list').innerHTML = prodRevs.map(r => `<div class="bg-gray-100 p-4 rounded-2xl"><p class="font-bold text-[#FF007F] text-sm">${r.profiles?.full_name}</p><p class="text-xs italic">"${r.comment}"</p></div>`).join('') || '<p class="text-xs opacity-50">No reviews yet.</p>';
             document.getElementById('detail-add-btn').onclick = () => addToBag(p.id, p.name, p.price);
             document.getElementById('detail-modal').classList.add('active');
         }
 
         function initMap() { 
-            if(!map) {
-                map = L.map('map').setView([-1.286, 36.817], 13);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-                L.marker([-1.286, 36.817]).addTo(map).bindPopup("Delivery Active").openPopup();
-            }
+            if(!map) { map = L.map('map').setView([-1.286, 36.817], 13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); L.marker([-1.286, 36.817]).addTo(map).bindPopup("Delivery Active").openPopup(); }
         }
 
         function renderFilters() {
@@ -394,17 +440,12 @@
 
         function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
         function closeDetailModal() { document.getElementById('detail-modal').classList.remove('active'); }
-        function openAdminGate() { document.getElementById('admin-auth-modal').classList.add('active'); }
         function openDashboard() { document.getElementById('dashboard-modal').classList.add('active'); setTimeout(initMap, 500); }
         function switchTab(t) {
             document.querySelectorAll('.dash-tab').forEach(x => x.classList.remove('active'));
             document.querySelectorAll('.dash-content').forEach(x => x.classList.remove('active'));
             event.target.classList.add('active');
             document.getElementById('tab-' + t).classList.add('active');
-        }
-        function checkAuth() {
-            const user = JSON.parse(localStorage.getItem('glowCustomer'));
-            if (user) document.getElementById('user-name-display').innerText = user.full_name.split(' ')[0].toUpperCase();
         }
 
         window.onload = initCatalog;
