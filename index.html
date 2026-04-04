@@ -8,11 +8,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --fuchsia: #FF007F; --gold: #D4AF37; }
         body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; overflow-x: hidden; font-size: 18px; scroll-behavior: smooth; }
-        @media (max-width: 768px) { body { font-size: 16px; } }
         .royal-font { font-family: 'Cinzel', serif; }
         
         .glow-button {
@@ -28,9 +29,10 @@
         
         #cart-counter { position: absolute; top: -10px; right: -15px; background: var(--fuchsia); color: white; border-radius: 999px; padding: 4px 10px; font-size: 14px; font-weight: bold; border: 2px solid white; }
         
-        .cat-slideshow { position: absolute; inset: 0; width: 100%; height: 100%; }
-        .cat-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.5s ease-in-out; object-fit: cover; width: 100%; height: 100%; }
-        .cat-slide.active { opacity: 1; }
+        /* CATEGORY SLIDESHOW FIX */
+        .cat-slideshow { position: absolute; inset: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .cat-slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 1.5s ease-in-out; object-fit: cover; }
+        .cat-slide.active { opacity: 1; z-index: 1; }
         
         #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
         #cart-sidebar.open { transform: translateX(0); }
@@ -38,41 +40,28 @@
         .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; }
         .modal-overlay.active { display: flex; }
 
-        /* CENTERED NOTIFICATION */
         #success-toast { 
-            visibility: hidden; 
-            min-width: 320px; 
-            background: white; 
-            color: var(--fuchsia); 
-            text-align: center; 
-            border-radius: 40px; 
-            padding: 40px; 
-            position: fixed; 
-            z-index: 500; 
-            left: 50%; 
-            top: 50%; 
-            transform: translate(-50%, -50%) scale(0.7); 
-            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6);
-            border: 5px solid var(--fuchsia);
-            opacity: 0;
+            visibility: hidden; min-width: 320px; background: white; color: var(--fuchsia); text-align: center; border-radius: 40px; 
+            padding: 40px; position: fixed; z-index: 500; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.7); 
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6); border: 5px solid var(--fuchsia); opacity: 0;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         #success-toast.show { visibility: visible; opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
-        .dash-tab { padding: 20px 30px; cursor: pointer; border-bottom: 4px solid transparent; transition: all 0.3s; font-weight: 900; font-size: 1.2rem; color: #9ca3af; }
+        .dash-tab { padding: 20px 30px; cursor: pointer; border-bottom: 4px solid transparent; transition: all 0.3s; font-weight: 900; font-size: 1.1rem; color: #9ca3af; }
         .dash-tab.active { color: var(--fuchsia); border-color: var(--fuchsia); }
         .dash-content { display: none; }
         .dash-content.active { display: block; }
 
-        .star-rating { color: #d1d5db; cursor: pointer; font-size: 2rem; transition: color 0.2s; }
-        .star-rating.active { color: #fbbf24; }
-
-        #map { height: 450px; width: 100%; border-radius: 40px; z-index: 10; border: 4px solid #f3f4f6; }
+        #map { height: 400px; width: 100%; border-radius: 40px; z-index: 10; border: 4px solid #f3f4f6; }
         .full-screen-modal { width: 100vw; height: 100vh; max-width: 100% !important; max-height: 100% !important; border-radius: 0 !important; }
         
-        /* Step Tracker */
         .step-circle { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; background: #e5e7eb; color: #9ca3af; }
         .step-active { background: var(--fuchsia); color: white; box-shadow: 0 0 15px var(--fuchsia); }
+        
+        .admin-sidebar { width: 300px; background: #1a1a1a; color: white; height: 100%; padding: 40px 20px; }
+        .admin-nav-item { padding: 15px 20px; border-radius: 15px; margin-bottom: 10px; cursor: pointer; transition: 0.3s; font-weight: 600; }
+        .admin-nav-item:hover, .admin-nav-item.active { background: var(--fuchsia); }
     </style>
 </head>
 <body>
@@ -85,24 +74,81 @@
         <p id="toast-msg" class="font-bold text-2xl uppercase tracking-widest"></p>
     </div>
 
+    <div id="admin-auth-modal" class="modal-overlay fixed inset-0 z-[300] items-center justify-center p-4">
+        <div class="bg-white rounded-[50px] p-12 max-w-md w-full shadow-2xl text-center">
+            <h3 class="royal-font text-3xl text-[#D4AF37] mb-8">Admin Gatekeeper</h3>
+            <input type="password" id="admin-pass-key" placeholder="Enter Secure Password" class="w-full px-8 py-5 rounded-2xl border-2 border-gray-100 mb-8 outline-none text-xl text-center">
+            <button onclick="verifyAdminAccess()" class="glow-button w-full py-5 rounded-2xl text-white font-black uppercase tracking-widest">Unlock Command Center</button>
+            <p onclick="document.getElementById('admin-auth-modal').classList.remove('active')" class="mt-6 text-gray-400 cursor-pointer font-bold">Cancel</p>
+        </div>
+    </div>
+
+    <div id="admin-panel" class="modal-overlay fixed inset-0 z-[250] items-center justify-center">
+        <div class="bg-white full-screen-modal flex overflow-hidden">
+            <div class="admin-sidebar flex flex-col">
+                <div class="royal-font text-2xl text-[#FF007F] mb-12 px-4">GLOW HQ v2.0</div>
+                <div class="admin-nav-item active" onclick="switchAdminTab('orders')">Orders Management</div>
+                <div class="admin-nav-item" onclick="switchAdminTab('inventory')">Store Inventory</div>
+                <div class="admin-nav-item" onclick="switchAdminTab('analytics')">Business Analytics</div>
+                <div class="admin-nav-item" onclick="switchAdminTab('customers')">Customer Base</div>
+                <div class="admin-nav-item mt-auto bg-red-900/30" onclick="location.reload()">Exit Admin</div>
+            </div>
+            <div class="flex-1 p-12 overflow-y-auto bg-gray-50">
+                <div id="admin-orders" class="admin-view active">
+                    <h2 class="royal-font text-4xl mb-10">Live Orders</h2>
+                    <div id="admin-order-list" class="space-y-6"></div>
+                </div>
+                <div id="admin-inventory" class="admin-view hidden">
+                    <h2 class="royal-font text-4xl mb-10">Inventory Control</h2>
+                    <div class="grid grid-cols-2 gap-8">
+                        <div class="bg-white p-10 rounded-[40px] shadow-sm">
+                            <h3 class="font-bold text-xl mb-6">Add New Category</h3>
+                            <input type="text" id="new-cat-name" placeholder="Category Name" class="w-full p-4 border rounded-xl mb-4">
+                            <button onclick="addCategory()" class="bg-black text-white px-8 py-3 rounded-xl">Create Category</button>
+                        </div>
+                        <div class="bg-white p-10 rounded-[40px] shadow-sm">
+                            <h3 class="font-bold text-xl mb-6">Add Product</h3>
+                            <input type="text" id="adm-pname" placeholder="Name" class="w-full p-4 border rounded-xl mb-4">
+                            <input type="number" id="adm-pprice" placeholder="Price" class="w-full p-4 border rounded-xl mb-4">
+                            <select id="adm-pcat" class="w-full p-4 border rounded-xl mb-4"></select>
+                            <input type="file" id="adm-pimg" class="mb-4">
+                            <button onclick="uploadProduct()" class="glow-button w-full py-4 rounded-xl text-white font-bold">Upload to Shop</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="admin-analytics" class="admin-view hidden">
+                    <h2 class="royal-font text-4xl mb-10">Performance Analytics</h2>
+                    <div class="grid grid-cols-2 gap-10">
+                        <div class="bg-white p-8 rounded-[40px] shadow-md"><canvas id="salesChart"></canvas></div>
+                        <div class="bg-white p-8 rounded-[40px] shadow-md">
+                            <h3 class="font-bold mb-4">Sales Report (PDF)</h3>
+                            <input type="date" id="report-date" class="border p-3 rounded-xl mb-4 w-full">
+                            <button onclick="generatePDF()" class="bg-fuchsia-600 text-white px-10 py-4 rounded-xl font-bold w-full">Download Financial Report</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="admin-customers" class="admin-view hidden">
+                    <h2 class="royal-font text-4xl mb-10">Customer Directory</h2>
+                    <div id="admin-cust-list" class="bg-white rounded-[40px] overflow-hidden"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="detail-modal" class="modal-overlay fixed inset-0 z-[120] items-center justify-center p-4">
         <div class="bg-white rounded-[50px] max-w-6xl w-full max-h-[95vh] overflow-hidden shadow-2xl flex flex-col relative">
             <button onclick="closeDetailModal()" class="absolute top-8 right-8 text-5xl text-gray-300 z-20 hover:text-black">&times;</button>
             <div class="flex flex-col md:flex-row overflow-y-auto">
-                <div class="md:w-1/2 bg-gray-50 h-[500px] md:h-auto"><img id="detail-img" src="" class="w-full h-full object-cover"></div>
-                <div class="md:w-1/2 p-10 md:p-16 flex flex-col">
+                <div class="md:w-1/2 bg-gray-50 h-[450px] md:h-auto"><img id="detail-img" src="" class="w-full h-full object-cover"></div>
+                <div class="md:w-1/2 p-12 md:p-16 flex flex-col">
                     <span id="detail-category" class="text-[#FF007F] text-sm font-black uppercase mb-4 tracking-[0.4em]"></span>
                     <h2 id="detail-name" class="royal-font text-5xl text-[#D4AF37] mb-6"></h2>
                     <p id="detail-desc" class="text-gray-500 mb-10 leading-relaxed text-xl"></p>
-                    
                     <div class="text-4xl font-black text-[#FF007F] mb-10">KES <span id="detail-price">0</span></div>
-                    <button id="detail-add-btn" class="glow-button w-full py-6 rounded-3xl text-white font-black uppercase tracking-widest text-2xl shadow-2xl">Add to Bag</button>
-
+                    <button id="detail-add-btn" class="glow-button w-full py-6 rounded-3xl text-white font-black uppercase tracking-widest text-2xl">Add to Bag</button>
                     <div class="mt-16 pt-10 border-t-2">
-                        <h3 class="royal-font text-3xl mb-8">Customer Experience & Testimonials</h3>
-                        <div id="product-reviews-list" class="space-y-8">
-                            <p class="text-gray-400 italic">No reviews yet. Be the first to glow and share!</p>
-                        </div>
+                        <h3 class="royal-font text-2xl mb-8">Testimonials</h3>
+                        <div id="product-reviews-list" class="space-y-6"></div>
                     </div>
                 </div>
             </div>
@@ -112,11 +158,11 @@
     <div id="auth-modal" class="modal-overlay fixed inset-0 z-[150] items-center justify-center p-4">
         <div class="bg-white rounded-[50px] p-12 max-w-md w-full shadow-2xl relative text-center">
             <button onclick="closeAuthModal()" class="absolute top-6 right-6 text-3xl text-gray-300">&times;</button>
-            <h3 class="royal-font text-4xl text-[#D4AF37] mb-10" id="auth-title">Identify Your Glow</h3>
+            <h3 class="royal-font text-3xl text-[#D4AF37] mb-10" id="auth-title">Identify Your Glow</h3>
             <div id="register-fields" class="hidden">
                 <input type="text" id="cust-name" placeholder="Full Name" class="w-full px-8 py-5 rounded-2xl border-2 border-gray-100 mb-6 outline-none text-xl font-bold">
             </div>
-            <input type="tel" id="cust-phone" placeholder="Phone (e.g. 07...)" class="w-full px-8 py-5 rounded-2xl border-2 border-gray-100 mb-8 outline-none text-xl font-bold">
+            <input type="tel" id="cust-phone" placeholder="Phone Number" class="w-full px-8 py-5 rounded-2xl border-2 border-gray-100 mb-8 outline-none text-xl font-bold">
             <button onclick="handleAuthFlow()" class="glow-button w-full py-6 rounded-2xl text-white font-black mb-6 uppercase text-xl shadow-xl">Proceed</button>
             <p class="text-sm text-gray-400 cursor-pointer underline font-black" id="auth-toggle" onclick="toggleAuthMode()">New Member? Sign Up</p>
         </div>
@@ -127,51 +173,48 @@
             <div class="flex justify-between items-center mb-12">
                 <div class="flex items-center gap-4">
                     <div class="h-16 w-16 bg-contain bg-no-repeat" style="background-image: url('logo.jpg');"></div>
-                    <h2 class="royal-font text-4xl md:text-6xl text-[#FF007F]">Glow Portal</h2>
+                    <h2 class="royal-font text-4xl text-[#FF007F]">Glow Portal</h2>
                 </div>
                 <button onclick="document.getElementById('dashboard-modal').classList.remove('active')" class="text-6xl text-gray-300 hover:text-black">&times;</button>
             </div>
             
             <div id="checkout-options" class="hidden flex-1 flex flex-col items-center justify-center">
-                <h3 class="royal-font text-4xl mb-12 text-center text-[#D4AF37]">Secure Your Order</h3>
+                <h3 class="royal-font text-4xl mb-12 text-[#D4AF37]">Select Payment</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-10 w-full max-w-5xl">
-                    <div onclick="finalizeOrder('Online')" class="cursor-pointer p-16 border-4 border-gray-50 rounded-[50px] hover:border-[#FF007F] text-center transition-all group bg-gray-50 shadow-sm">
-                        <span class="text-8xl block mb-6 group-hover:scale-110 transition-transform">💳</span>
-                        <h4 class="font-black text-3xl text-gray-700">Online Payment</h4>
+                    <div onclick="finalizeOrder('Online')" class="cursor-pointer p-16 border-4 border-gray-50 rounded-[50px] hover:border-[#FF007F] text-center transition-all bg-gray-50">
+                        <span class="text-8xl block mb-6">💳</span><h4 class="font-black text-3xl">Online Payment</h4>
                     </div>
-                    <div onclick="finalizeOrder('POD')" class="cursor-pointer p-16 border-4 border-gray-50 rounded-[50px] hover:border-[#FF007F] text-center transition-all group bg-gray-50 shadow-sm">
-                        <span class="text-8xl block mb-6 group-hover:scale-110 transition-transform">🚚</span>
-                        <h4 class="font-black text-3xl text-gray-700">Pay on Delivery</h4>
+                    <div onclick="finalizeOrder('POD')" class="cursor-pointer p-16 border-4 border-gray-50 rounded-[50px] hover:border-[#FF007F] text-center transition-all bg-gray-50">
+                        <span class="text-8xl block mb-6">🚚</span><h4 class="font-black text-3xl">Pay on Delivery</h4>
                     </div>
                 </div>
             </div>
 
             <div id="user-dash-main" class="flex flex-col h-full">
-                <div class="flex gap-12 border-b-4 mb-12 overflow-x-auto no-scrollbar">
-                    <div class="dash-tab active" onclick="switchTab('tracking')">Live Tracking</div>
-                    <div class="dash-tab" onclick="switchTab('receipt')">My Receipts</div>
-                    <div class="dash-tab" onclick="switchTab('reviews')">Share Experience</div>
+                <div class="flex gap-12 border-b-4 mb-12">
+                    <div class="dash-tab active" onclick="switchTab('tracking')">Live Status</div>
+                    <div class="dash-tab" onclick="switchTab('receipt')">Receipts</div>
+                    <div class="dash-tab" onclick="switchTab('reviews')">Leave Review</div>
                 </div>
                 <div class="flex-1 overflow-y-auto pb-24">
                     <div id="tab-tracking" class="dash-content active max-w-6xl mx-auto">
-                        <div class="flex justify-between items-center mb-12 px-4">
-                            <div class="flex flex-col items-center gap-2"><div id="step-1" class="step-circle step-active">1</div><span class="text-xs font-bold uppercase">Placed</span></div>
+                        <div class="flex justify-between items-center mb-12">
+                            <div class="flex flex-col items-center"><div id="step-1" class="step-circle step-active">1</div><span class="text-xs font-bold mt-2">Placed</span></div>
                             <div class="h-1 flex-1 bg-gray-200 mx-4"></div>
-                            <div class="flex flex-col items-center gap-2"><div id="step-2" class="step-circle">2</div><span class="text-xs font-bold uppercase">Approved</span></div>
+                            <div class="flex flex-col items-center"><div id="step-2" class="step-circle">2</div><span class="text-xs font-bold mt-2">Ready</span></div>
                             <div class="h-1 flex-1 bg-gray-200 mx-4"></div>
-                            <div class="flex flex-col items-center gap-2"><div id="step-3" class="step-circle">3</div><span class="text-xs font-bold uppercase">On Route</span></div>
+                            <div class="flex flex-col items-center"><div id="step-3" class="step-circle">3</div><span class="text-xs font-bold mt-2">On Route</span></div>
                             <div class="h-1 flex-1 bg-gray-200 mx-4"></div>
-                            <div class="flex flex-col items-center gap-2"><div id="step-4" class="step-circle">4</div><span class="text-xs font-bold uppercase">Glowed</span></div>
+                            <div class="flex flex-col items-center"><div id="step-4" class="step-circle">4</div><span class="text-xs font-bold mt-2">Glowed</span></div>
                         </div>
                         <div id="map" class="mb-10"></div>
-                        <div id="delivery-status-card" class="bg-fuchsia-50 p-10 rounded-[40px] text-center border-4 border-fuchsia-100 shadow-lg">
-                            <h4 class="font-black text-[#FF007F] text-3xl mb-4 uppercase tracking-tighter">Current Status: Processing</h4>
-                            <p class="text-[#FF007F] text-xl font-medium">The admin is verifying your order for instant dispatch.</p>
+                        <div id="delivery-status-card" class="bg-fuchsia-50 p-10 rounded-[40px] text-center border-4 border-fuchsia-100">
+                            <h4 id="track-status-text" class="font-black text-[#FF007F] text-3xl mb-4">Awaiting Approval</h4>
+                            <p id="rider-info" class="text-[#FF007F] text-xl font-medium italic">Assigning dedicated rider...</p>
                         </div>
                     </div>
                     <div id="tab-receipt" class="dash-content max-w-4xl mx-auto">
-                        <div id="receipt-container" class="space-y-10">
-                            </div>
+                        <div id="receipt-container"></div>
                     </div>
                     <div id="tab-reviews" class="dash-content max-w-4xl mx-auto">
                         <div id="review-items-container" class="space-y-10"></div>
@@ -186,63 +229,56 @@
             <div class="h-16 w-16 bg-contain bg-no-repeat" style="background-image: url('logo.jpg');"></div>
             <span class="royal-font text-3xl md:text-5xl font-black text-[#FF007F] tracking-tighter">Glow By Vee</span>
         </div>
-        
         <div class="flex gap-12 items-center">
-            <div class="hidden lg:flex gap-12 royal-font font-black text-[#D4AF37] items-center text-xl tracking-widest">
-                <a href="#catalog" class="hover:text-[#FF007F] transition-all">SHOP</a>
-                <a href="ai-skin.html" class="hover:text-[#FF007F] transition-all">AI SKIN</a>
-                <button onclick="document.getElementById('admin-panel').classList.add('active')" class="hover:text-[#FF007F] transition-all">ADMIN</button>
+            <div class="hidden lg:flex gap-12 royal-font font-black text-[#D4AF37] text-xl">
+                <a href="#catalog" class="hover:text-[#FF007F]">SHOP</a>
+                <a href="ai-skin.html" class="hover:text-[#FF007F]">AI SKIN</a>
+                <button onclick="openAdminGate()" class="hover:text-[#FF007F]">ADMIN</button>
             </div>
-            
             <div id="user-section" class="hidden flex items-center gap-6">
                 <div class="flex items-center gap-3 bg-pink-100 px-8 py-4 rounded-full border-2 border-pink-200 cursor-pointer shadow-sm hover:scale-105 transition-all" onclick="openDashboard()">
                     <span class="text-3xl">👑</span>
-                    <span id="user-name-display" class="font-black text-[#FF007F] text-xl uppercase tracking-tighter"></span>
-                    <div class="h-4 w-4 bg-green-500 rounded-full animate-pulse shadow-green-400 shadow-md"></div>
+                    <span id="user-name-display" class="font-black text-[#FF007F] text-xl"></span>
+                    <div class="h-4 w-4 bg-green-500 rounded-full animate-pulse shadow-md"></div>
                 </div>
             </div>
-
             <div class="relative cursor-pointer hover:scale-110 transition-transform" onclick="toggleCart()">
-                <span class="text-5xl">🛒</span>
-                <span id="cart-counter">0</span>
+                <span class="text-5xl">🛒</span><span id="cart-counter">0</span>
             </div>
         </div>
     </nav>
 
-    <section class="relative h-[65vh] flex items-center justify-center text-center">
+    <section class="relative h-[60vh] flex items-center justify-center text-center">
         <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('hero-premium.jpg');"><div class="absolute inset-0 bg-black/40"></div></div>
         <div class="relative z-10 px-6">
             <h1 class="royal-font text-7xl md:text-[10rem] text-white drop-shadow-2xl leading-none">ROYAL<br><span class="text-[#FF007F]">GLOW</span></h1>
-            <p class="text-white text-3xl mt-8 font-bold tracking-[0.5em] uppercase">Premium Skincare Sovereignty</p>
         </div>
     </section>
 
-    <div class="marquee"><div class="marquee-content uppercase tracking-widest">✨ Hand-Crafted Organic Formulas ✨ Same Day Delivery in Nairobi ✨ Expert Consultations ✨ Pure Ingredients Only ✨ Your Skin, Our Priority ✨</div></div>
+    <div class="marquee"><div class="marquee-content uppercase">✨ Premium Organic Formulas ✨ Doorstep Delivery in Nairobi ✨ Professional Skin Consults ✨ Only at Glow By Vee ✨</div></div>
 
     <section id="catalog" class="py-32 px-6 max-w-7xl mx-auto">
         <div class="text-center mb-24">
-            <h2 class="royal-font text-6xl text-[#D4AF37]">The Collections</h2>
+            <h2 class="royal-font text-5xl text-[#D4AF37]">Glow By Vee's Collections</h2>
             <div class="h-2 w-40 bg-[#FF007F] mx-auto mt-8 rounded-full"></div>
         </div>
         <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-40"></div>
-        
         <div class="text-center mb-20 pt-20 border-t-4 border-gray-50">
-            <h2 class="royal-font text-5xl text-[#FF007F]">Curated Elixirs</h2>
+            <h2 class="royal-font text-4xl text-[#FF007F]">Curated Elixirs</h2>
             <div id="category-filters" class="flex justify-center gap-6 mt-12 mb-20 flex-wrap"></div>
         </div>
         <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20"></div>
     </section>
 
-    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[550px] bg-white z-[100] shadow-2xl flex flex-col border-l-[12px] border-[#FF007F]">
-        <div class="p-12 border-b-4 flex justify-between items-center bg-gray-50">
-            <h2 class="royal-font text-5xl text-[#FF007F]">The Bag</h2>
-            <button onclick="toggleCart()" class="text-6xl text-gray-300 hover:text-black">&times;</button>
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[500px] bg-white z-[100] shadow-2xl flex flex-col border-l-[10px] border-[#FF007F]">
+        <div class="p-10 border-b-4 flex justify-between items-center bg-gray-50">
+            <h2 class="royal-font text-4xl text-[#FF007F]">The Bag</h2>
+            <button onclick="toggleCart()" class="text-6xl text-gray-300">&times;</button>
         </div>
-        <div id="cart-items-container" class="flex-1 overflow-y-auto p-12 space-y-8"></div>
-        <div class="p-12 border-t-4 space-y-10 bg-white shadow-inner">
-            <div class="flex justify-between font-black text-4xl"><span>Total</span><span id="cart-total-val" class="text-[#FF007F]">KES 0</span></div>
-            <button onclick="startCheckout()" class="glow-button w-full py-7 rounded-3xl text-white font-black text-2xl uppercase tracking-[0.2em] shadow-2xl">Secure Checkout</button>
-            <p onclick="toggleCart()" class="text-center text-gray-400 font-black text-xl cursor-pointer hover:text-[#FF007F] uppercase tracking-widest">Add More Magic</p>
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-10 space-y-6"></div>
+        <div class="p-10 border-t-4 space-y-8 bg-white shadow-inner">
+            <div class="flex justify-between font-black text-3xl"><span>Total</span><span id="cart-total-val" class="text-[#FF007F]">KES 0</span></div>
+            <button onclick="startCheckout()" class="glow-button w-full py-6 rounded-3xl text-white font-black text-2xl uppercase tracking-widest shadow-2xl">Secure Checkout</button>
         </div>
     </div>
 
@@ -252,7 +288,7 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let cart = JSON.parse(localStorage.getItem('glow_cart_vee')) || [];
-        let products = [], categories = [], map, reviews = [];
+        let products = [], categories = [], map, reviews = [], users = [], allOrders = [];
 
         async function initCatalog() {
             try {
@@ -262,20 +298,28 @@
                 const { data: revs } = await _supabase.from('reviews').select('*, profiles(full_name)');
                 reviews = revs || [];
                 products = (prods || []).map(p => ({
-                    ...p, 
-                    cat_name: categories.find(c => c.id === p.category_id)?.name || 'Elixir',
-                    rating: reviews.filter(r => r.product_id === p.id).length 
-                        ? (reviews.filter(r => r.product_id === p.id).reduce((s, r) => s + r.rating, 0) / reviews.filter(r => r.product_id === p.id).length).toFixed(1)
-                        : 5.0
+                    ...p, cat_name: categories.find(c => c.id === p.category_id)?.name || 'Elixir'
                 }));
-                
                 renderCategories();
                 renderFilters();
                 renderProducts('All');
                 updateCartUI();
                 checkAuth();
                 startCategorySlideshows();
-            } catch (err) { console.error("Portal Error:", err); }
+            } catch (err) { console.error("Sync Error:", err); }
+        }
+
+        function startCategorySlideshows() {
+            categories.forEach(cat => {
+                let current = 0;
+                const slides = document.querySelectorAll(`[data-cat="${cat.id}"]`);
+                if (slides.length <= 1) return;
+                setInterval(() => {
+                    slides[current].classList.remove('active');
+                    current = (current + 1) % slides.length;
+                    slides[current].classList.add('active');
+                }, 4000);
+            });
         }
 
         function checkAuth() {
@@ -290,34 +334,18 @@
             const grid = document.getElementById('category-grid');
             grid.innerHTML = categories.map(cat => {
                 const catProducts = products.filter(x => x.category_id === cat.id);
-                if (catProducts.length === 0) return '';
+                if (!catProducts.length) return '';
                 const slidesHtml = catProducts.map((p, idx) => {
                     const src = p.image_url || _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
                     return `<img src="${src}" class="cat-slide ${idx === 0 ? 'active' : ''}" data-cat="${cat.id}">`;
                 }).join('');
-                return `<div class="group relative h-[550px] rounded-[60px] overflow-hidden cursor-pointer shadow-2xl transition-all hover:scale-[1.05]" onclick="renderProducts('${cat.name}')">
+                return `<div class="group relative h-[500px] rounded-[50px] overflow-hidden cursor-pointer shadow-2xl transition-all hover:scale-[1.03]" onclick="renderProducts('${cat.name}')">
                     <div class="cat-slideshow">${slidesHtml}</div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/95 to-transparent flex items-end p-16">
-                        <div>
-                            <span class="text-sm text-pink-400 font-black tracking-[0.5em] uppercase">The Collection</span>
-                            <h3 class="royal-font text-white text-5xl mt-4">${cat.name}</h3>
-                        </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/95 to-transparent flex items-end p-12">
+                        <h3 class="royal-font text-white text-4xl">${cat.name}</h3>
                     </div>
                 </div>`;
             }).join('');
-        }
-
-        function startCategorySlideshows() {
-            categories.forEach(cat => {
-                let current = 0;
-                const slides = document.querySelectorAll(`[data-cat="${cat.id}"]`);
-                if (slides.length <= 1) return;
-                setInterval(() => {
-                    slides[current].classList.remove('active');
-                    current = (current + 1) % slides.length;
-                    slides[current].classList.add('active');
-                }, 5000);
-            });
         }
 
         function renderProducts(filter) {
@@ -325,19 +353,23 @@
             const filtered = filter === 'All' ? products : products.filter(p => p.cat_name === filter);
             grid.innerHTML = filtered.map(p => {
                 const src = p.image_url || _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
-                return `<div class="bg-white p-10 rounded-[60px] shadow-2xl border-4 border-gray-50 hover:border-[#FF007F] transition-all group relative">
-                    <div class="overflow-hidden rounded-[50px] mb-10 relative shadow-xl">
+                return `<div class="bg-white p-10 rounded-[60px] shadow-2xl border-4 border-gray-50 hover:border-[#FF007F] transition-all group">
+                    <div class="overflow-hidden rounded-[40px] mb-8 shadow-md">
                         <img src="${src}" class="w-full aspect-square object-cover group-hover:scale-110 transition-transform cursor-pointer" onclick="openDetailModal(${p.id})">
-                        <div class="absolute top-8 right-8 bg-white px-6 py-2 rounded-full text-xs font-black text-[#FF007F] uppercase tracking-widest shadow-md">⭐ ${p.rating}</div>
                     </div>
-                    <h3 class="royal-font text-4xl text-[#D4AF37] mb-4 truncate">${p.name}</h3>
-                    <div class="flex justify-between items-center mt-10">
-                        <span class="text-4xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
-                        <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-10 py-5 rounded-[25px] text-sm font-black uppercase tracking-widest shadow-2xl hover:bg-black transition-all">Add</button>
+                    <h3 class="royal-font text-3xl text-[#D4AF37] mb-2 truncate">${p.name}</h3>
+                    <div class="flex justify-between items-center mt-8">
+                        <span class="text-3xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
+                        <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-8 py-4 rounded-3xl font-black text-sm uppercase shadow-xl hover:bg-black transition-all">Add</button>
                     </div>
                 </div>`;
             }).join('');
-            if (filter !== 'All') window.location.hash = "catalog";
+        }
+
+        function addToBag(id, name, price) {
+            cart.push({ id, name, price });
+            updateCartUI();
+            triggerToast('🛍️', 'GLOWING!', 'Item added to Bag');
         }
 
         function triggerToast(icon, title, msg, soundType = 'cart') {
@@ -345,212 +377,143 @@
             document.getElementById('toast-icon').innerText = icon;
             document.getElementById('toast-title').innerText = title;
             document.getElementById('toast-msg').innerText = msg;
-            
-            const sound = document.getElementById(soundType === 'cart' ? 'cart-sound' : 'order-sound');
-            sound.play();
-            
+            document.getElementById(soundType === 'cart' ? 'cart-sound' : 'order-sound').play();
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        function addToBag(id, name, price) {
-            cart.push({ id, name, price });
-            updateCartUI();
-            triggerToast('🛍️', 'GLOWING!', 'Item Added Successfully');
         }
 
         function updateCartUI() {
             localStorage.setItem('glow_cart_vee', JSON.stringify(cart));
             document.getElementById('cart-counter').innerText = cart.length;
             document.getElementById('cart-total-val').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
-            renderCartItems();
-        }
-
-        function renderCartItems() {
             const cont = document.getElementById('cart-items-container');
-            cont.innerHTML = cart.length ? cart.map((i, idx) => `
-                <div class="flex items-center justify-between bg-gray-50 p-10 rounded-[40px] border-4 border-gray-100">
-                    <div>
-                        <h4 class="font-black text-2xl text-gray-800">${i.name}</h4>
-                        <p class="text-[#FF007F] font-black text-xl mt-2">KES ${i.price.toLocaleString()}</p>
-                    </div>
-                    <button onclick="removeFromBag(${idx})" class="text-5xl text-red-200 hover:text-red-500 transition-colors">×</button>
-                </div>`).join('') : '<div class="text-center pt-32"><span class="text-9xl block mb-8 opacity-20">🛒</span><p class="text-gray-400 font-black text-2xl uppercase tracking-widest">Bag is Empty</p></div>';
+            cont.innerHTML = cart.map((i, idx) => `<div class="flex justify-between bg-gray-50 p-6 rounded-3xl"><div><h4 class="font-bold text-xl">${i.name}</h4><p class="text-[#FF007F]">KES ${i.price.toLocaleString()}</p></div><button onclick="removeFromBag(${idx})" class="text-4xl text-red-200">×</button></div>`).join('') || '<p class="text-center text-gray-400">Empty.</p>';
         }
 
         function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
 
         function startCheckout() {
-            if (cart.length === 0) return alert("Select an elixir first!");
+            if (!cart.length) return alert("Add items!");
             const user = JSON.parse(localStorage.getItem('glowCustomer'));
-            if (!user) {
-                document.getElementById('auth-modal').classList.add('active');
-            } else {
-                toggleCart();
-                document.getElementById('checkout-options').classList.remove('hidden');
-                document.getElementById('user-dash-main').classList.add('hidden');
-                document.getElementById('dashboard-modal').classList.add('active');
-            }
+            if (!user) return document.getElementById('auth-modal').classList.add('active');
+            toggleCart(); document.getElementById('checkout-options').classList.remove('hidden');
+            document.getElementById('user-dash-main').classList.add('hidden');
+            document.getElementById('dashboard-modal').classList.add('active');
         }
 
         async function handleAuthFlow() {
-            const phone = document.getElementById('cust-phone').value.trim();
-            const name = document.getElementById('cust-name').value.trim();
-            if (!phone) return alert("Phone number is required!");
-
+            const phone = document.getElementById('cust-phone').value;
+            const name = document.getElementById('cust-name').value;
             let { data: user } = await _supabase.from('profiles').select('*').eq('phone_number', phone).maybeSingle();
-            
             if (!user) {
-                if (!name) {
-                    document.getElementById('auth-title').innerText = "Member Registration";
-                    document.getElementById('register-fields').classList.remove('hidden');
-                    return;
-                }
+                if (!name) { document.getElementById('register-fields').classList.remove('hidden'); return; }
                 const { data } = await _supabase.from('profiles').insert([{ full_name: name, phone_number: phone }]).select().single();
                 user = data;
             }
-            localStorage.setItem('glowCustomer', JSON.stringify(user));
-            location.reload();
+            localStorage.setItem('glowCustomer', JSON.stringify(user)); location.reload();
         }
 
         async function finalizeOrder(method) {
             const user = JSON.parse(localStorage.getItem('glowCustomer'));
             const total = cart.reduce((s, i) => s + i.price, 0);
-            
-            const { data: order } = await _supabase.from('orders').insert([{ 
-                customer_id: user.id, 
-                total_amount: total, 
-                status: 'Placed',
-                payment_method: method
-            }]).select().single();
-
-            // Store for local review/receipt
-            const orderSnapshot = [...cart];
-            renderReceipt(orderSnapshot, total, method);
-            renderReviewSection(orderSnapshot);
-
-            cart = []; updateCartUI();
-            triggerToast('✨', 'ORDERED!', 'Order Confirmed Perfectly', 'order');
-            
+            await _supabase.from('orders').insert([{ customer_id: user.id, total_amount: total, status: 'Placed', payment_method: method }]);
+            triggerToast('✨', 'ORDERED!', 'Order Pending Approval', 'order');
+            cart = []; updateCartUI(); 
             document.getElementById('checkout-options').classList.add('hidden');
             document.getElementById('user-dash-main').classList.remove('hidden');
-            switchTab('tracking');
-            updateStepTracker(1);
         }
 
-        function renderReceipt(items, total, method) {
-            const cont = document.getElementById('receipt-container');
-            const html = `
-                <div class="bg-white p-16 rounded-[50px] border-8 border-double border-gray-100 shadow-2xl">
-                    <h4 class="royal-font text-4xl text-center mb-10">Official Glow Receipt</h4>
-                    <div class="space-y-6 mb-12">
-                        ${items.map(i => `<div class="flex justify-between text-2xl font-bold text-gray-600"><span>${i.name}</span><span>KES ${i.price.toLocaleString()}</span></div>`).join('')}
-                    </div>
-                    <div class="flex justify-between border-t-4 pt-10 font-black text-4xl">
-                        <span>Total Paid via ${method}</span>
-                        <span class="text-[#FF007F]">KES ${total.toLocaleString()}</span>
-                    </div>
-                </div>`;
-            cont.innerHTML = html;
+        // ADMIN LOGIC
+        function openAdminGate() {
+            const user = JSON.parse(localStorage.getItem('glowCustomer'));
+            if(!user) return alert("Log in to your account first!");
+            document.getElementById('admin-auth-modal').classList.add('active');
         }
 
-        function renderReviewSection(items) {
-            const cont = document.getElementById('review-items-container');
-            cont.innerHTML = items.map((item, idx) => `
-                <div class="bg-gray-50 p-12 rounded-[50px] border-4 border-gray-100">
-                    <p class="font-black text-3xl text-gray-800 mb-8">Review: ${item.name}</p>
-                    <div class="flex gap-4 mb-10" id="stars-${idx}">
-                        ${[1,2,3,4,5].map(v => `<span class="star-rating" onclick="setStar(${idx}, ${v})" data-val="${v}">★</span>`).join('')}
+        async function verifyAdminAccess() {
+            const key = document.getElementById('admin-pass-key').value;
+            if(key === "GLOW_QUEEN_2026_SECURE") {
+                document.getElementById('admin-auth-modal').classList.remove('active');
+                document.getElementById('admin-panel').classList.add('active');
+                loadAdminData();
+            } else { alert("Unauthorized Access Detected!"); }
+        }
+
+        async function loadAdminData() {
+            const { data: ords } = await _supabase.from('orders').select('*, profiles(full_name, phone_number)').order('created_at', { ascending: false });
+            const { data: usrList } = await _supabase.from('profiles').select('*');
+            allOrders = ords || []; users = usrList || [];
+            renderAdminOrders();
+            renderAdminCustomers();
+            initCharts();
+            populateAdminCats();
+        }
+
+        function renderAdminOrders() {
+            const cont = document.getElementById('admin-order-list');
+            cont.innerHTML = allOrders.map(o => `
+                <div class="bg-white p-8 rounded-[35px] shadow-sm flex justify-between items-center border-2 border-gray-100">
+                    <div>
+                        <h4 class="font-black text-xl">${o.profiles?.full_name} (${o.profiles?.phone_number})</h4>
+                        <p class="text-gray-400">Total: KES ${o.total_amount.toLocaleString()} | ${o.status}</p>
                     </div>
-                    <textarea id="review-text-${idx}" class="w-full p-8 rounded-[35px] text-2xl border-none shadow-inner h-48 outline-none mb-8" placeholder="Share your delivery and product experience..."></textarea>
-                    <button onclick="submitReview(${idx}, ${item.id})" class="glow-button px-16 py-5 rounded-3xl text-white font-black uppercase text-xl">Submit Testimony</button>
+                    <div class="flex gap-4">
+                        <input type="text" id="rider-${o.id}" placeholder="Assign Rider Name" class="border p-3 rounded-xl outline-none">
+                        <button onclick="approveOrder(${o.id})" class="bg-green-500 text-white px-6 py-3 rounded-xl font-bold">Approve & Assign</button>
+                        <button onclick="cancelOrder(${o.id})" class="bg-red-500 text-white px-6 py-3 rounded-xl font-bold">Cancel</button>
+                    </div>
                 </div>`).join('');
         }
 
-        function setStar(itemIdx, val) {
-            const stars = document.querySelectorAll(`#stars-${itemIdx} .star-rating`);
-            stars.forEach(s => s.classList.toggle('active', parseInt(s.dataset.val) <= val));
-            stars[0].parentElement.dataset.chosen = val;
+        async function approveOrder(id) {
+            const rider = document.getElementById(`rider-${id}`).value;
+            if(!rider) return alert("Enter rider name!");
+            await _supabase.from('orders').update({ status: 'Approved', rider_name: rider }).eq('id', id);
+            alert("Order Updated & Rider Assigned!"); loadAdminData();
         }
 
-        async function submitReview(idx, productId) {
-            const val = document.getElementById(`stars-${idx}`).dataset.chosen;
-            const text = document.getElementById(`review-text-${idx}`).value;
-            const user = JSON.parse(localStorage.getItem('glowCustomer'));
-            if (!val) return alert("Select rating stars!");
-
-            await _supabase.from('reviews').insert([{ product_id: productId, profile_id: user.id, rating: val, comment: text }]);
-            alert("Your testimony has been published! ✨");
-            location.reload();
-        }
-
-        function updateStepTracker(step) {
-            for(let i=1; i<=4; i++) {
-                document.getElementById('step-'+i).classList.toggle('step-active', i <= step);
+        async function cancelOrder(id) {
+            if(confirm("Cancel this order?")) {
+                await _supabase.from('orders').update({ status: 'Cancelled' }).eq('id', id);
+                loadAdminData();
             }
         }
 
-        function initMap() {
-            if (map) return;
-            map = L.map('map', { zoomControl: false }).setView([-1.286, 36.817], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            L.marker([-1.286, 36.817]).addTo(map).bindPopup("<b class='text-lg'>Glow Rider Assigned</b>").openPopup();
+        function renderAdminCustomers() {
+            const cont = document.getElementById('admin-cust-list');
+            cont.innerHTML = `<table class="w-full text-left">
+                <thead class="bg-gray-100 text-gray-600 uppercase text-sm"><tr><th class="p-6">Name</th><th class="p-6">Phone</th><th class="p-6">Joined</th></tr></thead>
+                <tbody>${users.map(u => `<tr><td class="p-6 border-t font-bold">${u.full_name}</td><td class="p-6 border-t">${u.phone_number}</td><td class="p-6 border-t">${new Date(u.created_at).toLocaleDateString()}</td></tr>`).join('')}</tbody>
+            </table>`;
         }
 
-        function openDashboard() { 
-            document.getElementById('dashboard-modal').classList.add('active'); 
-            document.getElementById('checkout-options').classList.add('hidden');
-            document.getElementById('user-dash-main').classList.remove('hidden');
-            setTimeout(initMap, 500); 
-        }
-
-        function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
-        function closeAuthModal() { document.getElementById('auth-modal').classList.remove('active'); }
-        function closeDetailModal() { document.getElementById('detail-modal').classList.remove('active'); }
-        function toggleAuthMode() { document.getElementById('register-fields').classList.toggle('hidden'); }
-        
-        function switchTab(t) {
-            document.querySelectorAll('.dash-tab').forEach(x => x.classList.remove('active'));
-            document.querySelectorAll('.dash-content').forEach(x => x.classList.remove('active'));
+        function switchAdminTab(t) {
+            document.querySelectorAll('.admin-nav-item').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.admin-view').forEach(x => x.classList.add('hidden'));
             event.target.classList.add('active');
-            document.getElementById('tab-' + t).classList.add('active');
-            if (t === 'tracking') setTimeout(() => map.invalidateSize(), 300);
+            document.getElementById('admin-' + t).classList.remove('hidden');
         }
 
-        async function openDetailModal(id) {
-            const p = products.find(x => x.id === id);
-            const src = p.image_url || _supabase.storage.from('product-images').getPublicUrl(p.img).data.publicUrl;
-            
-            document.getElementById('detail-img').src = src;
-            document.getElementById('detail-name').innerText = p.name;
-            document.getElementById('detail-category').innerText = p.cat_name;
-            document.getElementById('detail-desc').innerText = p.description || "The ultimate organic formula for a royal, lasting glow.";
-            document.getElementById('detail-price').innerText = p.price.toLocaleString();
-            document.getElementById('detail-add-btn').onclick = () => { addToBag(p.id, p.name, p.price); closeDetailModal(); };
-            
-            // Render specific reviews for this product
-            const pReviews = reviews.filter(r => r.product_id === p.id);
-            const rList = document.getElementById('product-reviews-list');
-            if (pReviews.length) {
-                rList.innerHTML = pReviews.map(r => `
-                    <div class="bg-gray-50 p-8 rounded-[30px] border-2 border-gray-100">
-                        <div class="flex justify-between mb-4">
-                            <span class="font-black text-xl text-[#FF007F]">${r.profiles?.full_name || 'Glow Client'}</span>
-                            <span class="text-yellow-500 font-bold">${'★'.repeat(r.rating)}</span>
-                        </div>
-                        <p class="text-gray-600 text-lg leading-relaxed italic">"${r.comment}"</p>
-                    </div>`).join('');
-            } else {
-                rList.innerHTML = '<p class="text-gray-400 italic">No testimonials yet. Be the first to glow!</p>';
-            }
-
-            document.getElementById('detail-modal').classList.add('active');
+        function initCharts() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+                    datasets: [{ label: 'Total Revenue', data: [12000, 19000, 3000, 45000], backgroundColor: '#FF007F' }]
+                }
+            });
         }
 
+        // Global functions
+        function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
+        function closeDetailModal() { document.getElementById('detail-modal').classList.remove('active'); }
+        function openDashboard() { document.getElementById('dashboard-modal').classList.add('active'); setTimeout(initMap, 400); }
+        function initMap() { if(!map) { map = L.map('map').setView([-1.28, 36.81], 13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); } }
         function renderFilters() {
             const cont = document.getElementById('category-filters');
-            cont.innerHTML = `<button onclick="renderProducts('All')" class="px-12 py-5 rounded-full border-4 border-[#FF007F] text-[#FF007F] font-black uppercase text-sm tracking-widest transition-all hover:bg-[#FF007F] hover:text-white shadow-lg">All Elixirs</button>` + 
-                categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-12 py-5 rounded-full border-4 border-gray-100 hover:border-[#FF007F] text-gray-400 font-black uppercase text-sm tracking-widest transition-all shadow-sm">${c.name}</button>`).join('');
+            cont.innerHTML = `<button onclick="renderProducts('All')" class="px-8 py-3 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-bold">All</button>` +
+                categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-8 py-3 rounded-full border-2 border-gray-100 hover:border-[#FF007F]">${c.name}</button>`).join('');
         }
 
         window.onload = initCatalog;
