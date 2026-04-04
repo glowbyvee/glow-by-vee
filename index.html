@@ -225,18 +225,11 @@
 
         async function initCatalog() {
             try {
-                // 1. Fetch Categories First
                 const { data: cats, error: catErr } = await _supabase.from('categories').select('*');
-                
-                // 2. Fetch Products
                 const { data: prods, error: prodErr } = await _supabase.from('products').select('*');
-                
-                // 3. Fetch Reviews
                 const { data: revs } = await _supabase.from('reviews').select('*, profiles(full_name)');
 
-                // Fallback Logic: If Supabase returns nothing, use Local Data
                 if (catErr || prodErr || !cats || cats.length === 0 || !prods || prods.length === 0) {
-                    console.warn("Using Local Fallback Data");
                     categories = localCategories;
                     products = localProducts;
                 } else {
@@ -248,7 +241,6 @@
                 }
                 reviews = revs || [];
 
-                // 4. Render UI only AFTER data is set
                 renderCategories();
                 renderFilters();
                 renderProducts('All');
@@ -257,7 +249,6 @@
                 startCategorySlides();
                 
             } catch (err) {
-                console.error("Initialization failed:", err);
                 categories = localCategories;
                 products = localProducts;
                 renderCategories();
@@ -271,6 +262,7 @@
             if(!grid) return;
             
             grid.innerHTML = categories.map((cat, idx) => {
+                // UPDATE: Dynamically create the slideshow based on products assigned to this category
                 const catImages = products.filter(p => p.cat_name === cat.name).map(p => p.image_url);
                 const slides = catImages.length > 0 ? 
                     catImages.map((img, i) => `<img src="${img}" class="cat-slide ${i === 0 ? 'active' : ''}" data-slideshow="${idx}">`).join('') :
