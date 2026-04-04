@@ -200,7 +200,7 @@
 
     <section id="catalog" class="py-32 px-6 max-w-7xl mx-auto">
         <div class="text-center mb-24">
-            <h2 class="royal-font text-6xl text-[#D4AF37]">Glow By Vee's Collection</h2>
+            <h2 class="royal-font text-6xl text-[#D4AF37]">Glow By Vee's Collections</h2>
             <div class="h-2 w-60 bg-[#FF007F] mx-auto mt-8 rounded-full"></div>
         </div>
         
@@ -265,7 +265,6 @@
             } catch (err) { console.error("Load failed:", err); }
         }
 
-        // --- AUTH & PORTAL LOGIC ---
         function handlePortalClick() {
             const user = JSON.parse(localStorage.getItem('glowCustomer'));
             if (!user) { document.getElementById('auth-modal').classList.add('active'); } 
@@ -319,7 +318,6 @@
             location.reload();
         }
 
-        // --- DATA RENDERING ---
         function renderCategories() {
             const grid = document.getElementById('category-grid');
             if(!grid) return;
@@ -332,7 +330,7 @@
                 return `<div class="relative h-[450px] rounded-[50px] overflow-hidden shadow-2xl cursor-pointer" onclick="renderProducts('${cat.name}')">
                     <div class="cat-slideshow">${slides}</div>
                     <div class="absolute inset-0 bg-black/40 flex items-center justify-center z-10 hover:bg-black/20 transition-all">
-                        <h3 class="royal-font text-white text-4xl">${cat.name}</h3>
+                        <h3 class="royal-font text-white text-4xl text-center px-4">${cat.name}</h3>
                     </div>
                 </div>`;
             }).join('');
@@ -352,7 +350,19 @@
                         <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="btn-dark-pink w-full py-5 text-white rounded-3xl text-sm">Add to Bag</button>
                     </div>
                 </div>`).join('');
-            window.scrollTo({ top: document.getElementById('product-grid').offsetTop - 100, behavior: 'smooth' });
+            
+            // Highlight the active filter button
+            document.querySelectorAll('#category-filters button').forEach(btn => {
+                if(btn.innerText.toUpperCase() === filter.toUpperCase()) {
+                    btn.classList.add('border-[#FF007F]', 'text-[#FF007F]');
+                    btn.classList.remove('border-gray-100');
+                } else {
+                    btn.classList.remove('border-[#FF007F]', 'text-[#FF007F]');
+                    btn.classList.add('border-gray-100');
+                }
+            });
+
+            window.scrollTo({ top: document.getElementById('product-grid').offsetTop - 150, behavior: 'smooth' });
         }
 
         function openDetailModal(id) {
@@ -374,7 +384,6 @@
             document.getElementById('detail-modal').classList.add('active');
         }
 
-        // --- CART & MPESA LOGIC ---
         function addToBag(id, name, price) {
             cart.push({ id, name, price });
             updateCartUI();
@@ -441,7 +450,6 @@
             initMap();
         }
 
-        // --- UI HELPERS ---
         function renderFilters() {
             const cont = document.getElementById('category-filters');
             if(!cont) return;
