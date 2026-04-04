@@ -31,8 +31,8 @@
 
         #cart-counter { position: absolute; top: -10px; right: -15px; background: var(--fuchsia); color: white; border-radius: 999px; padding: 4px 10px; font-size: 14px; font-weight: bold; border: 2px solid white; }
 
-        .cat-slideshow { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; border-radius: 50px; }
-        .cat-slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 1.5s ease-in-out; object-fit: cover; }
+        .cat-slideshow { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; border-radius: 50px; background: #f3f4f6; }
+        .cat-slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 1s ease-in-out; object-fit: cover; }
         .cat-slide.active { opacity: 1; z-index: 1; }
         
         #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
@@ -117,7 +117,6 @@
                 </div>
                 <button onclick="document.getElementById('dashboard-modal').classList.remove('active')" class="text-6xl text-gray-300 hover:text-black">&times;</button>
             </div>
-
             <div id="user-dash-main" class="flex flex-col h-full">
                 <div class="flex gap-12 border-b-4 mb-12">
                     <div class="dash-tab active" onclick="switchTab('tracking')">Live Tracking</div>
@@ -159,7 +158,9 @@
     </div>
 
     <section class="relative h-[60vh] flex items-center justify-center text-center">
-        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('hero-premium.jpg');"><div class="absolute inset-0 bg-black/40"></div></div>
+        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('hero-premium.jpg');">
+            <div class="absolute inset-0 bg-black/40"></div>
+        </div>
         <div class="relative z-10"><h1 class="royal-font text-7xl md:text-[8rem] text-white">ROYAL<br><span class="text-[#FF007F]">GLOW</span></h1></div>
     </section>
 
@@ -170,13 +171,15 @@
             <h2 class="royal-font text-6xl text-[#D4AF37]">Glow By Vee's Collections</h2>
             <div class="h-2 w-60 bg-[#FF007F] mx-auto mt-8 rounded-full"></div>
         </div>
-        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-40"></div>
+        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-40">
+            </div>
 
         <div class="text-center mb-20">
             <h2 class="royal-font text-5xl text-[#FF007F]">Individual Products</h2>
             <div id="category-filters" class="flex justify-center gap-6 mt-12 mb-20 flex-wrap"></div>
         </div>
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20"></div>
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20">
+            </div>
     </section>
 
     <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[500px] bg-white z-[100] shadow-2xl flex flex-col border-l-[10px] border-[#FF007F]">
@@ -205,33 +208,54 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // FALLBACK DATA (If DB takes too long, this ensures items always show)
+        const localProducts = [
+            { id: 1, name: "PALMER'S SOAP", price: 650, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "palmers_soap.jpg", description: "Enriched with Vitamin E for skin smoothing." },
+            { id: 2, name: "48 INSTA HYDRATING OIL", price: 1350, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "hydrating_oil.jpg", description: "Instant moisture booster." },
+            { id: 3, name: "INTENSIVE BODY LOTION", price: 1650, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "body_lotion.jpg", description: "Deep conditioning formula." },
+            { id: 5, name: "EGGY SKIN- CRÉME ÉCLAT", price: 2500, cat_name: "EGGY SKIN- CRÉME ÉCLAT", image_url: "eggy_skin.jpg", description: "Brightening luxury cream." },
+            { id: 6, name: "LEMON GLOW BOOSTER", price: 2500, cat_name: "LEMON GLOW BOOSTER", image_url: "lemon_glow.jpg", description: "Radiant lemon extract formula." }
+        ];
+
         let cart = JSON.parse(localStorage.getItem('glow_cart_vee')) || [];
         let products = [], categories = [], reviews = [], map;
 
         async function initCatalog() {
             try {
-                // FETCH DATA FIRST
+                // Fetch Data from Supabase
                 const { data: catData } = await _supabase.from('categories').select('*');
                 const { data: prodData } = await _supabase.from('products').select('*');
                 const { data: revData } = await _supabase.from('reviews').select('*, profiles(full_name)');
 
-                categories = catData || [];
-                products = (prodData || []).map(p => {
-                    const catObj = categories.find(c => c.id === p.category_id);
-                    return { ...p, cat_name: catObj ? catObj.name : 'Uncategorized' };
-                });
+                // Set categories (fall back to unique categories in products if cat table empty)
+                categories = catData && catData.length > 0 ? catData : [...new Set((prodData || localProducts).map(p => p.cat_name))].map(name => ({name}));
+                
+                // Set products (fall back to local if prodData is empty)
+                products = (prodData && prodData.length > 0) ? prodData.map(p => {
+                    const c = categories.find(cat => cat.id === p.category_id);
+                    return {...p, cat_name: c ? c.name : 'General'};
+                }) : localProducts;
+                
                 reviews = revData || [];
 
-                // BUILD UI ONLY AFTER DATA IS READY
+                // RENDER UI
                 renderCategories();
                 renderFilters();
                 renderProducts('All');
                 updateCartUI();
                 checkAuth();
-                startCategorySlides();
                 
+                // Start Slideshows after short delay to ensure images are in DOM
+                setTimeout(startCategorySlides, 500);
+
             } catch (err) {
-                console.error("Critical Load Error:", err);
+                console.error("DB Load Error, using local storage:", err);
+                products = localProducts;
+                categories = [...new Set(products.map(p => p.cat_name))].map(name => ({name}));
+                renderCategories();
+                renderFilters();
+                renderProducts('All');
+                setTimeout(startCategorySlides, 500);
             }
         }
 
@@ -240,14 +264,9 @@
             if(!grid) return;
             
             grid.innerHTML = categories.map((cat, idx) => {
-                // Playlists are built from images of products assigned to this category
                 const catImages = products.filter(p => p.cat_name === cat.name).map(p => p.image_url);
-                
-                // Shuffle images for "Random View"
-                const shuffled = catImages.sort(() => 0.5 - Math.random());
-
-                const slides = shuffled.length > 0 ? 
-                    shuffled.map((img, i) => `<img src="${img}" class="cat-slide ${i === 0 ? 'active' : ''}" data-slideshow="${idx}">`).join('') :
+                const slides = catImages.length > 0 ? 
+                    catImages.map((img, i) => `<img src="${img}" class="cat-slide ${i === 0 ? 'active' : ''}" data-slideshow="${idx}">`).join('') :
                     `<img src="placeholder.jpg" class="cat-slide active">`;
 
                 return `
@@ -286,14 +305,13 @@
                     <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
                     <p class="text-2xl font-black text-[#FF007F] mb-6">KES ${p.price.toLocaleString()}</p>
                     <div class="mt-auto flex flex-col gap-3">
-                        <button onclick="openDetailModal(${p.id})" class="text-xs font-black uppercase text-gray-400 hover:text-black transition-all">View Details & Reviews</button>
+                        <button onclick="openDetailModal(${p.id})" class="text-xs font-black uppercase text-gray-400 hover:text-black">Details & Reviews</button>
                         <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="btn-dark-pink w-full py-5 text-white rounded-3xl text-sm">Add to Bag</button>
                     </div>
                 </div>`).join('');
             
             if(filter !== 'All') {
-                const target = document.getElementById('product-grid');
-                window.scrollTo({ top: target.offsetTop - 150, behavior: 'smooth' });
+                window.scrollTo({ top: grid.offsetTop - 150, behavior: 'smooth' });
             }
         }
 
@@ -312,7 +330,7 @@
             if(!p) return;
             document.getElementById('detail-img').src = p.image_url;
             document.getElementById('detail-name').innerText = p.name;
-            document.getElementById('detail-desc').innerText = p.description || "Royal grade skincare formulation for maximum radiance.";
+            document.getElementById('detail-desc').innerText = p.description || "Premium royal formula for glowing skin.";
             document.getElementById('detail-price').innerText = p.price.toLocaleString();
             
             const prodRevs = reviews.filter(r => r.product_id === id);
@@ -320,7 +338,7 @@
                 <div class="bg-gray-50 p-4 rounded-2xl border-l-4 border-[#FF007F]">
                     <p class="font-bold text-[#FF007F] text-sm">${r.profiles?.full_name || 'Verified Client'}</p>
                     <p class="text-xs italic text-gray-500">"${r.comment}"</p>
-                </div>`).join('') || '<p class="text-xs opacity-50 text-center py-4">Be the first to review this royal glow!</p>';
+                </div>`).join('') || '<p class="text-xs opacity-50 text-center py-4">No reviews yet.</p>';
             
             document.getElementById('detail-add-btn').onclick = () => { addToBag(p.id, p.name, p.price); closeDetailModal(); };
             document.getElementById('detail-modal').classList.add('active');
@@ -329,7 +347,7 @@
         function addToBag(id, name, price) { 
             cart.push({ id, name, price }); 
             updateCartUI(); 
-            triggerToast('🛍️', 'SUCCESS!', 'Item Added to Bag'); 
+            triggerToast('🛍️', 'SUCCESS!', 'Item Added'); 
         }
         
         function updateCartUI() {
@@ -341,7 +359,7 @@
                 <div class="flex justify-between bg-gray-50 p-4 rounded-2xl items-center">
                     <div><p class="font-bold text-sm">${i.name}</p><p class="text-[#FF007F] font-black">KES ${i.price.toLocaleString()}</p></div>
                     <button onclick="removeFromBag(${idx})" class="text-3xl text-red-200 hover:text-red-500">×</button>
-                </div>`).join('') || '<p class="text-center opacity-30 mt-10 uppercase font-black text-xs">Your bag is empty</p>';
+                </div>`).join('') || '<p class="text-center opacity-30 mt-10">Bag is empty</p>';
         }
 
         function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
@@ -351,32 +369,9 @@
             document.getElementById('toast-icon').innerText = icon;
             document.getElementById('toast-title').innerText = title;
             document.getElementById('toast-msg').innerText = msg;
-            const audio = document.getElementById('cart-sound');
-            if(audio) audio.play();
+            document.getElementById('cart-sound').play();
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        function switchTab(t) {
-            document.querySelectorAll('.dash-tab').forEach(x => x.classList.remove('active'));
-            document.querySelectorAll('.dash-content').forEach(x => x.classList.remove('active'));
-            const tab = document.querySelector(`[onclick="switchTab('${t}')"]`);
-            if(tab) tab.classList.add('active');
-            document.getElementById('tab-' + t).classList.add('active');
-        }
-
-        function openDashboard() { 
-            document.getElementById('session-modal').classList.remove('active');
-            document.getElementById('dashboard-modal').classList.add('active'); 
-            setTimeout(initMap, 500); 
-        }
-
-        function initMap() { 
-            if(!map && document.getElementById('map')) { 
-                map = L.map('map').setView([-1.286, 36.817], 13); 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
-                L.marker([-1.286, 36.817]).addTo(map).bindPopup("Glow Delivery Track").openPopup(); 
-            }
         }
 
         function checkAuth() {
@@ -386,13 +381,13 @@
                 document.getElementById('user-name-display').innerText = user.full_name.split(' ')[0].toUpperCase();
                 document.getElementById('user-status-sticker').classList.remove('hidden');
             }
-            if (isAdmin) { document.getElementById('admin-status').classList.remove('hidden'); }
+            if (isAdmin) document.getElementById('admin-status').classList.remove('hidden');
         }
 
         function handlePortalClick() {
             const user = JSON.parse(localStorage.getItem('glowCustomer'));
-            if (!user) { document.getElementById('auth-modal').classList.add('active'); }
-            else { document.getElementById('session-modal').classList.add('active'); }
+            if (!user) document.getElementById('auth-modal').classList.add('active');
+            else document.getElementById('session-modal').classList.add('active');
         }
 
         function handleAdminClick() {
@@ -400,19 +395,34 @@
         }
 
         function verifyAdminAccess() {
-            const key = document.getElementById('admin-pass-key').value;
-            if (key === 'VEEROYAL254') { 
-                localStorage.setItem('glowAdminActive', 'true'); 
-                location.reload(); 
-            } else { 
-                alert("Incorrect Security Key"); 
-            }
+            if (document.getElementById('admin-pass-key').value === 'VEEROYAL254') {
+                localStorage.setItem('glowAdminActive', 'true');
+                location.reload();
+            } else alert("Invalid Key");
         }
 
         function handleLogout() {
             localStorage.removeItem('glowAdminActive');
             localStorage.removeItem('glowCustomer');
             location.reload();
+        }
+
+        function switchTab(t) {
+            document.querySelectorAll('.dash-tab').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.dash-content').forEach(x => x.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${t}')"]`).classList.add('active');
+            document.getElementById('tab-' + t).classList.add('active');
+        }
+
+        function openDashboard() {
+            document.getElementById('session-modal').classList.remove('active');
+            document.getElementById('dashboard-modal').classList.add('active');
+            setTimeout(() => {
+                if(!map) {
+                    map = L.map('map').setView([-1.286, 36.817], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                }
+            }, 500);
         }
 
         window.onload = initCatalog;
