@@ -49,19 +49,25 @@
 
     <div id="dashboard-content" class="hidden flex flex-col md:flex-row min-h-screen">
         <aside class="w-full md:w-64 bg-[#1A1A1B] text-white p-6 md:sticky md:top-0 md:h-screen">
-            <div class="flex items-center gap-2 mb-10">
-                <div class="h-10 w-10 bg-no-repeat bg-contain" style="background-image: url('logo.jpg'); filter: invert(1);"></div>
-                <h1 class="text-[#FF007F] font-bold text-xl royal-font">Vee's Portal</h1>
+            <div class="flex flex-col gap-4 mb-10">
+                <div class="flex items-center gap-2">
+                    <div class="h-10 w-10 bg-no-repeat bg-contain" style="background-image: url('logo.jpg'); filter: invert(1);"></div>
+                    <h1 class="text-[#FF007F] font-bold text-xl royal-font">Vee's Portal</h1>
+                </div>
+                
+                <nav class="flex flex-col gap-2 mt-4">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest mb-1">Main Menu</p>
+                    <a href="#" class="block p-3 rounded-xl bg-[#FF007F]/10 text-[#FF007F] font-bold border-l-4 border-[#FF007F]">OVERVIEW</a>
+                    <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all text-[#D4AF37]">ORDERS</a>
+                </nav>
             </div>
+
             <div id="admin-info" class="mb-6 p-3 bg-white/5 rounded-xl border border-white/10">
                 <p class="text-[10px] text-[#D4AF37] uppercase font-bold">Logged in as:</p>
                 <p id="current-admin-name" class="text-sm font-bold truncate">Admin Name</p>
             </div>
-            <nav class="space-y-2">
-                <a href="#" class="block p-3 rounded-xl bg-[#FF007F]/10 text-[#FF007F] font-bold">OVERVIEW</a>
-                <a href="#" class="block p-3 rounded-xl hover:bg-white/5 transition-all text-[#D4AF37]">ORDERS</a>
-                <button onclick="logout()" class="w-full text-left p-3 rounded-xl hover:bg-red-500/10 text-red-400 transition-all">LOGOUT</button>
-            </nav>
+            
+            <button onclick="logout()" class="w-full text-left p-3 rounded-xl hover:bg-red-500/10 text-red-400 transition-all mt-auto">LOGOUT</button>
         </aside>
 
         <main class="flex-1 p-6 md:p-10">
