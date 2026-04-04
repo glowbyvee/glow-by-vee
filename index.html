@@ -183,8 +183,8 @@
         </div>
     </div>
 
-    <section class="relative h-[65vh] flex items-center justify-center text-center">
-        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('hero-premium.jpg');"><div class="absolute inset-0 bg-black/40"></div></div>
+    <section class="relative h-[90vh] flex items-center justify-center text-center">
+        <div class="absolute inset-0 bg-cover bg-center bg-fixed" style="background-image: url('hero-premium.jpg');"><div class="absolute inset-0 bg-black/40"></div></div>
         <div class="relative z-10 px-6">
             <h1 class="royal-font text-7xl md:text-[8rem] text-white leading-none">ROYAL<br><span class="text-[#FF007F]">GLOW</span></h1>
             <p class="text-white text-2xl mt-8 font-bold tracking-[0.5em] uppercase">Organic Skin Elixirs</p>
@@ -193,17 +193,35 @@
 
     <div class="marquee"><div class="marquee-content">✨ Premium Organic Formulas ✨ Same Day Delivery in Nairobi ✨ Pure Ingredients Only ✨ Your Skin, Our Priority ✨</div></div>
 
-    <section id="catalog" class="py-32 px-6 max-w-7xl mx-auto">
-        <div class="text-center mb-24">
+    <section id="catalog" class="py-16 px-6 max-w-7xl mx-auto">
+        <div class="text-center mb-16">
             <h2 class="royal-font text-6xl text-[#D4AF37]">Glow By Vee's Collection</h2>
             <div class="h-2 w-60 bg-[#FF007F] mx-auto mt-8 rounded-full"></div>
         </div>
 
-        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-40"></div>
+        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-20"></div>
 
-        <div class="text-center mb-20 border-t-4 border-gray-50 pt-24">
+        <div class="text-center mb-10 border-t-4 border-gray-50 pt-16">
             <h2 class="royal-font text-5xl text-[#FF007F]">Individual Products</h2>
-            <div id="category-filters" class="flex justify-center gap-6 mt-12 mb-20 flex-wrap"></div>
+            
+            <div class="mt-12 flex flex-col items-center">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="bg-pink-500 text-white text-xs font-black px-3 py-1 rounded-full animate-bounce">✨ STICKER</span>
+                    <p class="text-gray-400 font-bold uppercase tracking-widest text-sm">Find your perfect glow in seconds</p>
+                </div>
+                <div class="relative w-full max-w-2xl group">
+                    <div class="absolute inset-y-0 left-8 flex items-center pointer-events-none">
+                        <span class="text-2xl">🔍</span>
+                    </div>
+                    <input type="text" 
+                        id="product-search-input" 
+                        oninput="filterProducts()"
+                        placeholder="Search for your favorite Glow Elixir..." 
+                        class="w-full pl-20 pr-10 py-6 rounded-[30px] border-4 border-gray-50 bg-gray-50 outline-none text-xl font-bold focus:border-[#FF007F] focus:bg-white transition-all shadow-lg group-hover:shadow-xl">
+                </div>
+            </div>
+
+            <div id="category-filters" class="flex justify-center gap-6 mt-12 mb-16 flex-wrap"></div>
         </div>
         <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20"></div>
     </section>
@@ -281,6 +299,21 @@
         function renderProducts(filter) {
             const grid = document.getElementById('product-grid');
             const filtered = filter === 'All' ? products : products.filter(p => p.cat_name === filter);
+            grid.innerHTML = filtered.map(p => `
+                <div class="bg-white p-10 rounded-[60px] shadow-2xl border-4 border-gray-50 hover:border-[#FF007F] transition-all group">
+                    <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[40px] mb-8 cursor-pointer" onclick="openDetailModal(${p.id})">
+                    <h3 class="royal-font text-3xl text-[#D4AF37] mb-2">${p.name}</h3>
+                    <div class="flex justify-between items-center mt-8">
+                        <span class="text-3xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
+                        <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-10 py-4 rounded-3xl font-black text-sm uppercase">Add</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function filterProducts() {
+            const query = document.getElementById('product-search-input').value.toLowerCase();
+            const grid = document.getElementById('product-grid');
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query) || p.cat_name.toLowerCase().includes(query));
             grid.innerHTML = filtered.map(p => `
                 <div class="bg-white p-10 rounded-[60px] shadow-2xl border-4 border-gray-50 hover:border-[#FF007F] transition-all group">
                     <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[40px] mb-8 cursor-pointer" onclick="openDetailModal(${p.id})">
