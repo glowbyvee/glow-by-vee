@@ -9,127 +9,121 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --fuchsia: #FF007F; --gold: #D4AF37; }
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; background-color: #fff; }
         .royal-font { font-family: 'Cinzel', serif; }
-        .category-btn.active { background-color: var(--fuchsia); color: white; border-color: var(--fuchsia); }
+        .category-btn.active { background-color: var(--fuchsia); color: white; border-color: var(--fuchsia); box-shadow: 0 4px 12px rgba(255, 0, 127, 0.2); }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        /* Smooth Fade for Slideshow Effect */
-        .product-card img { transition: opacity 0.5s ease-in-out; }
+        .product-card { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     </style>
 </head>
 <body class="bg-white">
 
-    <main class="p-6 md:p-10">
-        <h2 class="royal-font text-3xl md:text-4xl text-[#FF007F] mb-6 text-center md:text-left">Royal Collection</h2>
+    <main class="max-w-7xl mx-auto p-6 md:p-10">
+        <h2 class="royal-font text-3xl md:text-5xl text-[#FF007F] mb-8 text-center">Royal Collection</h2>
         
-        <div id="category-bar" class="flex flex-wrap gap-3 mb-10 justify-center md:justify-start">
-            <button id="btn-all" onclick="filterProducts('All', this)" class="category-btn active border-2 border-gray-100 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all hover:border-[#FF007F]">All</button>
+        <div id="category-bar" class="flex flex-wrap gap-3 mb-12 justify-center">
+            <button id="btn-all" onclick="filterProducts('All', this)" 
+                class="category-btn active border-2 border-gray-100 px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all">
+                All Collections
+            </button>
         </div>
 
         <div id="loading-spinner" class="text-center py-20">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#FF007F] mb-4"></div>
-            <p class="text-gray-400 italic">Fetching the latest glow essentials...</p>
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#FF007F] mb-4"></div>
+            <p class="text-gray-400 italic royal-font tracking-widest">Refreshing Royal Stocks...</p>
         </div>
 
-        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-10">
             </div>
     </main>
 
     <script>
-        // AUTHENTIC CREDENTIALS FROM ADMIN.HTML
         const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
-        
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allProducts = [];
+        let allCategories = [];
 
         async function initializeCatalog() {
-            await fetchCategories();
-            await fetchCatalog();
+            // 1. Fetch both simultaneously to ensure data integrity
+            const [catRes, prodRes] = await Promise.all([
+                _supabase.from('categories').select('*').order('name'),
+                _supabase.from('products').select('*, categories(name)')
+            ]);
+
+            allCategories = catRes.data || [];
+            allProducts = prodRes.data || [];
+
+            renderCategoryBar();
+            renderProducts(allProducts);
+            document.getElementById('loading-spinner').classList.add('hidden');
+
+            // 2. Enable Real-time sync
+            setupRealtime();
         }
 
-        async function fetchCategories() {
-            const categoryBar = document.getElementById('category-bar');
-            try {
-                const { data: categories, error } = await _supabase
-                    .from('categories')
-                    .select('id, name')
-                    .order('name');
-
-                if (error) throw error;
-
-                categories.forEach(cat => {
-                    const btn = document.createElement('button');
-                    btn.className = "category-btn border-2 border-gray-100 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all hover:border-[#FF007F]";
-                    btn.innerText = cat.name;
-                    btn.onclick = () => filterProducts(cat.name, btn);
-                    categoryBar.appendChild(btn);
-                });
-            } catch (err) {
-                console.error("Category Load Error:", err);
-            }
+        function setupRealtime() {
+            _supabase.channel('catalog-updates')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, async () => {
+                    const { data } = await _supabase.from('products').select('*, categories(name)');
+                    allProducts = data;
+                    renderProducts(allProducts);
+                })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, async () => {
+                    const { data } = await _supabase.from('categories').select('*').order('name');
+                    allCategories = data;
+                    renderCategoryBar();
+                })
+                .subscribe();
         }
 
-        async function fetchCatalog() {
-            const loader = document.getElementById('loading-spinner');
-            try {
-                // Fetch products and JOIN with categories to get the name directly
-                const { data: products, error } = await _supabase
-                    .from('products')
-                    .select(`
-                        *,
-                        categories ( name )
-                    `);
-
-                if (error) throw error;
-
-                allProducts = products;
-                loader.classList.add('hidden');
-                renderProducts(allProducts);
-
-            } catch (err) {
-                loader.innerHTML = `<p class="text-red-500">Connection Error. Please check your Supabase API keys.</p>`;
-            }
-        }
-
-        function renderProducts(products) {
-            const grid = document.getElementById('product-grid');
+        function renderCategoryBar() {
+            const bar = document.getElementById('category-bar');
+            // Reset to keep the "All" button
+            bar.innerHTML = `<button id="btn-all" onclick="filterProducts('All', this)" class="category-btn active border-2 border-gray-100 px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all">All Collections</button>`;
             
-            if (!products || products.length === 0) {
-                grid.innerHTML = `<p class="col-span-full text-center text-gray-400 py-10 italic">No products found in this category.</p>`;
+            allCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = "category-btn border-2 border-gray-100 px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all hover:border-[#FF007F]";
+                btn.innerText = cat.name;
+                btn.onclick = (e) => filterProducts(cat.name, e.target);
+                bar.appendChild(btn);
+            });
+        }
+
+        function renderProducts(items) {
+            const grid = document.getElementById('product-grid');
+            if (!items || items.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-20 bg-gray-50 rounded-[40px] border-2 border-dashed border-gray-100">
+                    <p class="text-gray-400 italic">No royal products found in this section.</p>
+                </div>`;
                 return;
             }
 
-            grid.innerHTML = products.map(product => {
-                // Use image_url from your admin logic, fallback to storage URL if only name exists
-                const displayImg = product.image_url || (product.img ? _supabase.storage.from('product-images').getPublicUrl(product.img).data.publicUrl : 'https://via.placeholder.com/300?text=Glow+Coming+Soon');
-                
-                // Get category name from the joined object
-                const categoryName = product.categories?.name || 'Skincare';
+            grid.innerHTML = items.map(p => {
+                const img = p.image_url || 'https://via.placeholder.com/400?text=Glow+Coming+Soon';
+                const catName = p.categories?.name || 'General';
 
                 return `
-                    <div class="product-card group border border-pink-50 rounded-[32px] p-3 md:p-5 shadow-sm hover:shadow-xl hover:border-[#D4AF37] transition-all bg-white flex flex-col justify-between">
-                        <div>
-                            <div class="h-40 md:h-56 bg-gray-50 rounded-2xl mb-4 overflow-hidden relative">
-                                <img src="${displayImg}" 
-                                     alt="${product.name}" 
-                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                     onerror="this.src='https://via.placeholder.com/300?text=Image+Not+Found'">
+                    <div class="product-card group bg-white border border-pink-50 rounded-[40px] p-4 shadow-sm hover:shadow-2xl hover:-translate-y-2">
+                        <div class="relative aspect-square rounded-[30px] overflow-hidden mb-5 bg-gray-50">
+                            <img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
+                            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-4 py-1 rounded-full border border-pink-100">
+                                <span class="text-[9px] font-black text-[#FF007F] uppercase tracking-tighter">${catName}</span>
                             </div>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] mb-1 block">${categoryName}</span>
-                            <h3 class="font-bold text-gray-800 text-sm md:text-base leading-tight mb-1">${product.name}</h3>
-                            <p class="text-[11px] text-gray-400 line-clamp-2 mb-4">${product.description || ''}</p>
                         </div>
                         
-                        <div class="flex justify-between items-center pt-2 border-t border-gray-50">
-                            <div class="flex flex-col">
-                                <span class="text-[10px] text-gray-400 font-bold uppercase">Price</span>
-                                <span class="text-[#FF007F] font-black text-sm md:text-lg">KES ${(product.price || 0).toLocaleString()}</span>
+                        <h3 class="royal-font text-lg font-bold text-gray-800 mb-1 px-2">${p.name}</h3>
+                        <p class="text-xs text-gray-400 line-clamp-2 px-2 mb-6 font-medium">${p.description || ''}</p>
+                        
+                        <div class="flex items-center justify-between bg-pink-50/30 p-4 rounded-[25px]">
+                            <div>
+                                <p class="text-[9px] uppercase font-bold text-gray-400 tracking-widest">Price</p>
+                                <p class="text-[#FF007F] font-black text-xl">KES ${p.price.toLocaleString()}</p>
                             </div>
-                            <button onclick="addToCart('${product.id}')" 
-                                    class="bg-[#D4AF37] hover:bg-[#FF007F] text-white w-10 h-10 rounded-xl font-bold transition-all flex items-center justify-center shadow-lg active:scale-95">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <button onclick="addToCart('${p.id}')" class="bg-[#D4AF37] hover:bg-[#FF007F] text-white p-4 rounded-2xl transition-all shadow-lg active:scale-90">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                 </svg>
                             </button>
@@ -139,21 +133,21 @@
             }).join('');
         }
 
-        function filterProducts(category, clickedBtn) {
-            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-            if (clickedBtn) clickedBtn.classList.add('active');
+        function filterProducts(categoryName, btn) {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
 
-            if (category === 'All') {
+            if (categoryName === 'All') {
                 renderProducts(allProducts);
             } else {
-                // Filter based on the joined category name
-                const filtered = allProducts.filter(p => p.categories?.name === category);
+                const filtered = allProducts.filter(p => p.categories?.name === categoryName);
                 renderProducts(filtered);
             }
         }
 
         function addToCart(id) {
-            alert("Royal item added to your selection!");
+            // Placeholder for your cart logic
+            alert("This royal item has been added to your selection.");
         }
 
         window.onload = initializeCatalog;
