@@ -30,7 +30,6 @@
         
         #cart-counter { position: absolute; top: -10px; right: -15px; background: var(--fuchsia); color: white; border-radius: 999px; padding: 4px 10px; font-size: 14px; font-weight: bold; border: 2px solid white; }
         
-        /* FIX: PERFECT DESKTOP CATEGORY SLIDESHOW */
         .cat-slideshow { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .cat-slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 1.5s ease-in-out; object-fit: cover; object-position: center; }
         .cat-slide.active { opacity: 1; z-index: 1; }
@@ -60,7 +59,6 @@
         .step-circle { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; background: #e5e7eb; color: #9ca3af; }
         .step-active { background: var(--fuchsia); color: white; box-shadow: 0 0 15px var(--fuchsia); }
         
-        /* ADMIN COMMAND CENTER STYLING */
         .admin-sidebar { width: 320px; background: #000; color: white; height: 100%; padding: 50px 30px; border-right: 1px solid #333; }
         .admin-nav-item { padding: 18px 25px; border-radius: 20px; margin-bottom: 12px; cursor: pointer; transition: 0.3s; font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 15px; }
         .admin-nav-item:hover, .admin-nav-item.active { background: var(--fuchsia); color: white; }
@@ -150,6 +148,30 @@
         </div>
     </div>
 
+    <nav class="flex justify-between items-center px-6 py-8 md:px-16 border-b-8 border-[#FF007F] sticky top-0 bg-white z-[60] shadow-xl">
+        <div class="flex items-center gap-4 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+            <div class="h-16 w-16 bg-contain bg-no-repeat" style="background-image: url('logo.jpg');"></div>
+            <span class="royal-font text-3xl md:text-5xl font-black text-[#FF007F] tracking-tighter">Glow By Vee</span>
+        </div>
+        <div class="flex gap-12 items-center">
+            <div class="hidden lg:flex gap-12 royal-font font-black text-[#D4AF37] text-xl uppercase tracking-widest">
+                <a href="#catalog" class="hover:text-[#FF007F] transition-all">SHOP</a>
+                <a href="ai-skin.html" class="hover:text-[#FF007F] transition-all">AI FEATURES</a>
+                <button onclick="openAdminGate()" class="hover:text-[#FF007F] transition-all">ADMIN</button>
+            </div>
+            <div id="user-section" class="hidden flex items-center gap-6">
+                <div class="flex items-center gap-3 bg-pink-100 px-8 py-4 rounded-full border-2 border-pink-200 cursor-pointer shadow-sm hover:scale-105 transition-all" onclick="openDashboard()">
+                    <span class="text-3xl">👑</span>
+                    <span id="user-name-display" class="font-black text-[#FF007F] text-xl uppercase"></span>
+                    <div class="h-4 w-4 bg-green-500 rounded-full animate-pulse shadow-md"></div>
+                </div>
+            </div>
+            <div class="relative cursor-pointer hover:scale-110 transition-transform" onclick="toggleCart()">
+                <span class="text-5xl">🛒</span><span id="cart-counter">0</span>
+            </div>
+        </div>
+    </nav>
+
     <div id="detail-modal" class="modal-overlay fixed inset-0 z-[120] items-center justify-center p-4">
         <div class="bg-white rounded-[50px] max-w-6xl w-full max-h-[95vh] overflow-hidden shadow-2xl flex flex-col relative">
             <button onclick="closeDetailModal()" class="absolute top-8 right-8 text-5xl text-gray-300 z-20 hover:text-black">&times;</button>
@@ -234,30 +256,6 @@
             </div>
         </div>
     </div>
-
-    <nav class="flex justify-between items-center px-6 py-8 md:px-16 border-b-8 border-[#FF007F] sticky top-0 bg-white z-[60] shadow-xl">
-        <div class="flex items-center gap-4 cursor-pointer" onclick="window.scrollTo(0,0)">
-            <div class="h-16 w-16 bg-contain bg-no-repeat" style="background-image: url('logo.jpg');"></div>
-            <span class="royal-font text-3xl md:text-5xl font-black text-[#FF007F] tracking-tighter">Glow By Vee</span>
-        </div>
-        <div class="flex gap-12 items-center">
-            <div class="hidden lg:flex gap-12 royal-font font-black text-[#D4AF37] text-xl uppercase tracking-widest">
-                <a href="#catalog" class="hover:text-[#FF007F] transition-all">SHOP</a>
-                <a href="ai-skin.html" class="hover:text-[#FF007F] transition-all">AI FEATURES</a>
-                <button onclick="openAdminGate()" class="hover:text-[#FF007F] transition-all">ADMIN</button>
-            </div>
-            <div id="user-section" class="hidden flex items-center gap-6">
-                <div class="flex items-center gap-3 bg-pink-100 px-8 py-4 rounded-full border-2 border-pink-200 cursor-pointer shadow-sm hover:scale-105 transition-all" onclick="openDashboard()">
-                    <span class="text-3xl">👑</span>
-                    <span id="user-name-display" class="font-black text-[#FF007F] text-xl uppercase"></span>
-                    <div class="h-4 w-4 bg-green-500 rounded-full animate-pulse shadow-md"></div>
-                </div>
-            </div>
-            <div class="relative cursor-pointer hover:scale-110 transition-transform" onclick="toggleCart()">
-                <span class="text-5xl">🛒</span><span id="cart-counter">0</span>
-            </div>
-        </div>
-    </nav>
 
     <section class="relative h-[65vh] flex items-center justify-center text-center">
         <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('hero-premium.jpg');"><div class="absolute inset-0 bg-black/40"></div></div>
@@ -436,12 +434,7 @@
             switchTab('tracking'); updateStepTracker(1);
         }
 
-        // ADMIN HQ LOGIC
-        function openAdminGate() {
-            const user = JSON.parse(localStorage.getItem('glowCustomer'));
-            if(!user) return alert("Log in to your account first!");
-            document.getElementById('admin-auth-modal').classList.add('active');
-        }
+        function openAdminGate() { document.getElementById('admin-auth-modal').classList.add('active'); }
 
         async function verifyAdminAccess() {
             const key = document.getElementById('admin-pass-key').value;
@@ -456,75 +449,18 @@
             const { data: ords } = await _supabase.from('orders').select('*, profiles(full_name, phone_number)').order('created_at', { ascending: false });
             const { data: usrList } = await _supabase.from('profiles').select('*');
             allOrders = ords || []; users = usrList || [];
-            renderAdminOrders(); renderAdminCustomers(); initCharts(); populateAdminCats();
+            renderAdminOrders(); renderAdminCustomers(); initCharts();
         }
 
         function renderAdminOrders() {
             const cont = document.getElementById('admin-order-list');
             cont.innerHTML = allOrders.map(o => `
                 <div class="bg-white p-10 rounded-[40px] shadow-sm flex flex-col lg:flex-row justify-between lg:items-center border border-gray-100 gap-8">
-                    <div>
-                        <div class="flex items-center gap-4 mb-2">
-                            <span class="bg-pink-100 text-[#FF007F] px-4 py-1 rounded-full text-xs font-black">ID: #${o.id}</span>
-                            <span class="font-bold text-gray-400 text-sm">${new Date(o.created_at).toLocaleString()}</span>
-                        </div>
-                        <h4 class="font-black text-2xl">${o.profiles?.full_name}</h4>
-                        <p class="text-gray-500 font-bold">${o.profiles?.phone_number} | KES ${o.total_amount.toLocaleString()}</p>
-                    </div>
-                    <div class="flex flex-wrap gap-4">
-                        <input type="text" id="rider-${o.id}" placeholder="Rider Name" class="border-2 p-4 rounded-2xl outline-none font-bold" value="${o.rider_name || ''}">
-                        <button onclick="approveOrder(${o.id})" class="bg-green-500 text-white px-8 py-4 rounded-2xl font-black uppercase text-sm">Approve & Dispatch</button>
-                        <button onclick="cancelOrder(${o.id})" class="bg-red-500 text-white px-8 py-4 rounded-2xl font-black uppercase text-sm">Cancel</button>
-                    </div>
-                </div>`).join('') || '<p class="text-center py-20 opacity-30">No active orders</p>';
+                    <div><h4 class="font-black text-2xl">${o.profiles?.full_name}</h4><p class="text-gray-500 font-bold">KES ${o.total_amount.toLocaleString()}</p></div>
+                    <div class="flex gap-4"><button onclick="approveOrder(${o.id})" class="bg-green-500 text-white px-8 py-4 rounded-2xl font-black text-sm">Approve</button></div>
+                </div>`).join('');
         }
 
-        async function approveOrder(id) {
-            const rider = document.getElementById(`rider-${id}`).value;
-            if(!rider) return alert("Please assign a delivery person!");
-            await _supabase.from('orders').update({ status: 'Approved', rider_name: rider }).eq('id', id);
-            alert("Order Dispatched Successfully! ✨"); loadAdminData();
-        }
-
-        async function cancelOrder(id) {
-            if(confirm("Permanently cancel this order?")) {
-                await _supabase.from('orders').update({ status: 'Cancelled' }).eq('id', id);
-                loadAdminData();
-            }
-        }
-
-        function renderAdminCustomers() {
-            const cont = document.getElementById('admin-cust-list');
-            cont.innerHTML = `<table class="w-full text-left">
-                <thead class="bg-gray-100 text-gray-600 uppercase text-xs font-black"><tr><th class="p-8">Customer Name</th><th class="p-8">Contact</th><th class="p-8">Joined</th></tr></thead>
-                <tbody>${users.map(u => `<tr class="border-t hover:bg-gray-50 transition-all"><td class="p-8 font-black text-lg">${u.full_name}</td><td class="p-8 font-bold text-gray-400">${u.phone_number}</td><td class="p-8 text-sm">${new Date(u.created_at).toLocaleDateString()}</td></tr>`).join('')}</tbody>
-            </table>`;
-        }
-
-        function initCharts() {
-            const ctx = document.getElementById('salesChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{ label: 'Sales KES', data: [5000, 12000, 8000, 25000, 19000, 42000, 31000], borderColor: '#FF007F', tension: 0.4, fill: true, backgroundColor: 'rgba(255, 0, 127, 0.1)' }]
-                }
-            });
-        }
-
-        async function downloadSalesReport() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text("Glow By Vee - Sales & Inventory Report", 14, 20);
-            doc.autoTable({
-                head: [['Date', 'Customer', 'Amount', 'Method', 'Status']],
-                body: allOrders.map(o => [new Date(o.created_at).toLocaleDateString(), o.profiles?.full_name, o.total_amount, o.payment_method, o.status]),
-                startY: 30
-            });
-            doc.save(`GlowReport_${new Date().toLocaleDateString()}.pdf`);
-        }
-
-        // SHARED UI LOGIC
         function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
         function closeAuthModal() { document.getElementById('auth-modal').classList.remove('active'); }
         function closeDetailModal() { document.getElementById('detail-modal').classList.remove('active'); }
@@ -534,17 +470,13 @@
         function switchAdminTab(t) {
             document.querySelectorAll('.admin-nav-item').forEach(x => x.classList.remove('active'));
             document.querySelectorAll('.admin-view').forEach(x => x.classList.add('hidden'));
-            event.target.classList.add('active');
             document.getElementById('admin-' + t).classList.remove('hidden');
         }
         function switchTab(t) {
             document.querySelectorAll('.dash-tab').forEach(x => x.classList.remove('active'));
             document.querySelectorAll('.dash-content').forEach(x => x.classList.remove('active'));
-            event.target.classList.add('active');
             document.getElementById('tab-' + t).classList.add('active');
-            if(t==='tracking' && map) setTimeout(()=>map.invalidateSize(), 300);
         }
-        function updateStepTracker(s) { for(let i=1; i<=4; i++) document.getElementById('step-'+i).classList.toggle('step-active', i<=s); }
 
         async function openDetailModal(id) {
             const p = products.find(x => x.id === id);
@@ -552,24 +484,15 @@
             document.getElementById('detail-img').src = src;
             document.getElementById('detail-name').innerText = p.name;
             document.getElementById('detail-category').innerText = p.cat_name;
-            document.getElementById('detail-desc').innerText = p.description || "The ultimate organic formula for a royal, lasting glow.";
+            document.getElementById('detail-desc').innerText = p.description || "The ultimate organic formula.";
             document.getElementById('detail-price').innerText = p.price.toLocaleString();
-            document.getElementById('detail-add-btn').onclick = () => { addToBag(p.id, p.name, p.price); closeDetailModal(); };
-            
-            const pReviews = reviews.filter(r => r.product_id === p.id);
-            document.getElementById('product-reviews-list').innerHTML = pReviews.map(r => `
-                <div class="bg-gray-50 p-6 rounded-3xl">
-                    <div class="flex justify-between mb-2"><span class="font-black text-[#FF007F]">${r.profiles?.full_name}</span><span class="text-yellow-500">${'★'.repeat(r.rating)}</span></div>
-                    <p class="text-gray-600 italic">"${r.comment}"</p>
-                </div>`).join('') || '<p class="text-gray-400 italic">No testimonials yet.</p>';
-
             document.getElementById('detail-modal').classList.add('active');
         }
 
         function renderFilters() {
             const cont = document.getElementById('category-filters');
-            cont.innerHTML = `<button onclick="renderProducts('All')" class="px-10 py-4 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-black uppercase text-xs tracking-widest transition-all hover:bg-[#FF007F] hover:text-white">All Elixirs</button>` + 
-                categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-10 py-4 rounded-full border-2 border-gray-100 hover:border-[#FF007F] text-gray-400 font-black uppercase text-xs tracking-widest transition-all">${c.name}</button>`).join('');
+            cont.innerHTML = `<button onclick="renderProducts('All')" class="px-10 py-4 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-black uppercase text-xs transition-all hover:bg-[#FF007F] hover:text-white">All Elixirs</button>` + 
+                categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-10 py-4 rounded-full border-2 border-gray-100 hover:border-[#FF007F] text-gray-400 font-black uppercase text-xs transition-all">${c.name}</button>`).join('');
         }
 
         window.onload = initCatalog;
