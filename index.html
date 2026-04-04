@@ -31,15 +31,18 @@
 
         #cart-counter { position: absolute; top: -10px; right: -15px; background: var(--fuchsia); color: white; border-radius: 999px; padding: 4px 10px; font-size: 14px; font-weight: bold; border: 2px solid white; }
 
+        /* Slideshow Styles */
         .cat-slideshow { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; border-radius: 50px; }
         .cat-slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 1.5s ease-in-out; object-fit: cover; }
         .cat-slide.active { opacity: 1; z-index: 1; }
+        
         #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
         #cart-sidebar.open { transform: translateX(0); }
 
         .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; }
         .modal-overlay.active { display: flex; }
         .online-sticker { width: 12px; height: 12px; background: #22c55e; border-radius: 50%; border: 2px solid white; display: inline-block; box-shadow: 0 0 10px #22c55e; }
+        
         #success-toast {
             visibility: hidden; min-width: 320px; background: white; color: var(--fuchsia); text-align: center; border-radius: 40px;
             padding: 40px; position: fixed; z-index: 500; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.7);
@@ -91,7 +94,7 @@
         <div class="bg-white rounded-[50px] p-12 max-w-sm w-full shadow-2xl text-center">
             <h3 class="royal-font text-3xl text-[#D4AF37] mb-8" id="session-title">Account Options</h3>
             <div class="space-y-4">
-                <button onclick="goToDashboardFromSession()" class="w-full py-5 bg-gray-100 rounded-2xl font-black text-[#FF007F] uppercase">Go to Dashboard</button>
+                <button onclick="openDashboard()" class="w-full py-5 bg-gray-100 rounded-2xl font-black text-[#FF007F] uppercase">Go to Dashboard</button>
                 <button onclick="handleLogout()" class="w-full py-5 bg-red-50 rounded-2xl font-black text-red-500 uppercase">Logout / Exit</button>
             </div>
             <p onclick="document.getElementById('session-modal').classList.remove('active')" class="mt-6 text-gray-400 cursor-pointer font-bold uppercase text-xs">Cancel</p>
@@ -114,30 +117,6 @@
                     <h2 class="royal-font text-4xl text-[#FF007F]">Glow Portal</h2>
                 </div>
                 <button onclick="document.getElementById('dashboard-modal').classList.remove('active')" class="text-6xl text-gray-300 hover:text-black">&times;</button>
-            </div>
-
-            <div id="checkout-options" class="hidden flex-1 flex flex-col items-center justify-center">
-                <h3 class="royal-font text-4xl mb-12 text-[#D4AF37]">Payment Method</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 w-full max-w-5xl">
-                    <div onclick="showMpesaForm()" class="cursor-pointer p-12 border-4 border-gray-50 rounded-[50px] hover:border-[#FF007F] text-center transition-all bg-gray-50 shadow-md">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/M-PESA_LOGO-01.svg" class="h-16 mx-auto mb-6">
-                        <h4 class="font-black text-3xl">Pay Online</h4>
-                    </div>
-                    <div onclick="finalizeOrder('POD')" class="cursor-pointer p-12 border-4 border-gray-50 rounded-[50px] hover:border-[#FF007F] text-center transition-all bg-gray-50 shadow-md">
-                        <span class="text-8xl block mb-6">🚚</span>
-                        <h4 class="font-black text-3xl">Pay on Delivery</h4>
-                    </div>
-                </div>
-            </div>
-
-            <div id="mpesa-form" class="hidden flex-1 flex flex-col items-center justify-center">
-                <div class="bg-white p-12 rounded-[50px] shadow-2xl max-w-lg w-full text-center border-4 border-green-500">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/M-PESA_LOGO-01.svg" class="h-20 mx-auto mb-8">
-                    <p class="text-xl font-bold mb-4">Pay to Till: <span class="text-green-600 text-3xl">556789</span></p>
-                    <p class="text-gray-500 mb-8">Total: <span id="mpesa-amount" class="font-black text-black"></span></p>
-                    <input type="text" id="mpesa-code" placeholder="Paste Transaction Code" class="w-full p-5 border-2 rounded-2xl mb-6 outline-none text-center font-bold uppercase">
-                    <button onclick="finalizeOrder('M-Pesa')" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black uppercase text-xl">Confirm Order</button>
-                </div>
             </div>
 
             <div id="user-dash-main" class="flex flex-col h-full">
@@ -192,13 +171,15 @@
             <h2 class="royal-font text-6xl text-[#D4AF37]">Glow By Vee's Collections</h2>
             <div class="h-2 w-60 bg-[#FF007F] mx-auto mt-8 rounded-full"></div>
         </div>
-        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-40"></div>
+        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-40">
+            </div>
 
         <div class="text-center mb-20">
             <h2 class="royal-font text-5xl text-[#FF007F]">Individual Products</h2>
             <div id="category-filters" class="flex justify-center gap-6 mt-12 mb-20 flex-wrap"></div>
         </div>
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20"></div>
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20">
+             </div>
     </section>
 
     <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[500px] bg-white z-[100] shadow-2xl flex flex-col border-l-[10px] border-[#FF007F]">
@@ -227,14 +208,14 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // --- RESTORED DATA ARRAYS (Fallback & Local) ---
+        // --- CORE DATA (Fallback included) ---
         const localProducts = [
-            { id: 1, name: "PALMER'S SOAP", price: 650, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "palmers_soap.jpg" },
-            { id: 2, name: "48 INSTA HYDRATING OIL", price: 1350, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "hydrating_oil.jpg" },
-            { id: 3, name: "INTENSIVE BODY LOTION", price: 1650, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "body_lotion.jpg" },
-            { id: 4, name: "PALMER'S COCOA BUTTER CREAM", price: 1650, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "palmers_cream.jpg" },
-            { id: 5, name: "EGGY SKIN- CRÉME ÉCLAT", price: 2500, cat_name: "EGGY SKIN- CRÉME ÉCLAT", image_url: "eggy_skin.jpg" },
-            { id: 6, name: "LEMON GLOW BOOSTER", price: 2500, cat_name: "LEMON GLOW BOOSTER BODY LOTION & SERUM", image_url: "lemon_glow.jpg" }
+            { id: 1, name: "PALMER'S SOAP", price: 650, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "palmers_soap.jpg", description: "Enriched with Vitamin E." },
+            { id: 2, name: "48 INSTA HYDRATING OIL", price: 1350, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "hydrating_oil.jpg", description: "Instant moisture booster." },
+            { id: 3, name: "INTENSIVE BODY LOTION", price: 1650, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "body_lotion.jpg", description: "Deep conditioning formula." },
+            { id: 4, name: "PALMER'S COCOA BUTTER CREAM", price: 1650, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "palmers_cream.jpg", description: "Ultra-rich cocoa butter." },
+            { id: 5, name: "EGGY SKIN- CRÉME ÉCLAT", price: 2500, cat_name: "EGGY SKIN- CRÉME ÉCLAT", image_url: "eggy_skin.jpg", description: "Brightening luxury cream." },
+            { id: 6, name: "LEMON GLOW BOOSTER", price: 2500, cat_name: "LEMON GLOW BOOSTER BODY LOTION & SERUM", image_url: "lemon_glow.jpg", description: "Radiant lemon extract formula." }
         ];
 
         const localCategories = [
@@ -244,26 +225,30 @@
         ];
 
         let cart = JSON.parse(localStorage.getItem('glow_cart_vee')) || [];
-        let products = [], categories = [], reviews = [], map, currentSessionTarget = '';
+        let products = [], categories = [], reviews = [], map;
 
         async function initCatalog() {
             try {
+                // Fetch data from Supabase
                 const { data: cats, error: catErr } = await _supabase.from('categories').select('*');
                 const { data: prods, error: prodErr } = await _supabase.from('products').select('*');
                 const { data: revs } = await _supabase.from('reviews').select('*, profiles(full_name)');
 
+                // Fallback Logic if DB is empty or fails
                 if (catErr || prodErr || !cats || cats.length === 0) {
+                    console.warn("Database unavailable. Using local catalog data.");
                     products = localProducts;
                     categories = localCategories;
                 } else {
                     categories = cats;
                     products = (prods || []).map(p => {
                         const catObj = categories.find(c => c.id === p.category_id);
-                        return { ...p, cat_name: catObj ? catObj.name : 'Royal' };
+                        return { ...p, cat_name: catObj ? catObj.name : 'General' };
                     });
                 }
                 reviews = revs || [];
 
+                // Render everything
                 renderCategories();
                 renderFilters();
                 renderProducts('All');
@@ -271,7 +256,7 @@
                 checkAuth();
                 startCategorySlides();
             } catch (err) {
-                console.error("Load failed:", err);
+                console.error("Critical error loading catalog:", err);
                 products = localProducts;
                 categories = localCategories;
                 renderCategories();
@@ -284,16 +269,17 @@
             if(!grid) return;
             
             grid.innerHTML = categories.map((cat, idx) => {
+                // Find product images belonging to this category for the slideshow
                 const catImages = products.filter(p => p.cat_name === cat.name).map(p => p.image_url);
                 const slides = catImages.length > 0 ? 
                     catImages.map((img, i) => `<img src="${img}" class="cat-slide ${i === 0 ? 'active' : ''}" data-slideshow="${idx}">`).join('') :
                     `<img src="placeholder.jpg" class="cat-slide active">`;
 
                 return `
-                    <div class="relative h-[450px] rounded-[50px] overflow-hidden shadow-2xl cursor-pointer" onclick="renderProducts('${cat.name}')">
+                    <div class="relative h-[450px] rounded-[50px] overflow-hidden shadow-2xl cursor-pointer hover:scale-[1.02] transition-all" onclick="renderProducts('${cat.name}')">
                         <div class="cat-slideshow">${slides}</div>
                         <div class="absolute inset-0 bg-black/40 flex items-center justify-center z-10 hover:bg-black/20 transition-all">
-                            <h3 class="royal-font text-white text-4xl text-center px-4">${cat.name}</h3>
+                            <h3 class="royal-font text-white text-3xl text-center px-4">${cat.name}</h3>
                         </div>
                     </div>`;
             }).join('');
@@ -333,6 +319,7 @@
                         </div>
                     </div>`).join('');
             }
+            
             if(filter !== 'All') {
                 const target = document.getElementById('product-grid');
                 window.scrollTo({ top: target.offsetTop - 150, behavior: 'smooth' });
@@ -346,24 +333,10 @@
             categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-8 py-3 rounded-full border-2 border-gray-100 hover:border-[#FF007F] font-black uppercase text-xs">${c.name}</button>`).join('');
         }
 
+        // --- MODAL & UI CONTROLS ---
         function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
         function closeDetailModal() { document.getElementById('detail-modal').classList.remove('active'); }
-        function openDashboard() { document.getElementById('dashboard-modal').classList.add('active'); setTimeout(initMap, 500); }
-        function switchTab(t) {
-            document.querySelectorAll('.dash-tab').forEach(x => x.classList.remove('active'));
-            document.querySelectorAll('.dash-content').forEach(x => x.classList.remove('active'));
-            const tab = document.querySelector(`[onclick="switchTab('${t}')"]`);
-            if(tab) tab.classList.add('active');
-            document.getElementById('tab-' + t).classList.add('active');
-        }
-        function initMap() { 
-            if(!map && document.getElementById('map')) { 
-                map = L.map('map').setView([-1.286, 36.817], 13); 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
-                L.marker([-1.286, 36.817]).addTo(map).bindPopup("Order Processing").openPopup(); 
-            }
-        }
-
+        
         function openDetailModal(id) {
             const p = products.find(x => x.id === id);
             if(!p) return;
@@ -371,17 +344,24 @@
             document.getElementById('detail-name').innerText = p.name;
             document.getElementById('detail-desc').innerText = p.description || "Premium royal formula for glowing skin.";
             document.getElementById('detail-price').innerText = p.price.toLocaleString();
+            
             const prodRevs = reviews.filter(r => r.product_id === id);
             document.getElementById('product-reviews-list').innerHTML = prodRevs.map(r => `
                 <div class="bg-gray-50 p-4 rounded-2xl border-l-4 border-[#FF007F]">
                     <p class="font-bold text-[#FF007F] text-sm">${r.profiles?.full_name || 'Verified Client'}</p>
                     <p class="text-xs italic text-gray-500">"${r.comment}"</p>
                 </div>`).join('') || '<p class="text-xs opacity-50 text-center py-4">No reviews yet for this product.</p>';
+            
             document.getElementById('detail-add-btn').onclick = () => { addToBag(p.id, p.name, p.price); closeDetailModal(); };
             document.getElementById('detail-modal').classList.add('active');
         }
 
-        function addToBag(id, name, price) { cart.push({ id, name, price }); updateCartUI(); triggerToast('🛍️', 'SUCCESS!', 'Item Added'); }
+        function addToBag(id, name, price) { 
+            cart.push({ id, name, price }); 
+            updateCartUI(); 
+            triggerToast('🛍️', 'SUCCESS!', 'Item Added'); 
+        }
+
         function updateCartUI() {
             localStorage.setItem('glow_cart_vee', JSON.stringify(cart));
             document.getElementById('cart-counter').innerText = cart.length;
@@ -393,7 +373,9 @@
                     <button onclick="removeFromBag(${idx})" class="text-3xl text-red-200 hover:text-red-500">×</button>
                 </div>`).join('') || '<p class="text-center opacity-30 mt-10">Your bag is empty</p>';
         }
+
         function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
+
         function triggerToast(icon, title, msg) {
             const toast = document.getElementById('success-toast');
             document.getElementById('toast-icon').innerText = icon;
@@ -402,6 +384,28 @@
             document.getElementById('cart-sound').play();
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function switchTab(t) {
+            document.querySelectorAll('.dash-tab').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.dash-content').forEach(x => x.classList.remove('active'));
+            const tab = document.querySelector(`[onclick="switchTab('${t}')"]`);
+            if(tab) tab.classList.add('active');
+            document.getElementById('tab-' + t).classList.add('active');
+        }
+
+        function openDashboard() { 
+            document.getElementById('session-modal').classList.remove('active');
+            document.getElementById('dashboard-modal').classList.add('active'); 
+            setTimeout(initMap, 500); 
+        }
+
+        function initMap() { 
+            if(!map && document.getElementById('map')) { 
+                map = L.map('map').setView([-1.286, 36.817], 13); 
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
+                L.marker([-1.286, 36.817]).addTo(map).bindPopup("Processing Center").openPopup(); 
+            }
         }
 
         function checkAuth() {
@@ -417,18 +421,25 @@
         function handlePortalClick() {
             const user = JSON.parse(localStorage.getItem('glowCustomer'));
             if (!user) { document.getElementById('auth-modal').classList.add('active'); }
-            else { currentSessionTarget = 'customer'; document.getElementById('session-title').innerText = "Client Portal"; document.getElementById('session-modal').classList.add('active'); }
+            else { document.getElementById('session-modal').classList.add('active'); }
         }
+
         function handleAdminClick() {
             const isAdmin = localStorage.getItem('glowAdminActive');
-            if (isAdmin) { currentSessionTarget = 'admin'; document.getElementById('session-title').innerText = "Admin Portal"; document.getElementById('session-modal').classList.add('active'); }
+            if (isAdmin) { document.getElementById('admin-auth-modal').classList.add('active'); } // Or redirect to admin dashboard
             else { document.getElementById('admin-auth-modal').classList.add('active'); }
         }
+
         function verifyAdminAccess() {
             const key = document.getElementById('admin-pass-key').value;
-            if (key === 'VEEROYAL254') { localStorage.setItem('glowAdminActive', 'true'); location.reload(); }
-            else { alert("Invalid Key"); }
+            if (key === 'VEEROYAL254') { 
+                localStorage.setItem('glowAdminActive', 'true'); 
+                location.reload(); 
+            } else { 
+                alert("Invalid Key"); 
+            }
         }
+
         function handleLogout() {
             localStorage.removeItem('glowAdminActive');
             localStorage.removeItem('glowCustomer');
