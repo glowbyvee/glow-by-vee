@@ -33,8 +33,7 @@
         
         #cart-counter { position: absolute; top: -10px; right: -15px; background: var(--fuchsia); color: white; border-radius: 999px; padding: 4px 10px; font-size: 14px; font-weight: bold; border: 2px solid white; }
         
-        /* RESTORED SLIDESHOW STYLES */
-        .cat-slideshow { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; }
+        .cat-slideshow { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; border-radius: 50px; }
         .cat-slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 1.5s ease-in-out; object-fit: cover; }
         .cat-slide.active { opacity: 1; z-index: 1; }
 
@@ -177,12 +176,17 @@
         <div class="bg-white rounded-[50px] max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col relative">
             <button onclick="closeDetailModal()" class="absolute top-8 right-8 text-5xl text-gray-300 z-20 hover:text-black">&times;</button>
             <div class="flex flex-col md:flex-row overflow-y-auto">
-                <div class="md:w-1/2 bg-gray-50"><img id="detail-img" src="" class="w-full h-full object-cover"></div>
+                <div class="md:w-1/2 bg-gray-50 flex items-center justify-center">
+                    <img id="detail-img" src="" class="w-full h-full object-cover">
+                </div>
                 <div class="md:w-1/2 p-12 md:p-16 flex flex-col">
                     <h2 id="detail-name" class="royal-font text-5xl text-[#D4AF37] mb-6"></h2>
-                    <p id="detail-desc" class="text-gray-500 mb-10 leading-relaxed text-xl"></p>
+                    <p id="detail-desc" class="text-gray-600 mb-10 leading-relaxed text-xl"></p>
                     <div class="text-4xl font-black text-[#FF007F] mb-10">KES <span id="detail-price">0</span></div>
-                    <div id="product-reviews-list" class="space-y-4 max-h-[150px] overflow-y-auto mb-10"></div>
+                    
+                    <h4 class="font-black uppercase text-sm tracking-widest mb-4">Client Reviews</h4>
+                    <div id="product-reviews-list" class="space-y-4 max-h-[200px] overflow-y-auto mb-10 border-t-2 pt-4"></div>
+                    
                     <button id="detail-add-btn" class="btn-dark-pink w-full py-6 rounded-3xl text-white font-black uppercase text-2xl">Add to Bag</button>
                 </div>
             </div>
@@ -245,9 +249,13 @@
             const { data: cats } = await _supabase.from('categories').select('*');
             const { data: prods } = await _supabase.from('products').select('*');
             const { data: revs } = await _supabase.from('reviews').select('*, profiles(full_name)');
+            
             categories = cats || [];
             reviews = revs || [];
-            products = (prods || []).map(p => ({ ...p, cat_name: categories.find(c => c.id === p.category_id)?.name || 'Royal' }));
+            products = (prods || []).map(p => ({ 
+                ...p, 
+                cat_name: categories.find(c => c.id === p.category_id)?.name || 'Royal' 
+            }));
             
             renderCategories();
             renderFilters();
@@ -257,7 +265,7 @@
             startSlides();
         }
 
-        // NAVIGATION HANDLERS
+        // --- AUTH & PORTAL LOGIC ---
         function handlePortalClick() {
             const user = JSON.parse(localStorage.getItem('glowCustomer'));
             if (!user) { document.getElementById('auth-modal').classList.add('active'); } 
@@ -291,7 +299,10 @@
         function checkAuth() {
             const user = JSON.parse(localStorage.getItem('glowCustomer'));
             const isAdmin = localStorage.getItem('glowAdminActive');
-            if (user) { document.getElementById('user-name-display').innerText = user.full_name.split(' ')[0].toUpperCase(); document.getElementById('user-status-sticker').classList.remove('hidden'); }
+            if (user) { 
+                document.getElementById('user-name-display').innerText = user.full_name.split(' ')[0].toUpperCase(); 
+                document.getElementById('user-status-sticker').classList.remove('hidden'); 
+            }
             if (isAdmin) { document.getElementById('admin-status').classList.remove('hidden'); }
         }
 
@@ -300,12 +311,15 @@
             const phone = document.getElementById('cust-phone').value;
             if(!name || !phone) return alert("Details required");
             let { data: user } = await _supabase.from('profiles').select('*').eq('phone_number', phone).maybeSingle();
-            if(!user) { const { data } = await _supabase.from('profiles').insert([{ full_name: name, phone_number: phone }]).select().single(); user = data; }
+            if(!user) { 
+                const { data } = await _supabase.from('profiles').insert([{ full_name: name, phone_number: phone }]).select().single(); 
+                user = data; 
+            }
             localStorage.setItem('glowCustomer', JSON.stringify(user));
             location.reload();
         }
 
-        // RENDERING CATEGORIES WITH SLIDESHOWS
+        // --- RENDERING CATEGORIES ---
         function renderCategories() {
             const grid = document.getElementById('category-grid');
             if(!grid) return;
@@ -315,7 +329,9 @@
                 const slides = catProds.map((p, idx) => `<img src="${p.image_url}" class="cat-slide ${idx === 0 ? 'active' : ''}" data-cat="${cat.id}">`).join('');
                 return `<div class="relative h-[450px] rounded-[50px] overflow-hidden shadow-2xl cursor-pointer" onclick="renderProducts('${cat.name}')">
                     <div class="cat-slideshow">${slides}</div>
-                    <div class="absolute inset-0 bg-black/30 flex items-center justify-center"><h3 class="royal-font text-white text-4xl z-10">${cat.name}</h3></div>
+                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center z-10 hover:bg-black/20 transition-all">
+                        <h3 class="royal-font text-white text-4xl">${cat.name}</h3>
+                    </div>
                 </div>`;
             }).join('');
         }
@@ -332,25 +348,65 @@
             });
         }
 
-        // RENDERING INDIVIDUAL PRODUCTS
+        // --- RENDERING INDIVIDUAL PRODUCTS ---
         function renderProducts(filter) {
             const grid = document.getElementById('product-grid');
             if(!grid) return;
             const filtered = filter === 'All' ? products : products.filter(p => p.cat_name === filter);
             grid.innerHTML = filtered.map(p => `
-                <div class="bg-white p-8 rounded-[50px] shadow-xl border-4 border-gray-50 hover:border-[#FF007F] transition-all">
-                    <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[30px] mb-6 cursor-pointer" onclick="openDetailModal(${p.id})">
+                <div class="bg-white p-8 rounded-[50px] shadow-xl border-4 border-gray-50 hover:border-[#FF007F] transition-all flex flex-col">
+                    <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[30px] mb-6 cursor-pointer hover:scale-105 transition-transform" onclick="openDetailModal(${p.id})">
                     <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
                     <p class="text-2xl font-black text-[#FF007F] mb-6">KES ${p.price.toLocaleString()}</p>
-                    <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="btn-dark-pink w-full py-5 text-white rounded-3xl text-sm">Add to Bag</button>
+                    <div class="mt-auto flex flex-col gap-3">
+                        <button onclick="openDetailModal(${p.id})" class="text-xs font-black uppercase text-gray-400 hover:text-black transition-all">View Details</button>
+                        <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="btn-dark-pink w-full py-5 text-white rounded-3xl text-sm">Add to Bag</button>
+                    </div>
                 </div>`).join('');
         }
 
+        function openDetailModal(id) {
+            const p = products.find(x => x.id === id);
+            if(!p) return;
+            document.getElementById('detail-img').src = p.image_url;
+            document.getElementById('detail-name').innerText = p.name;
+            document.getElementById('detail-desc').innerText = p.description || "Premium royal formula for glowing skin.";
+            document.getElementById('detail-price').innerText = p.price.toLocaleString();
+            
+            const prodRevs = reviews.filter(r => r.product_id === id);
+            document.getElementById('product-reviews-list').innerHTML = prodRevs.map(r => `
+                <div class="bg-gray-50 p-4 rounded-2xl border-l-4 border-[#FF007F]">
+                    <p class="font-bold text-[#FF007F] text-sm">${r.profiles?.full_name || 'Verified Client'}</p>
+                    <p class="text-xs italic text-gray-500">"${r.comment}"</p>
+                </div>`).join('') || '<p class="text-xs opacity-50 text-center py-4">No reviews yet for this product.</p>';
+            
+            document.getElementById('detail-add-btn').onclick = () => {
+                addToBag(p.id, p.name, p.price);
+                closeDetailModal();
+            };
+            document.getElementById('detail-modal').classList.add('active');
+        }
+
+        // --- CART & CHECKOUT ---
         function addToBag(id, name, price) {
             cart.push({ id, name, price });
             updateCartUI();
             triggerToast('🛍️', 'SUCCESS!', 'Item Added');
         }
+
+        function updateCartUI() {
+            localStorage.setItem('glow_cart_vee', JSON.stringify(cart));
+            document.getElementById('cart-counter').innerText = cart.length;
+            document.getElementById('cart-total-val').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
+            const cont = document.getElementById('cart-items-container');
+            cont.innerHTML = cart.map((i, idx) => `
+                <div class="flex justify-between bg-gray-50 p-4 rounded-2xl items-center">
+                    <div><p class="font-bold text-sm">${i.name}</p><p class="text-[#FF007F] font-black">KES ${i.price.toLocaleString()}</p></div>
+                    <button onclick="removeFromBag(${idx})" class="text-3xl text-red-200 hover:text-red-500">×</button>
+                </div>`).join('') || '<p class="text-center opacity-30 mt-10">Your bag is empty</p>';
+        }
+
+        function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
 
         function triggerToast(icon, title, msg) {
             const toast = document.getElementById('success-toast');
@@ -362,19 +418,10 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        function updateCartUI() {
-            localStorage.setItem('glow_cart_vee', JSON.stringify(cart));
-            document.getElementById('cart-counter').innerText = cart.length;
-            document.getElementById('cart-total-val').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
-            const cont = document.getElementById('cart-items-container');
-            cont.innerHTML = cart.map((i, idx) => `<div class="flex justify-between bg-gray-50 p-4 rounded-2xl"><div><p class="font-bold">${i.name}</p><p class="text-[#FF007F] font-black">KES ${i.price.toLocaleString()}</p></div><button onclick="removeFromBag(${idx})" class="text-2xl text-red-300">×</button></div>`).join('') || '<p class="text-center opacity-30 mt-10">Bag is empty</p>';
-        }
-
-        function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
-
         function startCheckout() {
             const user = JSON.parse(localStorage.getItem('glowCustomer'));
             if (!user) return document.getElementById('auth-modal').classList.add('active');
+            if (cart.length === 0) return alert("Your bag is empty");
             toggleCart();
             document.getElementById('checkout-options').classList.remove('hidden');
             document.getElementById('user-dash-main').classList.add('hidden');
@@ -390,7 +437,16 @@
         async function finalizeOrder(method) {
             const user = JSON.parse(localStorage.getItem('glowCustomer'));
             const code = document.getElementById('mpesa-code').value;
-            await _supabase.from('orders').insert([{ customer_id: user.id, total_amount: cart.reduce((s, i) => s + i.price, 0), status: 'Received', payment_method: method, transaction_code: code }]);
+            if(method === 'M-Pesa' && !code) return alert("Transaction code required");
+            
+            await _supabase.from('orders').insert([{ 
+                customer_id: user.id, 
+                total_amount: cart.reduce((s, i) => s + i.price, 0), 
+                status: 'Received', 
+                payment_method: method, 
+                transaction_code: code 
+            }]);
+            
             cart = []; updateCartUI();
             document.getElementById('mpesa-form').classList.add('hidden');
             document.getElementById('user-dash-main').classList.remove('hidden');
@@ -398,22 +454,7 @@
             initMap();
         }
 
-        function openDetailModal(id) {
-            const p = products.find(x => x.id === id);
-            document.getElementById('detail-img').src = p.image_url;
-            document.getElementById('detail-name').innerText = p.name;
-            document.getElementById('detail-desc').innerText = p.description || "Premium formula.";
-            document.getElementById('detail-price').innerText = p.price.toLocaleString();
-            const prodRevs = reviews.filter(r => r.product_id === id);
-            document.getElementById('product-reviews-list').innerHTML = prodRevs.map(r => `<div class="bg-gray-100 p-4 rounded-2xl"><p class="font-bold text-[#FF007F] text-sm">${r.profiles?.full_name}</p><p class="text-xs italic">"${r.comment}"</p></div>`).join('') || '<p class="text-xs opacity-50">No reviews yet.</p>';
-            document.getElementById('detail-add-btn').onclick = () => addToBag(p.id, p.name, p.price);
-            document.getElementById('detail-modal').classList.add('active');
-        }
-
-        function initMap() { 
-            if(!map) { map = L.map('map').setView([-1.286, 36.817], 13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); L.marker([-1.286, 36.817]).addTo(map).bindPopup("Delivery Active").openPopup(); }
-        }
-
+        // --- UTILITIES ---
         function renderFilters() {
             const cont = document.getElementById('category-filters');
             if(!cont) return;
@@ -424,11 +465,20 @@
         function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
         function closeDetailModal() { document.getElementById('detail-modal').classList.remove('active'); }
         function openDashboard() { document.getElementById('dashboard-modal').classList.add('active'); setTimeout(initMap, 500); }
+        
         function switchTab(t) {
             document.querySelectorAll('.dash-tab').forEach(x => x.classList.remove('active'));
             document.querySelectorAll('.dash-content').forEach(x => x.classList.remove('active'));
-            event.target.classList.add('active');
+            event.currentTarget.classList.add('active');
             document.getElementById('tab-' + t).classList.add('active');
+        }
+
+        function initMap() { 
+            if(!map) { 
+                map = L.map('map').setView([-1.286, 36.817], 13); 
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
+                L.marker([-1.286, 36.817]).addTo(map).bindPopup("Order Processing").openPopup(); 
+            }
         }
 
         window.onload = initCatalog;
