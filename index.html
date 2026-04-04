@@ -351,7 +351,7 @@
                     </div>
                 </div>`).join('');
             
-            // Highlight the active filter button
+            // Highlight active filter
             document.querySelectorAll('#category-filters button').forEach(btn => {
                 if(btn.innerText.toUpperCase() === filter.toUpperCase()) {
                     btn.classList.add('border-[#FF007F]', 'text-[#FF007F]');
@@ -362,7 +362,10 @@
                 }
             });
 
-            window.scrollTo({ top: document.getElementById('product-grid').offsetTop - 150, behavior: 'smooth' });
+            // Smooth scroll to results
+            if(filter !== 'All') {
+                window.scrollTo({ top: document.getElementById('product-grid').offsetTop - 150, behavior: 'smooth' });
+            }
         }
 
         function openDetailModal(id) {
@@ -461,11 +464,13 @@
             categories.forEach(cat => {
                 let i = 0;
                 const slides = document.querySelectorAll(`[data-cat="${cat.id}"]`);
-                if (slides.length > 1) setInterval(() => {
-                    slides[i].classList.remove('active');
-                    i = (i + 1) % slides.length;
-                    slides[i].classList.add('active');
-                }, 4000);
+                if (slides.length > 1) {
+                    setInterval(() => {
+                        slides[i].classList.remove('active');
+                        i = (i + 1) % slides.length;
+                        slides[i].classList.add('active');
+                    }, 4000);
+                }
             });
         }
 
@@ -481,7 +486,7 @@
         }
 
         function initMap() { 
-            if(!map) { 
+            if(!map && document.getElementById('map')) { 
                 map = L.map('map').setView([-1.286, 36.817], 13); 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
                 L.marker([-1.286, 36.817]).addTo(map).bindPopup("Order Processing").openPopup(); 
