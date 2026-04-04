@@ -6,113 +6,120 @@
     <title>Glow By Vee | Royal Radiance</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
         :root { --fuchsia: #FF007F; --gold: #D4AF37; --soft-pink: #FFF0F6; }
-        body { font-family: 'Inter', sans-serif; background: #fff; scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: #fff; scroll-behavior: smooth; overflow-x: hidden; }
         .royal-font { font-family: 'Cinzel', serif; }
 
-        /* Compact Hero */
-        .hero-mini {
-            height: 30vh;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('hero-premium.jpg');
-            background-size: cover;
-            background-position: center;
-            display: flex; align-items: center; justify-content: center;
+        /* Hero Styling */
+        .hero-banner {
+            height: 45vh;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1596462502278-27bfdc4033c8?auto=format&fit=crop&q=80');
+            background-size: cover; background-position: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; color: white;
         }
 
-        /* Category Slideshow Styling */
-        .cat-card { position: relative; width: 100%; aspect-ratio: 1/1; border-radius: 50%; overflow: hidden; border: 4px solid var(--soft-pink); transition: 0.4s; cursor: pointer; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .cat-card:hover { border-color: var(--fuchsia); transform: scale(1.05); }
-        .slide-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.2s ease-in-out; }
+        /* Category Circle Slideshow */
+        .cat-circle { 
+            position: relative; width: 100%; aspect-ratio: 1/1; 
+            border-radius: 50%; overflow: hidden; 
+            border: 4px solid var(--soft-pink); transition: 0.5s; 
+            cursor: pointer; box-shadow: 0 15px 30px -10px rgba(255, 0, 127, 0.2); 
+        }
+        .cat-circle:hover { border-color: var(--fuchsia); transform: translateY(-5px); }
+        .slide-img { 
+            position: absolute; inset: 0; width: 100%; height: 100%; 
+            object-fit: cover; opacity: 0; transition: opacity 1s ease-in-out; 
+        }
         .slide-img.active { opacity: 1; z-index: 10; }
 
-        .btn-royal { background: var(--fuchsia); color: white; font-weight: 800; text-transform: uppercase; transition: 0.3s; border-radius: 15px; }
-        .btn-royal:hover { background: #E60073; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255, 0, 127, 0.3); }
+        .btn-royal { 
+            background: var(--fuchsia); color: white; font-weight: 800; 
+            text-transform: uppercase; transition: 0.3s; border-radius: 20px; 
+            box-shadow: 0 10px 20px rgba(255, 0, 127, 0.2);
+        }
+        .btn-royal:hover { background: #E60073; transform: scale(1.02); }
 
-        /* Modal & Sidebar */
-        .modal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; }
-        .modal.active { display: flex; }
-        #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); z-index: 150; }
+        #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; }
         #cart-sidebar.open { transform: translateX(0); }
+        .modal { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
     </style>
 </head>
 <body>
 
-    <nav class="sticky top-0 bg-white/90 backdrop-blur-md z-[100] px-6 py-4 border-b-4 border-[#FF007F] flex justify-between items-center shadow-lg">
+    <nav class="sticky top-0 bg-white/80 backdrop-blur-lg z-[100] px-6 py-4 border-b border-pink-100 flex justify-between items-center">
         <div class="flex items-center gap-3">
-            <img src="logo.jpg" class="w-12 h-12 rounded-full border-2 border-pink-100">
-            <h1 class="royal-font text-2xl md:text-3xl font-bold text-[#FF007F]">Glow By Vee</h1>
+            <div class="w-10 h-10 bg-[#FF007F] rounded-full flex items-center justify-center text-white font-bold">V</div>
+            <h1 class="royal-font text-xl md:text-2xl font-bold text-[#FF007F]">Glow By Vee</h1>
         </div>
-        <div onclick="document.getElementById('cart-sidebar').classList.add('open')" class="relative cursor-pointer bg-pink-50 p-3 rounded-full hover:bg-pink-100 transition">
-            <span class="text-2xl">🛒</span>
-            <span id="cart-count" class="absolute -top-1 -right-1 bg-[#FF007F] text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold">0</span>
-        </div>
+        <button onclick="toggleCart(true)" class="relative p-3 bg-pink-50 rounded-full text-xl hover:bg-pink-100 transition">
+            🛒 <span id="cart-count" class="absolute -top-1 -right-1 bg-[#FF007F] text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center">0</span>
+        </button>
     </nav>
 
-    <header class="hero-mini">
-        <h2 class="royal-font text-4xl md:text-6xl text-white drop-shadow-2xl text-center">Royal Beauty Awaits</h2>
+    <header class="hero-banner">
+        <h2 class="royal-font text-4xl md:text-6xl mb-4">Royal Radiance</h2>
+        <p class="text-lg opacity-90 tracking-widest uppercase">Pure. Premium. Proven.</p>
     </header>
 
-    <main class="max-w-7xl mx-auto px-6 py-12">
+    <main class="max-w-7xl mx-auto px-6 py-16">
         
-        <section class="mb-20">
-            <h2 class="royal-font text-3xl text-center text-[#D4AF37] mb-12">Glow By Vee's Collections</h2>
-            <div id="category-container" class="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+        <section class="mb-24">
+            <h2 class="royal-font text-3xl text-center text-[#D4AF37] mb-12">Our Collections</h2>
+            <div id="category-container" class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
                 </div>
-
-            <div class="flex flex-col md:flex-row gap-4 items-center justify-center bg-gray-50 p-6 rounded-[30px] border border-gray-100">
-                <input type="text" id="search-input" oninput="filterByText()" placeholder="Search individual products..." class="w-full md:w-1/2 p-4 rounded-2xl border-2 border-transparent bg-white shadow-inner focus:border-[#FF007F] outline-none font-medium">
-                <button onclick="renderProducts('All')" class="px-6 py-2 text-[#FF007F] font-bold hover:bg-pink-50 rounded-xl transition">Show All Items</button>
-            </div>
         </section>
 
-        <section>
-            <h2 class="royal-font text-3xl text-center text-[#FF007F] mb-12">Individual Products</h2>
+        <div class="flex flex-col md:flex-row gap-4 mb-16 justify-center items-center">
+            <input type="text" id="search-box" oninput="handleSearch()" placeholder="Search your glow..." 
+                class="w-full md:w-96 p-4 rounded-3xl bg-gray-50 border-2 border-transparent focus:border-[#FF007F] outline-none transition shadow-inner">
+            <button onclick="renderProducts('All')" class="text-[#FF007F] font-bold underline underline-offset-4">Show All Items</button>
+        </div>
+
+        <section id="shop">
+            <h2 id="grid-title" class="royal-font text-3xl text-[#FF007F] mb-10 text-center">Essential Glow</h2>
             <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-10">
                 </div>
         </section>
     </main>
 
-    <div id="detail-modal" class="modal">
-        <div class="bg-white rounded-[40px] max-w-4xl w-full overflow-hidden flex flex-col md:row relative shadow-2xl">
-            <button onclick="closeModal()" class="absolute top-6 right-6 text-4xl text-gray-400 hover:text-black z-10">&times;</button>
-            <div class="md:w-1/2 bg-gray-50">
-                <img id="modal-img" src="" class="w-full h-full object-cover">
-            </div>
-            <div class="md:w-1/2 p-10 flex flex-col justify-center">
-                <h3 id="modal-title" class="royal-font text-4xl text-[#D4AF37] mb-2"></h3>
-                <p id="modal-price" class="text-3xl font-black text-[#FF007F] mb-8"></p>
-                <div class="mb-8">
-                    <h4 class="font-bold text-xs uppercase text-gray-400 tracking-widest mb-3">Product Description</h4>
-                    <p id="modal-desc" class="text-gray-600 leading-relaxed text-lg"></p>
-                </div>
-                <button id="modal-add-btn" class="btn-royal w-full py-5 text-xl shadow-lg">Add to Bag</button>
-            </div>
+    <div id="cart-sidebar" class="fixed right-0 top-0 h-full w-full md:w-[400px] bg-white translate-x-full shadow-2xl flex flex-col">
+        <div class="p-6 border-b flex justify-between items-center bg-pink-50">
+            <h2 class="royal-font text-xl text-[#FF007F]">Your Bag</h2>
+            <button onclick="toggleCart(false)" class="text-3xl text-gray-400">&times;</button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+        <div class="p-8 border-t space-y-4">
+            <div class="flex justify-between text-2xl font-black"><span>Total</span><span id="cart-total">KES 0</span></div>
+            <button class="btn-royal w-full py-5">Secure Checkout</button>
         </div>
     </div>
 
-    <div id="cart-sidebar" class="fixed right-0 top-0 h-full w-85 bg-white shadow-[-20px_0_50px_rgba(0,0,0,0.1)] flex flex-col border-l-4 border-[#FF007F]">
-        <div class="p-8 border-b flex justify-between items-center bg-pink-50/30">
-            <h2 class="royal-font text-2xl text-[#FF007F]">Your Selection</h2>
-            <button onclick="document.getElementById('cart-sidebar').classList.remove('open')" class="text-4xl text-gray-300 hover:text-black">&times;</button>
-        </div>
-        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
-        <div class="p-8 border-t bg-white">
-            <div class="flex justify-between font-black text-2xl mb-6"><span>Total:</span><span id="cart-total">KES 0</span></div>
-            <button class="btn-royal w-full py-5 text-lg">Proceed to Checkout</button>
+    <div id="detail-modal" class="modal">
+        <div class="bg-white rounded-[40px] max-w-4xl w-[90%] overflow-hidden flex flex-col md:flex-row relative">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-3xl z-10">&times;</button>
+            <div class="md:w-1/2 h-64 md:h-auto"><img id="modal-img" class="w-full h-full object-cover"></div>
+            <div class="md:w-1/2 p-10 flex flex-col justify-center">
+                <h3 id="modal-title" class="royal-font text-3xl mb-2 text-[#D4AF37]"></h3>
+                <p id="modal-price" class="text-2xl font-black text-[#FF007F] mb-6"></p>
+                <p id="modal-desc" class="text-gray-500 mb-8 leading-relaxed"></p>
+                <button id="modal-add-btn" class="btn-royal w-full py-4">Add To Bag</button>
+            </div>
         </div>
     </div>
 
     <script>
         const SB_URL = "https://znanyxsycuhhykciwigi.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         let products = [], categories = [], cart = [];
-        let slideIntervals = [];
+        let slideTimers = [];
 
-        async function initGlow() {
+        async function init() {
             const [cData, pData] = await Promise.all([
                 _supabase.from('categories').select('*').order('name'),
                 _supabase.from('products').select('*')
@@ -120,99 +127,100 @@
             categories = cData.data || [];
             products = pData.data || [];
             
-            renderUI();
+            renderCategories();
+            renderProducts('All');
             setupRealtime();
         }
 
         function setupRealtime() {
-            _supabase.channel('db-live')
+            _supabase.channel('room1')
                 .on('postgres_changes', { event: '*', schema: 'public' }, async () => {
                     const [c, p] = await Promise.all([
                         _supabase.from('categories').select('*').order('name'),
                         _supabase.from('products').select('*')
                     ]);
                     categories = c.data; products = p.data;
-                    renderUI();
+                    renderCategories();
+                    renderProducts('All');
                 }).subscribe();
-        }
-
-        function renderUI() {
-            renderCategories();
-            renderProducts('All');
-            startSlideshows();
         }
 
         function renderCategories() {
             const container = document.getElementById('category-container');
             container.innerHTML = categories.map(cat => {
-                const catProducts = products.filter(p => String(p.category_id) === String(cat.id));
-                const imgs = catProducts.length > 0 ? catProducts.map(p => p.image_url) : ['logo.jpg'];
+                // Find products for this category using string conversion for safety
+                const catProds = products.filter(p => String(p.category_id) === String(cat.id));
+                const imgs = catProds.length > 0 ? catProds.map(p => p.image_url) : ['logo.jpg'];
                 
                 const slides = imgs.map((src, i) => 
                     `<img src="${src}" class="slide-img ${i===0?'active':''}" data-cat="${cat.id}">`
                 ).join('');
 
                 return `
-                    <div class="flex flex-col items-center gap-4 group" onclick="renderProducts('${cat.name}')">
-                        <div class="cat-card">${slides}</div>
-                        <span class="royal-font font-bold text-sm tracking-widest text-gray-500 group-hover:text-[#FF007F] transition uppercase text-center">${cat.name}</span>
+                    <div class="flex flex-col items-center gap-4 group" onclick="renderProducts('${cat.name}', ${cat.id})">
+                        <div class="cat-circle">${slides}</div>
+                        <span class="royal-font text-xs font-bold tracking-widest text-gray-400 group-hover:text-[#FF007F] transition uppercase">${cat.name}</span>
                     </div>
                 `;
             }).join('');
-        }
-
-        function renderProducts(filterName) {
-            const grid = document.getElementById('product-grid');
-            let filtered = products;
-
-            if (filterName !== 'All') {
-                const cat = categories.find(c => c.name === filterName);
-                if(cat) filtered = products.filter(p => String(p.category_id) === String(cat.id));
-            }
-
-            grid.innerHTML = filtered.map(p => `
-                <div class="bg-white rounded-[35px] p-6 border border-gray-50 shadow-sm hover:shadow-xl transition-all duration-500 group">
-                    <div class="overflow-hidden rounded-[25px] mb-6 cursor-pointer" onclick="openModal(${p.id})">
-                        <img src="${p.image_url}" class="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-700">
-                    </div>
-                    <h3 class="royal-font text-xl font-bold text-gray-800 mb-2">${p.name}</h3>
-                    <p class="text-[#FF007F] font-black text-2xl mb-6">KES ${p.price.toLocaleString()}</p>
-                    <button onclick="addToCart(${p.id})" class="btn-royal w-full py-4 text-xs tracking-widest">Add to Bag</button>
-                </div>
-            `).join('');
-            
-            if(filterName !== 'All') window.scrollTo({ top: grid.offsetTop - 100, behavior: 'smooth' });
-        }
-
-        function filterByText() {
-            const term = document.getElementById('search-input').value.toLowerCase();
-            const grid = document.getElementById('product-grid');
-            const filtered = products.filter(p => p.name.toLowerCase().includes(term));
-            
-            grid.innerHTML = filtered.map(p => `
-                <div class="bg-white rounded-[35px] p-6 border border-gray-100 shadow-sm">
-                    <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[25px] mb-6 cursor-pointer" onclick="openModal(${p.id})">
-                    <h3 class="royal-font text-xl font-bold">${p.name}</h3>
-                    <p class="text-[#FF007F] font-black text-2xl mb-6">KES ${p.price.toLocaleString()}</p>
-                    <button onclick="addToCart(${p.id})" class="btn-royal w-full py-4 text-xs">Add to Bag</button>
-                </div>
-            `).join('');
+            startSlideshows();
         }
 
         function startSlideshows() {
-            slideIntervals.forEach(clearInterval);
-            slideIntervals = [];
+            slideTimers.forEach(clearInterval);
+            slideTimers = [];
             categories.forEach(cat => {
                 const slides = document.querySelectorAll(`[data-cat="${cat.id}"]`);
                 if (slides.length > 1) {
-                    let idx = 0;
-                    slideIntervals.push(setInterval(() => {
-                        slides[idx].classList.remove('active');
-                        idx = (idx + 1) % slides.length;
-                        slides[idx].classList.add('active');
-                    }, 3500));
+                    let i = 0;
+                    slideTimers.push(setInterval(() => {
+                        slides[i].classList.remove('active');
+                        i = (i + 1) % slides.length;
+                        slides[i].classList.add('active');
+                    }, 3000 + Math.random() * 1000));
                 }
             });
+        }
+
+        function renderProducts(filterName, catId = null) {
+            const grid = document.getElementById('product-grid');
+            const title = document.getElementById('grid-title');
+            let list = products;
+
+            if (catId) {
+                list = products.filter(p => String(p.category_id) === String(catId));
+                title.innerText = filterName;
+            } else {
+                title.innerText = "Essential Glow";
+            }
+
+            grid.innerHTML = list.map(p => `
+                <div class="bg-white rounded-[40px] p-6 border border-pink-50 hover:shadow-2xl transition duration-500 group">
+                    <div class="aspect-square overflow-hidden rounded-[30px] mb-6 cursor-pointer" onclick="openModal(${p.id})">
+                        <img src="${p.image_url}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    </div>
+                    <h3 class="royal-font text-lg font-bold text-gray-800">${p.name}</h3>
+                    <p class="text-[#FF007F] font-black text-xl my-4">KES ${p.price.toLocaleString()}</p>
+                    <button onclick="addToCart(${p.id})" class="btn-royal w-full py-4 text-xs tracking-widest">Add To Bag</button>
+                </div>
+            `).join('');
+            
+            if(catId) window.scrollTo({ top: grid.offsetTop - 150, behavior: 'smooth' });
+        }
+
+        function handleSearch() {
+            const query = document.getElementById('search-box').value.toLowerCase();
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+            renderProducts('Search Results');
+            // Manual render for search
+            document.getElementById('product-grid').innerHTML = filtered.map(p => `
+                <div class="bg-white rounded-[40px] p-6 border border-pink-50">
+                    <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[30px] mb-4">
+                    <h3 class="royal-font font-bold">${p.name}</h3>
+                    <p class="text-[#FF007F] font-black">KES ${p.price.toLocaleString()}</p>
+                    <button onclick="addToCart(${p.id})" class="btn-royal w-full py-3 mt-4 text-xs">Add To Bag</button>
+                </div>
+            `).join('');
         }
 
         function openModal(id) {
@@ -221,34 +229,39 @@
             document.getElementById('modal-img').src = p.image_url;
             document.getElementById('modal-title').innerText = p.name;
             document.getElementById('modal-price').innerText = `KES ${p.price.toLocaleString()}`;
-            document.getElementById('modal-desc').innerText = p.description || "A royal Glow By Vee essential for your daily radiance.";
+            document.getElementById('modal-desc').innerText = p.description || "Premium skincare selection from Glow By Vee.";
             document.getElementById('modal-add-btn').onclick = () => { addToCart(p.id); closeModal(); };
             document.getElementById('detail-modal').classList.add('active');
         }
 
         function closeModal() { document.getElementById('detail-modal').classList.remove('active'); }
+        function toggleCart(open) { document.getElementById('cart-sidebar').classList.toggle('open', open); }
 
         function addToCart(id) {
             const p = products.find(prod => String(prod.id) === String(id));
-            if(p) { cart.push(p); updateCartUI(); }
+            if(p) { 
+                cart.push(p); 
+                updateCartUI(); 
+                toggleCart(true);
+            }
         }
 
         function updateCartUI() {
             document.getElementById('cart-count').innerText = cart.length;
             document.getElementById('cart-total').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
             document.getElementById('cart-items').innerHTML = cart.map((item, idx) => `
-                <div class="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-pink-100">
+                <div class="flex items-center gap-4 bg-pink-50/50 p-4 rounded-2xl">
                     <img src="${item.image_url}" class="w-16 h-16 rounded-xl object-cover">
                     <div class="flex-1">
                         <p class="font-bold text-sm uppercase">${item.name}</p>
-                        <p class="text-[#FF007F] font-bold">KES ${item.price.toLocaleString()}</p>
+                        <p class="text-[#FF007F] font-bold text-xs">KES ${item.price.toLocaleString()}</p>
                     </div>
-                    <button onclick="cart.splice(${idx},1); updateCartUI()" class="text-red-300 text-2xl">&times;</button>
+                    <button onclick="cart.splice(${idx},1); updateCartUI()" class="text-red-400">&times;</button>
                 </div>
             `).join('');
         }
 
-        window.onload = initGlow;
+        window.onload = init;
     </script>
 </body>
 </html>
