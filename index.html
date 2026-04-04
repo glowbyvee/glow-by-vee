@@ -205,42 +205,24 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const localProducts = [
-            { id: 1, name: "PALMER'S SOAP", price: 650, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "palmers_soap.jpg", description: "Enriched with Vitamin E." },
-            { id: 2, name: "48 INSTA HYDRATING OIL", price: 1350, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "hydrating_oil.jpg", description: "Instant moisture booster." },
-            { id: 3, name: "INTENSIVE BODY LOTION", price: 1650, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "body_lotion.jpg", description: "Deep conditioning formula." },
-            { id: 4, name: "PALMER'S COCOA BUTTER CREAM", price: 1650, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "palmers_cream.jpg", description: "Ultra-rich cocoa butter." },
-            { id: 5, name: "EGGY SKIN- CRÉME ÉCLAT", price: 2500, cat_name: "EGGY SKIN- CRÉME ÉCLAT", image_url: "eggy_skin.jpg", description: "Brightening luxury cream." },
-            { id: 6, name: "LEMON GLOW BOOSTER", price: 2500, cat_name: "LEMON GLOW BOOSTER BODY LOTION & SERUM", image_url: "lemon_glow.jpg", description: "Radiant lemon extract formula." }
-        ];
-
-        const localCategories = [
-            { id: 'c1', name: "PALMER'S COCOA BUTTER FORMULA" },
-            { id: 'c2', name: "LEMON GLOW BOOSTER BODY LOTION & SERUM" },
-            { id: 'c3', name: "EGGY SKIN- CRÉME ÉCLAT" }
-        ];
-
         let cart = JSON.parse(localStorage.getItem('glow_cart_vee')) || [];
         let products = [], categories = [], reviews = [], map;
 
         async function initCatalog() {
             try {
-                const { data: cats, error: catErr } = await _supabase.from('categories').select('*');
-                const { data: prods, error: prodErr } = await _supabase.from('products').select('*');
-                const { data: revs } = await _supabase.from('reviews').select('*, profiles(full_name)');
+                // FETCH DATA FIRST
+                const { data: catData } = await _supabase.from('categories').select('*');
+                const { data: prodData } = await _supabase.from('products').select('*');
+                const { data: revData } = await _supabase.from('reviews').select('*, profiles(full_name)');
 
-                if (catErr || prodErr || !cats || cats.length === 0 || !prods || prods.length === 0) {
-                    categories = localCategories;
-                    products = localProducts;
-                } else {
-                    categories = cats;
-                    products = prods.map(p => {
-                        const catObj = categories.find(c => c.id === p.category_id);
-                        return { ...p, cat_name: catObj ? catObj.name : 'General' };
-                    });
-                }
-                reviews = revs || [];
+                categories = catData || [];
+                products = (prodData || []).map(p => {
+                    const catObj = categories.find(c => c.id === p.category_id);
+                    return { ...p, cat_name: catObj ? catObj.name : 'Uncategorized' };
+                });
+                reviews = revData || [];
 
+                // BUILD UI ONLY AFTER DATA IS READY
                 renderCategories();
                 renderFilters();
                 renderProducts('All');
@@ -249,11 +231,7 @@
                 startCategorySlides();
                 
             } catch (err) {
-                categories = localCategories;
-                products = localProducts;
-                renderCategories();
-                renderFilters();
-                renderProducts('All');
+                console.error("Critical Load Error:", err);
             }
         }
 
@@ -262,10 +240,14 @@
             if(!grid) return;
             
             grid.innerHTML = categories.map((cat, idx) => {
-                // UPDATE: Dynamically create the slideshow based on products assigned to this category
+                // Playlists are built from images of products assigned to this category
                 const catImages = products.filter(p => p.cat_name === cat.name).map(p => p.image_url);
-                const slides = catImages.length > 0 ? 
-                    catImages.map((img, i) => `<img src="${img}" class="cat-slide ${i === 0 ? 'active' : ''}" data-slideshow="${idx}">`).join('') :
+                
+                // Shuffle images for "Random View"
+                const shuffled = catImages.sort(() => 0.5 - Math.random());
+
+                const slides = shuffled.length > 0 ? 
+                    shuffled.map((img, i) => `<img src="${img}" class="cat-slide ${i === 0 ? 'active' : ''}" data-slideshow="${idx}">`).join('') :
                     `<img src="placeholder.jpg" class="cat-slide active">`;
 
                 return `
@@ -286,7 +268,7 @@
                     setInterval(() => {
                         slides[i].classList.remove('active');
                         i = (i + 1) % slides.length;
-                        slides[i].classList.add('active');
+                        if(slides[i]) slides[i].classList.add('active');
                     }, 4000);
                 }
             });
@@ -304,13 +286,14 @@
                     <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
                     <p class="text-2xl font-black text-[#FF007F] mb-6">KES ${p.price.toLocaleString()}</p>
                     <div class="mt-auto flex flex-col gap-3">
-                        <button onclick="openDetailModal(${p.id})" class="text-xs font-black uppercase text-gray-400 hover:text-black transition-all">View Details</button>
+                        <button onclick="openDetailModal(${p.id})" class="text-xs font-black uppercase text-gray-400 hover:text-black transition-all">View Details & Reviews</button>
                         <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="btn-dark-pink w-full py-5 text-white rounded-3xl text-sm">Add to Bag</button>
                     </div>
                 </div>`).join('');
             
             if(filter !== 'All') {
-                window.scrollTo({ top: grid.offsetTop - 150, behavior: 'smooth' });
+                const target = document.getElementById('product-grid');
+                window.scrollTo({ top: target.offsetTop - 150, behavior: 'smooth' });
             }
         }
 
@@ -329,19 +312,25 @@
             if(!p) return;
             document.getElementById('detail-img').src = p.image_url;
             document.getElementById('detail-name').innerText = p.name;
-            document.getElementById('detail-desc').innerText = p.description || "Premium royal formula for glowing skin.";
+            document.getElementById('detail-desc').innerText = p.description || "Royal grade skincare formulation for maximum radiance.";
             document.getElementById('detail-price').innerText = p.price.toLocaleString();
+            
             const prodRevs = reviews.filter(r => r.product_id === id);
             document.getElementById('product-reviews-list').innerHTML = prodRevs.map(r => `
                 <div class="bg-gray-50 p-4 rounded-2xl border-l-4 border-[#FF007F]">
                     <p class="font-bold text-[#FF007F] text-sm">${r.profiles?.full_name || 'Verified Client'}</p>
                     <p class="text-xs italic text-gray-500">"${r.comment}"</p>
-                </div>`).join('') || '<p class="text-xs opacity-50 text-center py-4">No reviews yet for this product.</p>';
+                </div>`).join('') || '<p class="text-xs opacity-50 text-center py-4">Be the first to review this royal glow!</p>';
+            
             document.getElementById('detail-add-btn').onclick = () => { addToBag(p.id, p.name, p.price); closeDetailModal(); };
             document.getElementById('detail-modal').classList.add('active');
         }
 
-        function addToBag(id, name, price) { cart.push({ id, name, price }); updateCartUI(); triggerToast('🛍️', 'SUCCESS!', 'Item Added'); }
+        function addToBag(id, name, price) { 
+            cart.push({ id, name, price }); 
+            updateCartUI(); 
+            triggerToast('🛍️', 'SUCCESS!', 'Item Added to Bag'); 
+        }
         
         function updateCartUI() {
             localStorage.setItem('glow_cart_vee', JSON.stringify(cart));
@@ -352,7 +341,7 @@
                 <div class="flex justify-between bg-gray-50 p-4 rounded-2xl items-center">
                     <div><p class="font-bold text-sm">${i.name}</p><p class="text-[#FF007F] font-black">KES ${i.price.toLocaleString()}</p></div>
                     <button onclick="removeFromBag(${idx})" class="text-3xl text-red-200 hover:text-red-500">×</button>
-                </div>`).join('') || '<p class="text-center opacity-30 mt-10">Your bag is empty</p>';
+                </div>`).join('') || '<p class="text-center opacity-30 mt-10 uppercase font-black text-xs">Your bag is empty</p>';
         }
 
         function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
@@ -362,7 +351,8 @@
             document.getElementById('toast-icon').innerText = icon;
             document.getElementById('toast-title').innerText = title;
             document.getElementById('toast-msg').innerText = msg;
-            document.getElementById('cart-sound').play();
+            const audio = document.getElementById('cart-sound');
+            if(audio) audio.play();
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
@@ -385,7 +375,7 @@
             if(!map && document.getElementById('map')) { 
                 map = L.map('map').setView([-1.286, 36.817], 13); 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
-                L.marker([-1.286, 36.817]).addTo(map).bindPopup("Order Processing").openPopup(); 
+                L.marker([-1.286, 36.817]).addTo(map).bindPopup("Glow Delivery Track").openPopup(); 
             }
         }
 
@@ -406,15 +396,17 @@
         }
 
         function handleAdminClick() {
-            const isAdmin = localStorage.getItem('glowAdminActive');
-            if (isAdmin) { document.getElementById('admin-auth-modal').classList.add('active'); }
-            else { document.getElementById('admin-auth-modal').classList.add('active'); }
+            document.getElementById('admin-auth-modal').classList.add('active');
         }
 
         function verifyAdminAccess() {
             const key = document.getElementById('admin-pass-key').value;
-            if (key === 'VEEROYAL254') { localStorage.setItem('glowAdminActive', 'true'); location.reload(); }
-            else { alert("Invalid Key"); }
+            if (key === 'VEEROYAL254') { 
+                localStorage.setItem('glowAdminActive', 'true'); 
+                location.reload(); 
+            } else { 
+                alert("Incorrect Security Key"); 
+            }
         }
 
         function handleLogout() {
