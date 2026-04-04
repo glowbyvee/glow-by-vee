@@ -245,24 +245,36 @@
 
         async function initCatalog() {
             try {
-                const { data: cats } = await _supabase.from('categories').select('*');
-                const { data: prods } = await _supabase.from('products').select('*');
+                // Fetch Data
+                const { data: cats, error: catErr } = await _supabase.from('categories').select('*');
+                const { data: prods, error: prodErr } = await _supabase.from('products').select('*');
                 const { data: revs } = await _supabase.from('reviews').select('*, profiles(full_name)');
                 
+                if (catErr || prodErr) throw new Error("Database fetch error");
+
                 categories = cats || [];
                 reviews = revs || [];
-                products = (prods || []).map(p => ({ 
-                    ...p, 
-                    cat_name: categories.find(c => c.id === p.category_id)?.name || 'Royal' 
-                }));
+                products = (prods || []).map(p => {
+                    const catObj = categories.find(c => c.id === p.category_id);
+                    return { 
+                        ...p, 
+                        cat_name: catObj ? catObj.name : 'Royal' 
+                    };
+                });
                 
+                // Final UI Rendering
                 renderCategories();
                 renderFilters();
                 renderProducts('All');
                 updateCartUI();
                 checkAuth();
                 startSlides();
-            } catch (err) { console.error("Load failed:", err); }
+
+            } catch (err) { 
+                console.error("Load failed:", err);
+                // Fallback rendering if database is empty
+                document.getElementById('product-grid').innerHTML = '<p class="col-span-full text-center py-20 text-gray-400">Loading products... Check database connection.</p>';
+            }
         }
 
         function handlePortalClick() {
@@ -320,7 +332,7 @@
 
         function renderCategories() {
             const grid = document.getElementById('category-grid');
-            if(!grid) return;
+            if(!grid || categories.length === 0) return;
             grid.innerHTML = categories.map(cat => {
                 const catProds = products.filter(p => p.category_id === cat.id);
                 const slides = catProds.length > 0 ? 
@@ -339,19 +351,25 @@
         function renderProducts(filter) {
             const grid = document.getElementById('product-grid');
             if(!grid) return;
-            const filtered = filter === 'All' ? products : products.filter(p => p.cat_name === filter);
-            grid.innerHTML = filtered.map(p => `
-                <div class="bg-white p-8 rounded-[50px] shadow-xl border-4 border-gray-50 hover:border-[#FF007F] transition-all flex flex-col">
-                    <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[30px] mb-6 cursor-pointer hover:scale-105 transition-transform" onclick="openDetailModal(${p.id})">
-                    <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
-                    <p class="text-2xl font-black text-[#FF007F] mb-6">KES ${p.price.toLocaleString()}</p>
-                    <div class="mt-auto flex flex-col gap-3">
-                        <button onclick="openDetailModal(${p.id})" class="text-xs font-black uppercase text-gray-400 hover:text-black transition-all">View Details</button>
-                        <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="btn-dark-pink w-full py-5 text-white rounded-3xl text-sm">Add to Bag</button>
-                    </div>
-                </div>`).join('');
             
-            // Highlight active filter
+            const filtered = filter === 'All' ? products : products.filter(p => p.cat_name === filter);
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `<p class="col-span-full text-center py-20 text-gray-400">No products found in ${filter}.</p>`;
+            } else {
+                grid.innerHTML = filtered.map(p => `
+                    <div class="bg-white p-8 rounded-[50px] shadow-xl border-4 border-gray-50 hover:border-[#FF007F] transition-all flex flex-col">
+                        <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[30px] mb-6 cursor-pointer hover:scale-105 transition-transform" onclick="openDetailModal(${p.id})">
+                        <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
+                        <p class="text-2xl font-black text-[#FF007F] mb-6">KES ${p.price.toLocaleString()}</p>
+                        <div class="mt-auto flex flex-col gap-3">
+                            <button onclick="openDetailModal(${p.id})" class="text-xs font-black uppercase text-gray-400 hover:text-black transition-all">View Details</button>
+                            <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="btn-dark-pink w-full py-5 text-white rounded-3xl text-sm">Add to Bag</button>
+                        </div>
+                    </div>`).join('');
+            }
+            
+            // UI Button Highlighting
             document.querySelectorAll('#category-filters button').forEach(btn => {
                 if(btn.innerText.toUpperCase() === filter.toUpperCase()) {
                     btn.classList.add('border-[#FF007F]', 'text-[#FF007F]');
@@ -362,9 +380,9 @@
                 }
             });
 
-            // Smooth scroll to results
             if(filter !== 'All') {
-                window.scrollTo({ top: document.getElementById('product-grid').offsetTop - 150, behavior: 'smooth' });
+                const target = document.getElementById('product-grid');
+                window.scrollTo({ top: target.offsetTop - 150, behavior: 'smooth' });
             }
         }
 
@@ -455,7 +473,7 @@
 
         function renderFilters() {
             const cont = document.getElementById('category-filters');
-            if(!cont) return;
+            if(!cont || categories.length === 0) return;
             cont.innerHTML = `<button onclick="renderProducts('All')" class="px-8 py-3 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-black uppercase text-xs">All</button>` + 
                 categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-8 py-3 rounded-full border-2 border-gray-100 hover:border-[#FF007F] font-black uppercase text-xs">${c.name}</button>`).join('');
         }
