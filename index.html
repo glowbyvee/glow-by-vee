@@ -25,14 +25,16 @@
         @keyframes shimmer { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .btn-dark-pink { background-color: var(--dark-pink) !important; transition: all 0.3s ease; color: white !important; font-weight: 900; text-transform: uppercase; }
         .btn-dark-pink:hover { background-color: #cc0066 !important; transform: translateY(-2px); box-shadow: 0 10px 20px -10px var(--dark-pink); }
+        
         .marquee { white-space: nowrap; overflow: hidden; background: #fdf2f8; padding: 20px 0; border-bottom: 2px solid var(--gold); }
         .marquee-content { display: inline-block; animation: scroll 40s linear infinite; padding-left: 100%; font-size: 1.2rem; font-weight: 700; color: var(--fuchsia); }
         @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
 
         #cart-counter { position: absolute; top: -10px; right: -15px; background: var(--fuchsia); color: white; border-radius: 999px; padding: 4px 10px; font-size: 14px; font-weight: bold; border: 2px solid white; }
 
-        .cat-slideshow { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; border-radius: 50px; background: #f3f4f6; }
-        .cat-slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 1s ease-in-out; object-fit: cover; }
+        /* Rapid Image Transitions */
+        .cat-slideshow { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; border-radius: 50px; background: #eee; }
+        .cat-slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 0.8s ease-in-out; object-fit: cover; }
         .cat-slide.active { opacity: 1; z-index: 1; }
         
         #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
@@ -91,7 +93,7 @@
 
     <div id="session-modal" class="modal-overlay fixed inset-0 z-[300] items-center justify-center p-4">
         <div class="bg-white rounded-[50px] p-12 max-w-sm w-full shadow-2xl text-center">
-            <h3 class="royal-font text-3xl text-[#D4AF37] mb-8" id="session-title">Account Options</h3>
+            <h3 class="royal-font text-3xl text-[#D4AF37] mb-8">Account Options</h3>
             <div class="space-y-4">
                 <button onclick="openDashboard()" class="w-full py-5 bg-gray-100 rounded-2xl font-black text-[#FF007F] uppercase">Go to Dashboard</button>
                 <button onclick="handleLogout()" class="w-full py-5 bg-red-50 rounded-2xl font-black text-red-500 uppercase">Logout / Exit</button>
@@ -171,15 +173,13 @@
             <h2 class="royal-font text-6xl text-[#D4AF37]">Glow By Vee's Collections</h2>
             <div class="h-2 w-60 bg-[#FF007F] mx-auto mt-8 rounded-full"></div>
         </div>
-        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-40">
-            </div>
+        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-40"></div>
 
         <div class="text-center mb-20">
             <h2 class="royal-font text-5xl text-[#FF007F]">Individual Products</h2>
             <div id="category-filters" class="flex justify-center gap-6 mt-12 mb-20 flex-wrap"></div>
         </div>
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20">
-            </div>
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20"></div>
     </section>
 
     <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[500px] bg-white z-[100] shadow-2xl flex flex-col border-l-[10px] border-[#FF007F]">
@@ -190,7 +190,7 @@
         <div id="cart-items-container" class="flex-1 overflow-y-auto p-10 space-y-6"></div>
         <div class="p-10 border-t-4">
             <div class="flex justify-between font-black text-3xl mb-8"><span>Total</span><span id="cart-total-val" class="text-[#FF007F]">KES 0</span></div>
-            <button onclick="startCheckout()" class="btn-dark-pink w-full py-7 rounded-3xl text-white font-black text-2xl uppercase">Checkout Now</button>
+            <button onclick="alert('Checkout Initiated')" class="btn-dark-pink w-full py-7 rounded-3xl text-white font-black text-2xl uppercase">Checkout Now</button>
         </div>
     </div>
 
@@ -208,55 +208,41 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // FALLBACK DATA (If DB takes too long, this ensures items always show)
-        const localProducts = [
-            { id: 1, name: "PALMER'S SOAP", price: 650, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "palmers_soap.jpg", description: "Enriched with Vitamin E for skin smoothing." },
-            { id: 2, name: "48 INSTA HYDRATING OIL", price: 1350, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "hydrating_oil.jpg", description: "Instant moisture booster." },
-            { id: 3, name: "INTENSIVE BODY LOTION", price: 1650, cat_name: "PALMER'S COCOA BUTTER FORMULA", image_url: "body_lotion.jpg", description: "Deep conditioning formula." },
-            { id: 5, name: "EGGY SKIN- CRÉME ÉCLAT", price: 2500, cat_name: "EGGY SKIN- CRÉME ÉCLAT", image_url: "eggy_skin.jpg", description: "Brightening luxury cream." },
-            { id: 6, name: "LEMON GLOW BOOSTER", price: 2500, cat_name: "LEMON GLOW BOOSTER", image_url: "lemon_glow.jpg", description: "Radiant lemon extract formula." }
-        ];
-
         let cart = JSON.parse(localStorage.getItem('glow_cart_vee')) || [];
         let products = [], categories = [], reviews = [], map;
 
         async function initCatalog() {
             try {
-                // Fetch Data from Supabase
-                const { data: catData } = await _supabase.from('categories').select('*');
-                const { data: prodData } = await _supabase.from('products').select('*');
-                const { data: revData } = await _supabase.from('reviews').select('*, profiles(full_name)');
+                // RAPID SIMULTANEOUS FETCH
+                const [catRes, prodRes, revRes] = await Promise.all([
+                    _supabase.from('categories').select('*'),
+                    _supabase.from('products').select('*'),
+                    _supabase.from('reviews').select('*, profiles(full_name)')
+                ]);
 
-                // Set categories (fall back to unique categories in products if cat table empty)
-                categories = catData && catData.length > 0 ? catData : [...new Set((prodData || localProducts).map(p => p.cat_name))].map(name => ({name}));
-                
-                // Set products (fall back to local if prodData is empty)
-                products = (prodData && prodData.length > 0) ? prodData.map(p => {
+                categories = catRes.data || [];
+                products = prodRes.data || [];
+                reviews = revRes.data || [];
+
+                // Map category names to products immediately for speed
+                products = products.map(p => {
                     const c = categories.find(cat => cat.id === p.category_id);
-                    return {...p, cat_name: c ? c.name : 'General'};
-                }) : localProducts;
-                
-                reviews = revData || [];
+                    return { ...p, cat_name: c ? c.name : 'Glow Essentials' };
+                });
 
-                // RENDER UI
-                renderCategories();
-                renderFilters();
-                renderProducts('All');
-                updateCartUI();
+                renderAllUI();
                 checkAuth();
-                
-                // Start Slideshows after short delay to ensure images are in DOM
-                setTimeout(startCategorySlides, 500);
-
             } catch (err) {
-                console.error("DB Load Error, using local storage:", err);
-                products = localProducts;
-                categories = [...new Set(products.map(p => p.cat_name))].map(name => ({name}));
-                renderCategories();
-                renderFilters();
-                renderProducts('All');
-                setTimeout(startCategorySlides, 500);
+                console.error("Critical Fetch Error:", err);
             }
+        }
+
+        function renderAllUI() {
+            renderCategories();
+            renderFilters();
+            renderProducts('All');
+            updateCartUI();
+            startCategorySlides();
         }
 
         function renderCategories() {
@@ -264,16 +250,19 @@
             if(!grid) return;
             
             grid.innerHTML = categories.map((cat, idx) => {
+                // Get all images for this specific category from the product list
                 const catImages = products.filter(p => p.cat_name === cat.name).map(p => p.image_url);
-                const slides = catImages.length > 0 ? 
+                
+                // Build the slideshow HTML
+                const slidesHtml = catImages.length > 0 ? 
                     catImages.map((img, i) => `<img src="${img}" class="cat-slide ${i === 0 ? 'active' : ''}" data-slideshow="${idx}">`).join('') :
-                    `<img src="placeholder.jpg" class="cat-slide active">`;
+                    `<img src="logo.jpg" class="cat-slide active">`;
 
                 return `
                     <div class="relative h-[450px] rounded-[50px] overflow-hidden shadow-2xl cursor-pointer hover:scale-[1.02] transition-all" onclick="renderProducts('${cat.name}')">
-                        <div class="cat-slideshow">${slides}</div>
+                        <div class="cat-slideshow">${slidesHtml}</div>
                         <div class="absolute inset-0 bg-black/40 flex items-center justify-center z-10 hover:bg-black/20 transition-all">
-                            <h3 class="royal-font text-white text-3xl text-center px-4">${cat.name}</h3>
+                            <h3 class="royal-font text-white text-3xl text-center px-4 uppercase tracking-tighter">${cat.name}</h3>
                         </div>
                     </div>`;
             }).join('');
@@ -281,14 +270,14 @@
 
         function startCategorySlides() {
             categories.forEach((_, idx) => {
-                let i = 0;
+                let current = 0;
                 const slides = document.querySelectorAll(`[data-slideshow="${idx}"]`);
                 if (slides.length > 1) {
                     setInterval(() => {
-                        slides[i].classList.remove('active');
-                        i = (i + 1) % slides.length;
-                        if(slides[i]) slides[i].classList.add('active');
-                    }, 4000);
+                        slides[current].classList.remove('active');
+                        current = (current + 1) % slides.length;
+                        slides[current].classList.add('active');
+                    }, 3500); // 3.5 seconds per image
                 }
             });
         }
@@ -301,12 +290,15 @@
 
             grid.innerHTML = filtered.map(p => `
                 <div class="bg-white p-8 rounded-[50px] shadow-xl border-4 border-gray-50 hover:border-[#FF007F] transition-all flex flex-col">
-                    <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[30px] mb-6 cursor-pointer hover:scale-105 transition-transform" onclick="openDetailModal(${p.id})">
+                    <div class="relative overflow-hidden rounded-[30px] mb-6 group">
+                        <img src="${p.image_url}" class="w-full aspect-square object-cover cursor-pointer group-hover:scale-110 transition-transform duration-500" onclick="openDetailModal(${p.id})">
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-4 py-2 rounded-full font-black text-[#FF007F] text-sm shadow-lg">NEW</div>
+                    </div>
                     <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
                     <p class="text-2xl font-black text-[#FF007F] mb-6">KES ${p.price.toLocaleString()}</p>
                     <div class="mt-auto flex flex-col gap-3">
-                        <button onclick="openDetailModal(${p.id})" class="text-xs font-black uppercase text-gray-400 hover:text-black">Details & Reviews</button>
-                        <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="btn-dark-pink w-full py-5 text-white rounded-3xl text-sm">Add to Bag</button>
+                        <button onclick="openDetailModal(${p.id})" class="text-xs font-black uppercase text-gray-400 hover:text-black tracking-widest transition-all">View Description & Reviews</button>
+                        <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="btn-dark-pink w-full py-5 text-white rounded-3xl text-sm shadow-lg">Add to Bag</button>
                     </div>
                 </div>`).join('');
             
@@ -318,19 +310,16 @@
         function renderFilters() {
             const cont = document.getElementById('category-filters');
             if(!cont) return;
-            cont.innerHTML = `<button onclick="renderProducts('All')" class="px-8 py-3 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-black uppercase text-xs">All</button>` +
-            categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-8 py-3 rounded-full border-2 border-gray-100 hover:border-[#FF007F] font-black uppercase text-xs">${c.name}</button>`).join('');
+            cont.innerHTML = `<button onclick="renderProducts('All')" class="px-8 py-3 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-black uppercase text-xs">All Products</button>` +
+            categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-8 py-3 rounded-full border-2 border-gray-100 hover:border-[#FF007F] font-black uppercase text-xs transition-all">${c.name}</button>`).join('');
         }
 
-        function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
-        function closeDetailModal() { document.getElementById('detail-modal').classList.remove('active'); }
-        
         function openDetailModal(id) {
             const p = products.find(x => x.id === id);
             if(!p) return;
             document.getElementById('detail-img').src = p.image_url;
             document.getElementById('detail-name').innerText = p.name;
-            document.getElementById('detail-desc').innerText = p.description || "Premium royal formula for glowing skin.";
+            document.getElementById('detail-desc').innerText = p.description || "Formulated for royal radiance and lasting hydration.";
             document.getElementById('detail-price').innerText = p.price.toLocaleString();
             
             const prodRevs = reviews.filter(r => r.product_id === id);
@@ -338,7 +327,7 @@
                 <div class="bg-gray-50 p-4 rounded-2xl border-l-4 border-[#FF007F]">
                     <p class="font-bold text-[#FF007F] text-sm">${r.profiles?.full_name || 'Verified Client'}</p>
                     <p class="text-xs italic text-gray-500">"${r.comment}"</p>
-                </div>`).join('') || '<p class="text-xs opacity-50 text-center py-4">No reviews yet.</p>';
+                </div>`).join('') || '<p class="text-xs opacity-50 text-center py-4">No reviews yet. Be the first to glow!</p>';
             
             document.getElementById('detail-add-btn').onclick = () => { addToBag(p.id, p.name, p.price); closeDetailModal(); };
             document.getElementById('detail-modal').classList.add('active');
@@ -347,22 +336,24 @@
         function addToBag(id, name, price) { 
             cart.push({ id, name, price }); 
             updateCartUI(); 
-            triggerToast('🛍️', 'SUCCESS!', 'Item Added'); 
+            triggerToast('🛍️', 'GLOW ADDED!', 'Item added to your bag'); 
         }
-        
+
         function updateCartUI() {
             localStorage.setItem('glow_cart_vee', JSON.stringify(cart));
             document.getElementById('cart-counter').innerText = cart.length;
             document.getElementById('cart-total-val').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
             const cont = document.getElementById('cart-items-container');
             cont.innerHTML = cart.map((i, idx) => `
-                <div class="flex justify-between bg-gray-50 p-4 rounded-2xl items-center">
+                <div class="flex justify-between bg-gray-50 p-4 rounded-2xl items-center border-b-2 border-pink-100">
                     <div><p class="font-bold text-sm">${i.name}</p><p class="text-[#FF007F] font-black">KES ${i.price.toLocaleString()}</p></div>
                     <button onclick="removeFromBag(${idx})" class="text-3xl text-red-200 hover:text-red-500">×</button>
-                </div>`).join('') || '<p class="text-center opacity-30 mt-10">Bag is empty</p>';
+                </div>`).join('') || '<p class="text-center opacity-30 mt-10 font-bold uppercase text-xs">Your bag is empty</p>';
         }
 
         function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
+        function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
+        function closeDetailModal() { document.getElementById('detail-modal').classList.remove('active'); }
 
         function triggerToast(icon, title, msg) {
             const toast = document.getElementById('success-toast');
@@ -390,9 +381,7 @@
             else document.getElementById('session-modal').classList.add('active');
         }
 
-        function handleAdminClick() {
-            document.getElementById('admin-auth-modal').classList.add('active');
-        }
+        function handleAdminClick() { document.getElementById('admin-auth-modal').classList.add('active'); }
 
         function verifyAdminAccess() {
             if (document.getElementById('admin-pass-key').value === 'VEEROYAL254') {
@@ -425,6 +414,7 @@
             }, 500);
         }
 
+        // Initialize immediately
         window.onload = initCatalog;
     </script>
 </body>
