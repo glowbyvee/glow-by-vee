@@ -74,11 +74,11 @@
     <nav class="flex justify-between items-center px-6 py-8 md:px-16 border-b-8 border-[#FF007F] sticky top-0 bg-white z-[60] shadow-xl">
         <div class="flex items-center gap-4 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
             <div class="h-16 w-16 bg-contain bg-no-repeat" style="background-image: url('logo.jpg');"></div>
-            <span class="royal-font text-3xl md:text-5xl font-black text-[#FF007F] tracking-tighter">Glow By Vee</span>
+            <span class="royal-font text-2xl md:text-5xl font-black text-[#FF007F] tracking-tighter">Glow By Vee</span>
         </div>
         
-        <div class="flex gap-8 items-center">
-            <div class="hidden lg:flex gap-10 royal-font font-black text-[#D4AF37] text-xl uppercase tracking-widest items-center">
+        <div class="flex gap-4 md:gap-8 items-center">
+            <div class="flex gap-4 md:gap-10 royal-font font-black text-[#D4AF37] text-sm md:text-xl uppercase tracking-widest items-center">
                 <a href="#catalog" class="hover:text-[#FF007F] transition-all">SHOP</a>
                 <a href="ai-skin.html" class="hover:text-[#FF007F] transition-all">AI FEATURES</a>
                 
@@ -86,13 +86,14 @@
                     ADMIN <span id="admin-status" class="hidden online-sticker"></span>
                 </button>
 
-                <button onclick="handlePortalClick()" class="bg-pink-100 px-6 py-3 rounded-full text-[#FF007F] border-2 border-pink-200 hover:scale-105 transition-all flex items-center gap-2">
+                <button onclick="handlePortalClick()" class="bg-pink-100 px-4 md:px-6 py-2 md:py-3 rounded-full text-[#FF007F] border-2 border-pink-200 hover:scale-105 transition-all flex items-center gap-2">
                     👑 <span id="user-name-display">PORTAL</span>
                     <span id="user-status-sticker" class="hidden online-sticker"></span>
                 </button>
             </div>
+            
             <div class="relative cursor-pointer hover:scale-110 transition-transform" onclick="toggleCart()">
-                <span class="text-5xl">🛒</span><span id="cart-counter">0</span>
+                <span class="text-4xl md:text-5xl">🛒</span><span id="cart-counter">0</span>
             </div>
         </div>
     </nav>
@@ -231,7 +232,7 @@
 
     <script>
         const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let cart = JSON.parse(localStorage.getItem('glow_cart_vee')) || [];
