@@ -13,7 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --fuchsia: #FF007F; --gold: #D4AF37; }
+        :root { --fuchsia: #FF007F; --dark-pink: #C2185B; --gold: #D4AF37; }
         body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; overflow-x: hidden; font-size: 18px; scroll-behavior: smooth; }
         .royal-font { font-family: 'Cinzel', serif; }
         .glow-button { background: linear-gradient(135deg, var(--fuchsia) 0%, #ff69b4 50%, var(--gold) 100%); background-size: 200% 200%; animation: shimmer 3s ease infinite; }
@@ -32,8 +32,8 @@
         #success-toast { visibility: hidden; min-width: 320px; background: white; color: var(--fuchsia); text-align: center; border-radius: 40px; padding: 40px; position: fixed; z-index: 2000; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.7); box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6); border: 5px solid var(--fuchsia); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         #success-toast.show { visibility: visible; opacity: 1; transform: translate(-50%, -50%) scale(1); }
         #admin-panel { display: none; background: #f9fafb; z-index: 1000; position: fixed; inset: 0; overflow-y: auto; }
-        .nav-link { font-family: 'Cinzel', serif; font-weight: 900; color: var(--gold); font-size: 0.9rem; letter-spacing: 0.1em; white-space: nowrap; }
-        .nav-link:hover { color: var(--fuchsia); }
+        .nav-link { font-family: 'Cinzel', serif; font-weight: 900; color: var(--dark-pink); font-size: 0.9rem; letter-spacing: 0.1em; white-space: nowrap; }
+        .nav-link:hover { color: var(--gold); }
     </style>
 </head>
 <body>
@@ -55,9 +55,9 @@
                 </div>
             </div>
         </div>
-        <div class="flex overflow-x-auto gap-6 px-6 py-3 bg-pink-50 border-t border-pink-100 no-scrollbar items-center">
+        <div class="flex justify-center overflow-x-auto gap-8 px-6 py-3 bg-pink-50 border-t border-pink-100 no-scrollbar items-center">
             <a href="#catalog" class="nav-link">SHOP</a>
-            <a href="#about" class="nav-link">ABOUT</a>
+            <a href="#about" class="nav-link">ABOUT US</a>
             <a href="#guide" class="nav-link">GUIDE</a>
             <button onclick="alert('AI Skin Analysis Loading...')" class="nav-link">AI_LAB</button>
             <button onclick="document.getElementById('admin-auth-modal').classList.add('active')" class="nav-link">ADMIN</button>
@@ -119,12 +119,42 @@
         <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"></div>
     </section>
 
-    <section id="about" class="py-20 bg-gray-50 px-6 text-center">
-        <div class="max-w-4xl mx-auto">
-            <h2 class="royal-font text-5xl text-[#D4AF37] mb-8">About Vee</h2>
-            <p class="text-xl leading-relaxed text-gray-600 font-medium">
-                Glow By Vee was founded on the principle that luxury skincare should be pure, organic, and rooted in nature. We specialize in handcrafted elixirs that transform skin using the finest botanical ingredients found across the continent.
-            </p>
+    <section id="about" class="py-24 bg-white px-6 overflow-hidden">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="relative">
+                    <div class="absolute -top-10 -left-10 w-64 h-64 bg-pink-100 rounded-full blur-3xl opacity-50"></div>
+                    <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&q=80&w=800" alt="Glow by Vee Model" class="relative z-10 rounded-[60px] shadow-2xl border-8 border-white">
+                    <div class="absolute -bottom-6 -right-6 bg-[#D4AF37] p-8 rounded-3xl z-20 shadow-xl">
+                        <p class="text-white font-black text-center leading-tight">100%<br>ORGANIC</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-10">
+                    <div>
+                        <h2 class="royal-font text-6xl text-[#C2185B] mb-2 leading-tight">Who We Are</h2>
+                        <div class="h-1.5 w-32 bg-[#D4AF37] rounded-full"></div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="royal-font text-2xl text-[#C2185B] font-bold mb-3">Our Royal Essence</h3>
+                            <p class="text-gray-600 leading-relaxed text-lg">Glow By Vee is Nairobi's premier luxury skincare sanctuary. We believe that true beauty is a reflection of health and nature. Every bottle we produce is a promise of purity, handcrafted to bring out the royal radiance hidden within your skin.</p>
+                        </div>
+
+                        <div>
+                            <h3 class="royal-font text-2xl text-[#C2185B] font-bold mb-3">What We Sell</h3>
+                            <p class="text-gray-600 leading-relaxed text-lg">We curate specialized botanical elixirs, including our signature 24k Glow Serums, Whipped Organic Body Butters, and Deep Radiance Face Creams. Our products are formulated without harsh chemicals, focusing on cold-pressed oils and African extracts.</p>
+                        </div>
+
+                        <div>
+                            <h3 class="royal-font text-2xl text-[#C2185B] font-bold mb-3">Our Location</h3>
+                            <p class="text-gray-600 leading-relaxed text-lg font-bold">📍 Nairobi, Kenya</p>
+                            <p class="text-gray-500 leading-relaxed italic">Headquartered in the heart of Nairobi, we offer same-day doorstep delivery within the city and reliable shipping across the country.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
