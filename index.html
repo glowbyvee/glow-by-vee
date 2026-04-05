@@ -108,6 +108,30 @@
         </div>
     </div>
 
+    <div id="guide-module" class="full-screen-module px-6">
+        <div class="close-module" onclick="closeModules()">&times;</div>
+        <div class="max-w-7xl mx-auto py-16">
+            <h2 class="royal-font text-5xl text-[#C2185B] text-center mb-16">Skincare Guide</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="step-card bg-pink-50 p-10 rounded-[40px] text-center">
+                    <div class="text-6xl mb-6">🧼</div>
+                    <h3 class="royal-font text-2xl mb-4">Step 1: Cleanse</h3>
+                    <p class="text-gray-600">Wash away impurities with our Radiance Foam to prep your skin.</p>
+                </div>
+                <div class="step-card bg-yellow-50 p-10 rounded-[40px] text-center">
+                    <div class="text-6xl mb-6">💧</div>
+                    <h3 class="royal-font text-2xl mb-4">Step 2: Hydrate</h3>
+                    <p class="text-gray-600">Apply our Pure Glow Serum while skin is slightly damp.</p>
+                </div>
+                <div class="step-card bg-fuchsia-50 p-10 rounded-[40px] text-center">
+                    <div class="text-6xl mb-6">✨</div>
+                    <h3 class="royal-font text-2xl mb-4">Step 3: Seal</h3>
+                    <p class="text-gray-600">Lock in moisture with a layer of Whipped Body Butter.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="product-modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
         <div class="bg-white rounded-[40px] max-w-4xl w-full p-8 md:p-12 overflow-y-auto max-h-[90vh] relative shadow-2xl">
             <button onclick="this.closest('.modal-overlay').classList.remove('active')" class="absolute top-6 right-6 text-3xl">&times;</button>
@@ -166,6 +190,56 @@
                 </select>
                 <textarea id="review-text" class="w-full p-4 border rounded-xl h-32 mb-4" placeholder="How was the product?"></textarea>
                 <button onclick="submitReview()" class="glow-button w-full py-4 text-white font-bold rounded-xl">SAVE REVIEW & CLOSE ORDER</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-auth-modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
+        <div class="bg-white rounded-[40px] p-10 max-w-md w-full shadow-2xl text-center">
+            <h3 class="royal-font text-3xl text-[#FF007F] mb-6">Staff Access</h3>
+            <input type="password" id="admin-pass" placeholder="Enter Admin Pin" class="w-full px-6 py-4 rounded-xl border mb-6 text-center text-2xl tracking-widest">
+            <button onclick="verifyAdmin()" class="glow-button w-full py-4 rounded-xl text-white font-black">UNLOCK DASHBOARD</button>
+            <button onclick="document.getElementById('admin-auth-modal').classList.remove('active')" class="mt-4 text-gray-400">Cancel</button>
+        </div>
+    </div>
+
+    <div id="admin-panel">
+        <nav class="bg-white shadow-md px-10 py-4 flex justify-between items-center sticky top-0 z-50">
+            <h1 class="royal-font text-2xl text-[#FF007F]">Glow Admin Terminal</h1>
+            <button onclick="document.getElementById('admin-panel').style.display='none'" class="bg-black text-white px-6 py-2 rounded-full">Exit</button>
+        </nav>
+        <div class="p-10 grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-pink-100">
+                <p class="text-gray-400 text-sm uppercase font-bold">Total Sales</p>
+                <h2 class="text-3xl font-black mt-2">KES 142,500</h2>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-pink-100">
+                <p class="text-gray-400 text-sm uppercase font-bold">Pending Orders</p>
+                <h2 class="text-3xl font-black mt-2">12</h2>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-pink-100">
+                <p class="text-gray-400 text-sm uppercase font-bold">Active Users</p>
+                <h2 class="text-3xl font-black mt-2">348</h2>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-pink-100">
+                <p class="text-gray-400 text-sm uppercase font-bold">In Stock</p>
+                <h2 class="text-3xl font-black mt-2">89%</h2>
+            </div>
+        </div>
+        <div class="px-10 pb-20">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
+                <div class="bg-gray-50 p-6 border-b flex justify-between">
+                    <h3 class="font-bold">Recent Incoming Orders</h3>
+                </div>
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50">
+                        <tr><th class="p-6">Client</th><th class="p-6">Amount</th><th class="p-6">Status</th><th class="p-6">Action</th></tr>
+                    </thead>
+                    <tbody id="admin-orders-table">
+                        <tr class="border-b"><td class="p-6">Stacy Wambui</td><td class="p-6 font-bold">KES 4,500</td><td><span class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs">New</span></td><td><button class="text-[#FF007F] font-bold">Dispatch</button></td></tr>
+                        <tr class="border-b"><td class="p-6">Kevin Omari</td><td class="p-6 font-bold">KES 12,200</td><td><span class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs">New</span></td><td><button class="text-[#FF007F] font-bold">Dispatch</button></td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -273,6 +347,7 @@
                 renderFilters();
                 renderProducts('All');
                 updateCartUI();
+                startCategorySlideshows();
             } catch (err) { console.error(err); }
         }
 
@@ -351,7 +426,6 @@
                 payment: method
             };
 
-            // Save order simulation
             let orders = JSON.parse(localStorage.getItem('my_orders')) || [];
             orders.unshift(newOrder);
             localStorage.setItem('my_orders', JSON.stringify(orders));
@@ -386,7 +460,7 @@
 
         function initTrackingMap() {
             if (map) return;
-            map = L.map('tracking-map').setView([-1.226, 36.885], 14); // Near Mowlem/Garden Estate
+            map = L.map('tracking-map').setView([-1.226, 36.885], 14); 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             L.marker([-1.226, 36.885]).addTo(map).bindPopup('Delivery Rider').openPopup();
         }
@@ -413,11 +487,31 @@
 
         function renderCategories() {
             const grid = document.getElementById('category-grid');
-            grid.innerHTML = categories.map(cat => `
-                <div class="group relative h-[350px] rounded-[40px] overflow-hidden shadow-xl cursor-pointer" onclick="renderProducts('${cat.name}')">
-                    <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=600" class="absolute inset-0 w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-8"><h3 class="royal-font text-white text-2xl">${cat.name}</h3></div>
-                </div>`).join('');
+            grid.innerHTML = categories.map(cat => {
+                const catImages = products.filter(p => p.cat_name === cat.name).map(p => p.image_url);
+                const slides = catImages.map((img, i) => `<img src="${img}" class="cat-slide ${i===0?'active':''}">`).join('');
+                return `
+                <div class="group relative h-[400px] rounded-[40px] overflow-hidden shadow-2xl cursor-pointer transform hover:scale-[1.02] transition-all" onclick="renderProducts('${cat.name}')">
+                    <div class="cat-slideshow">${slides}</div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 flex flex-col justify-end p-10">
+                        <h3 class="royal-font text-white text-3xl font-bold">${cat.name}</h3>
+                        <p class="text-pink-400 font-bold uppercase text-xs tracking-widest mt-2">Explore Collection →</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function startCategorySlideshows() {
+            setInterval(() => {
+                document.querySelectorAll('.cat-slideshow').forEach(container => {
+                    const slides = container.querySelectorAll('.cat-slide');
+                    if(slides.length <= 1) return;
+                    let activeIdx = Array.from(slides).findIndex(s => s.classList.contains('active'));
+                    slides[activeIdx].classList.remove('active');
+                    let nextIdx = (activeIdx + 1) % slides.length;
+                    slides[nextIdx].classList.add('active');
+                });
+            }, 3000);
         }
 
         function renderFilters() {
@@ -430,6 +524,7 @@
             if (document.getElementById('admin-pass').value === "Glow254") {
                 document.getElementById('admin-auth-modal').classList.remove('active');
                 document.getElementById('admin-panel').style.display = 'block';
+                document.body.style.overflow = 'hidden';
             } else { alert("Access Denied"); }
         }
 
