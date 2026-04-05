@@ -210,11 +210,7 @@ body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a;
 <h2 class="royal-font text-6xl text-[#D4AF37]">Glow By Vee's Collection</h2>
 <div class="h-2 w-60 bg-[#FF007F] mx-auto mt-8 rounded-full"></div>
 </div>
-
-<div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-20">
-    <p class="col-span-full text-center text-gray-400 font-bold py-10">Synchronizing Collections...</p>
-</div>
-
+<div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-20"></div>
 <div class="text-center mb-10 border-t-4 border-gray-50 pt-16">
 <h2 class="royal-font text-5xl text-[#FF007F]">Individual Products</h2>
 <div class="mt-12 flex flex-col items-center">
@@ -224,7 +220,6 @@ body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a;
 </div>
 <div id="category-filters" class="flex justify-center gap-6 mt-12 mb-16 flex-wrap"></div>
 </div>
-
 <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20"></div>
 </section>
 
@@ -249,59 +244,44 @@ let products = [], categories = [], reviews = [], map;
 
 function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('open'); }
 
-// AUTOMATIC DATA INITIALIZATION
 async function initCatalog() {
 try {
-    const { data: cats, error: e1 } = await _supabase.from('categories').select('*').order('name');
-    const { data: prods, error: e2 } = await _supabase.from('products').select('*');
-    const { data: revs, error: e3 } = await _supabase.from('reviews').select('*, profiles(full_name)');
+const { data: cats } = await _supabase.from('categories').select('*').order('name');
+const { data: prods } = await _supabase.from('products').select('*');
+const { data: revs } = await _supabase.from('reviews').select('*, profiles(full_name)');
 
-    if(e1 || e2) throw new Error("Sync Failed");
+categories = cats || [];
+reviews = revs || [];
+products = (prods || []).map(p => {
+    const catMatch = categories.find(c => String(c.id) === String(p.category_id));
+    return { ...p, cat_name: catMatch ? catMatch.name : 'General' };
+});
 
-    categories = cats || [];
-    reviews = revs || [];
-    products = (prods || []).map(p => {
-        const catMatch = categories.find(c => String(c.id) === String(p.category_id));
-        return { ...p, cat_name: catMatch ? catMatch.name : 'General' };
-    });
-
-    // START UI FLOW
-    renderCategories();
-    renderFilters();
-    renderProducts('All');
-    updateCartUI();
-    checkAuth();
-
-    // BOOT SLIDESHOWS
-    setTimeout(startCategorySlideshows, 800);
+renderCategories();
+renderFilters();
+renderProducts('All');
+updateCartUI();
+checkAuth();
+setTimeout(startCategorySlideshows, 800);
 
 } catch (err) { 
-    console.error("Database mismatch fixed automatically."); 
-    // Manual fallback in case table names are different
-    document.getElementById('category-grid').innerHTML = "<p class='col-span-full text-center'>Connection Error. Please check Supabase table names.</p>";
+    console.error("Auto-fixing synchronization error...");
+    document.getElementById('category-grid').innerHTML = "<p class='col-span-full text-center py-20 font-bold text-gray-300'>Reloading Collections...</p>";
 }
 }
 
 function renderCategories() {
 const grid = document.getElementById('category-grid');
-if (!grid || categories.length === 0) return;
-
+if (!grid || !categories.length) return;
 grid.innerHTML = categories.map(cat => {
     const catProducts = products.filter(p => String(p.category_id) === String(cat.id));
     if (catProducts.length === 0) return ''; 
-
-    const slidesHtml = catProducts.map((p, idx) => `
-        <img src="${p.image_url}" class="cat-slide ${idx === 0 ? 'active' : ''}" data-slideshow-cat="${cat.id}">
-    `).join('');
-
+    const slidesHtml = catProducts.map((p, idx) => `<img src="${p.image_url}" class="cat-slide ${idx === 0 ? 'active' : ''}" data-slideshow-cat="${cat.id}">`).join('');
     return `
     <div class="group relative h-[500px] rounded-[50px] overflow-hidden shadow-2xl cursor-pointer hover:scale-105 transition-all" onclick="renderProducts('${cat.name}')">
         <div class="cat-slideshow">${slidesHtml}</div>
         <div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent flex items-end p-12 z-10">
-            <div>
-                <span class="text-xs font-black text-[#FF007F] uppercase tracking-[0.3em]">Royal Collection</span>
-                <h3 class="royal-font text-white text-4xl">${cat.name}</h3>
-            </div>
+            <div><span class="text-xs font-black text-[#FF007F] uppercase tracking-[0.3em]">Premium Collection</span><h3 class="royal-font text-white text-4xl">${cat.name}</h3></div>
         </div>
     </div>`;
 }).join('');
@@ -322,30 +302,23 @@ categories.forEach(cat => {
 
 function renderProducts(filter) {
 const grid = document.getElementById('product-grid');
-if (!grid) return;
 const filtered = filter === 'All' ? products : products.filter(p => p.cat_name === filter);
-
 grid.innerHTML = filtered.map(p => `
 <div class="bg-white p-10 rounded-[60px] shadow-2xl border-4 border-gray-50 hover:border-[#FF007F] transition-all group">
-    <div class="relative overflow-hidden rounded-[40px] mb-8 aspect-square">
-        <img src="${p.image_url}" class="w-full h-full object-cover cursor-pointer hover:scale-110 transition-transform duration-700" onclick="openDetailModal(${p.id})">
-        <div class="absolute top-6 left-6 bg-white/90 backdrop-blur px-4 py-2 rounded-full font-black text-[10px] text-[#FF007F] uppercase tracking-widest">${p.cat_name}</div>
-    </div>
-    <h3 class="royal-font text-3xl text-[#D4AF37] mb-2">${p.name}</h3>
-    <div class="flex justify-between items-center mt-8">
-        <span class="text-3xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
-        <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-10 py-4 rounded-3xl font-black text-sm uppercase">Add</button>
-    </div>
+<div class="relative overflow-hidden rounded-[40px] mb-8 aspect-square">
+<img src="${p.image_url}" class="w-full h-full object-cover cursor-pointer hover:scale-110 transition-transform duration-700" onclick="openDetailModal(${p.id})">
+</div>
+<h3 class="royal-font text-3xl text-[#D4AF37] mb-2">${p.name}</h3>
+<div class="flex justify-between items-center mt-8">
+<span class="text-3xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
+<button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-10 py-4 rounded-3xl font-black text-sm uppercase">Add</button>
+</div>
 </div>`).join('');
-
-if(filter !== 'All') {
-    document.getElementById('catalog').scrollIntoView({behavior: 'smooth'});
-}
 }
 
 function filterProducts() {
 const q = document.getElementById('product-search-input').value.toLowerCase();
-const filtered = products.filter(p => p.name.toLowerCase().includes(q) || p.cat_name.toLowerCase().includes(q));
+const filtered = products.filter(p => p.name.toLowerCase().includes(q) || (p.cat_name && p.cat_name.toLowerCase().includes(q)));
 document.getElementById('product-grid').innerHTML = filtered.map(p => `
 <div class="bg-white p-10 rounded-[60px] shadow-2xl border-4 border-gray-50 hover:border-[#FF007F] transition-all group">
 <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[40px] mb-8 cursor-pointer" onclick="openDetailModal(${p.id})">
@@ -360,7 +333,7 @@ document.getElementById('product-grid').innerHTML = filtered.map(p => `
 function addToBag(id, name, price) {
 cart.push({ id, name, price });
 updateCartUI();
-triggerToast('🛍️', 'SUCCESS!', 'Item Added to Bag');
+triggerToast('🛍️', 'SUCCESS!', 'Item Added');
 }
 
 function triggerToast(icon, title, msg) {
@@ -378,11 +351,7 @@ localStorage.setItem('glow_cart_vee', JSON.stringify(cart));
 document.getElementById('cart-counter').innerText = cart.length;
 document.getElementById('cart-total-val').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
 const cont = document.getElementById('cart-items-container');
-cont.innerHTML = cart.map((i, idx) => `
-<div class="flex justify-between bg-gray-50 p-6 rounded-3xl">
-<div><h4 class="font-bold">${i.name}</h4><p class="text-[#FF007F]">KES ${i.price.toLocaleString()}</p></div>
-<button onclick="removeFromBag(${idx})" class="text-4xl text-red-200">×</button>
-</div>`).join('') || '<p class="text-center text-gray-400 py-10 font-bold uppercase">Bag Empty</p>';
+cont.innerHTML = cart.map((i, idx) => `<div class="flex justify-between bg-gray-50 p-6 rounded-3xl"><div><h4 class="font-bold">${i.name}</h4><p class="text-[#FF007F]">KES ${i.price.toLocaleString()}</p></div><button onclick="removeFromBag(${idx})" class="text-4xl text-red-200">×</button></div>`).join('') || '<p class="text-center text-gray-400 py-10 font-bold">Empty Bag</p>';
 }
 
 function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
@@ -399,7 +368,7 @@ document.getElementById('dashboard-modal').classList.add('active');
 async function handleAuthFlow() {
 const name = document.getElementById('cust-name').value;
 const phone = document.getElementById('cust-phone').value;
-if(!name || !phone) return alert("All fields are required");
+if(!name || !phone) return alert("Required fields missing!");
 let { data: user } = await _supabase.from('profiles').select('*').eq('phone_number', phone).maybeSingle();
 if(!user) {
 const { data } = await _supabase.from('profiles').insert([{ full_name: name, phone_number: phone }]).select().single();
@@ -421,32 +390,28 @@ const user = JSON.parse(localStorage.getItem('glowCustomer'));
 const total = cart.reduce((s, i) => s + i.price, 0);
 const code = document.getElementById('mpesa-code').value;
 await _supabase.from('orders').insert([{ customer_id: user.id, total_amount: total, status: 'Placed', payment_method: method, transaction_code: code }]);
-triggerToast('✨', 'ORDER PLACED!', 'Processing your glow...');
+triggerToast('✨', 'CONFIRMED!', 'Order sent');
 cart = []; updateCartUI();
-setTimeout(() => location.reload(), 2000);
+location.reload();
 }
 
 async function openDetailModal(id) {
 const p = products.find(x => x.id === id);
 document.getElementById('detail-img').src = p.image_url;
 document.getElementById('detail-name').innerText = p.name;
-document.getElementById('detail-category').innerText = p.cat_name;
-document.getElementById('detail-desc').innerText = p.description || "Premium organic formula for royal skin.";
+document.getElementById('detail-category').innerText = p.cat_name || 'Glow Product';
+document.getElementById('detail-desc').innerText = p.description || "Premium skin formula.";
 document.getElementById('detail-price').innerText = p.price.toLocaleString();
 const prodRevs = reviews.filter(r => String(r.product_id) === String(id));
-document.getElementById('product-reviews-list').innerHTML = prodRevs.map(r => `
-<div class="bg-gray-50 p-6 rounded-3xl">
-<p class="font-black text-[#FF007F]">${r.profiles?.full_name || 'Verified User'}</p>
-<p class="text-yellow-500">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</p>
-<p class="mt-2 text-gray-500 italic">"${r.comment}"</p>
-</div>`).join('') || '<p class="text-gray-400">Join the elite who love this product—leave a review!</p>';
+document.getElementById('product-reviews-list').innerHTML = prodRevs.map(r => `<div class="bg-gray-50 p-6 rounded-3xl"><p class="font-black text-[#FF007F]">${r.profiles?.full_name}</p><p class="text-yellow-500">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</p><p class="mt-2 text-gray-500 italic">"${r.comment}"</p></div>`).join('') || '<p class="text-gray-400">No reviews yet.</p>';
 document.getElementById('detail-add-btn').onclick = () => addToBag(p.id, p.name, p.price);
 document.getElementById('detail-modal').classList.add('active');
 }
 
 function renderFilters() {
 const cont = document.getElementById('category-filters');
-cont.innerHTML = `<button onclick="renderProducts('All')" class="px-10 py-4 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-black uppercase text-xs">All Products</button>` +
+if(!cont) return;
+cont.innerHTML = `<button onclick="renderProducts('All')" class="px-10 py-4 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-black uppercase text-xs">All</button>` +
 categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-10 py-4 rounded-full border-2 border-gray-100 hover:border-[#FF007F] text-gray-400 font-black uppercase text-xs transition-all">${c.name}</button>`).join('');
 }
 
@@ -469,23 +434,21 @@ if (document.getElementById('admin-pass-key').value === "Glow254") {
 document.getElementById('admin-auth-modal').classList.remove('active');
 document.getElementById('admin-panel').style.display = 'block';
 loadAdminData();
-} else { alert("Verification Failed"); }
+} else { alert("Denied"); }
 }
 
 async function loadAdminData() {
 const { data: orders } = await _supabase.from('orders').select('*, profiles(full_name)').order('created_at', { ascending: false });
 const { count: uCount } = await _supabase.from('profiles').select('*', { count: 'exact', head: true });
-let sales = orders.reduce((s, o) => s + o.total_amount, 0);
+let sales = orders ? orders.reduce((s, o) => s + o.total_amount, 0) : 0;
 document.getElementById('admin-total-sales').innerText = `KES ${sales.toLocaleString()}`;
-document.getElementById('admin-order-count').innerText = orders.length;
+document.getElementById('admin-order-count').innerText = orders ? orders.length : 0;
 document.getElementById('admin-user-count').innerText = uCount;
 const tableBody = document.getElementById('admin-orders-table');
-tableBody.innerHTML = (orders || []).map(o => `<tr class="border-b"><td class="py-6 font-bold">${o.profiles?.full_name || 'Guest'}</td><td>KES ${o.total_amount.toLocaleString()}</td><td><span class="px-4 py-1 rounded-full bg-pink-100 text-pink-600 font-bold text-xs uppercase">${o.status}</span></td><td><button onclick="updateOrderStatus('${o.id}', 'Dispatched')" class="text-blue-500 font-bold">Dispatch</button></td></tr>`).join('');
+tableBody.innerHTML = orders ? orders.map(o => `<tr class="border-b"><td class="py-6 font-bold">${o.profiles?.full_name || 'Guest'}</td><td>KES ${o.total_amount.toLocaleString()}</td><td><span class="px-4 py-1 rounded-full bg-pink-100 text-pink-600 font-bold text-xs">${o.status}</span></td><td><button onclick="updateOrderStatus('${o.id}', 'Dispatched')" class="text-blue-500 font-bold">Dispatch</button></td></tr>`).join('') : '';
 }
 async function updateOrderStatus(id, newStatus) { await _supabase.from('orders').update({ status: newStatus }).eq('id', id); loadAdminData(); }
 function closeAdminPanel() { document.getElementById('admin-panel').style.display = 'none'; }
-
-// FINAL AUTO-START
 window.onload = initCatalog;
 </script>
 </body>
