@@ -32,7 +32,8 @@
         #success-toast { visibility: hidden; min-width: 320px; background: white; color: var(--fuchsia); text-align: center; border-radius: 40px; padding: 40px; position: fixed; z-index: 2000; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.7); box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6); border: 5px solid var(--fuchsia); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         #success-toast.show { visibility: visible; opacity: 1; transform: translate(-50%, -50%) scale(1); }
         #admin-panel { display: none; background: #f9fafb; z-index: 1000; position: fixed; inset: 0; overflow-y: auto; }
-        .stat-card { background: white; padding: 30px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 2px solid #f3f4f6; }
+        .nav-link { font-family: 'Cinzel', serif; font-weight: 900; color: var(--gold); font-size: 0.9rem; letter-spacing: 0.1em; white-space: nowrap; }
+        .nav-link:hover { color: var(--fuchsia); }
     </style>
 </head>
 <body>
@@ -42,23 +43,25 @@
         <p id="toast-msg" class="font-bold text-2xl uppercase tracking-widest"></p>
     </div>
 
-    <nav class="flex justify-between items-center px-6 py-6 md:px-16 border-b-8 border-[#FF007F] sticky top-0 bg-white z-[150] shadow-xl">
-        <div class="flex items-center gap-4 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-            <div class="h-12 w-12 md:h-16 md:w-16 bg-contain bg-no-repeat" style="background-image: url('logo.jpg');"></div>
-            <span class="royal-font text-2xl md:text-5xl font-black text-[#FF007F] tracking-tighter">Glow By Vee</span>
+    <nav class="sticky top-0 bg-white z-[150] shadow-xl border-b-8 border-[#FF007F]">
+        <div class="flex justify-between items-center px-6 py-4 md:px-16">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                <div class="h-10 w-10 md:h-14 md:w-14 bg-contain bg-no-repeat" style="background-image: url('logo.jpg');"></div>
+                <span class="royal-font text-xl md:text-4xl font-black text-[#FF007F]">Glow By Vee</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="relative cursor-pointer" onclick="toggleCart()">
+                    <span class="text-3xl md:text-4xl">🛒</span><span id="cart-counter">0</span>
+                </div>
+            </div>
         </div>
-        <div class="flex gap-4 md:gap-8 items-center">
-            <div class="hidden lg:flex gap-10 royal-font font-black text-[#D4AF37] text-xl uppercase tracking-widest items-center">
-                <a href="#catalog" class="hover:text-[#FF007F] transition-all">SHOP</a>
-                <a href="#" onclick="alert('AI Features Coming Soon!')" class="hover:text-[#FF007F] transition-all">AI FEATURES</a>
-                <button onclick="document.getElementById('admin-auth-modal').classList.add('active')" class="hover:text-[#FF007F] transition-all">ADMIN</button>
-                <button onclick="document.getElementById('dashboard-modal').classList.add('active')" class="bg-pink-100 px-6 py-3 rounded-full text-[#FF007F] border-2 border-pink-200 hover:scale-105 transition-all">
-                    👑 <span id="user-name-display">PORTAL</span>
-                </button>
-            </div>
-            <div class="relative cursor-pointer hover:scale-110 transition-transform" onclick="toggleCart()">
-                <span class="text-4xl md:text-5xl">🛒</span><span id="cart-counter">0</span>
-            </div>
+        <div class="flex overflow-x-auto gap-6 px-6 py-3 bg-pink-50 border-t border-pink-100 no-scrollbar items-center">
+            <a href="#catalog" class="nav-link">SHOP</a>
+            <a href="#about" class="nav-link">ABOUT</a>
+            <a href="#guide" class="nav-link">GUIDE</a>
+            <button onclick="alert('AI Skin Analysis Loading...')" class="nav-link">AI_LAB</button>
+            <button onclick="document.getElementById('admin-auth-modal').classList.add('active')" class="nav-link">ADMIN</button>
+            <button onclick="document.getElementById('dashboard-modal').classList.add('active')" class="nav-link text-[#FF007F]">PORTAL</button>
         </div>
     </nav>
 
@@ -68,8 +71,10 @@
             <button onclick="document.getElementById('admin-panel').style.display='none'" class="bg-black text-white px-8 py-3 rounded-xl font-bold">Exit HQ</button>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
-            <div class="stat-card"><p class="text-gray-400 font-bold uppercase text-xs mb-2">Total Sales</p><h2 id="admin-total-sales" class="text-4xl font-black">KES 0</h2></div>
-            <div class="stat-card"><p class="text-gray-400 font-bold uppercase text-xs mb-2">Orders</p><h2 id="admin-order-count" class="text-4xl font-black">0</h2></div>
+            <div class="stat-card bg-white p-8 rounded-3xl shadow-lg border-2 border-gray-50">
+                <p class="text-gray-400 font-bold uppercase text-xs mb-2">Total Sales</p>
+                <h2 id="admin-total-sales" class="text-4xl font-black">KES 0</h2>
+            </div>
         </div>
         <div class="bg-white rounded-[40px] p-10 shadow-xl border-2">
             <h3 class="royal-font text-3xl mb-8">Recent Orders</h3>
@@ -89,44 +94,63 @@
         </div>
     </div>
 
-    <section class="relative h-[40vh] md:h-[50vh] flex items-center justify-center text-center overflow-hidden">
+    <section class="relative h-[35vh] flex items-center justify-center text-center overflow-hidden">
         <div class="absolute inset-0 bg-cover bg-center bg-fixed" style="background-image: url('hero-premium.jpg');">
-            <div class="absolute inset-0 bg-black/50"></div>
+            <div class="absolute inset-0 bg-black/40"></div>
         </div>
         <div class="relative z-10 px-6">
-            <h1 class="royal-font text-5xl md:text-8xl text-white leading-none">ROYAL<br><span class="text-[#FF007F]">GLOW</span></h1>
-            <p class="text-white text-lg md:text-xl mt-4 font-bold tracking-[0.5em] uppercase">Organic Skin Elixirs</p>
+            <h1 class="royal-font text-4xl md:text-7xl text-white leading-none">ROYAL<br><span class="text-[#FF007F]">GLOW</span></h1>
         </div>
     </section>
 
-    <div class="marquee"><div class="marquee-content">✨ Premium Organic Formulas ✨ Same Day Delivery in Nairobi ✨ Pure Ingredients Only ✨ Your Skin, Our Priority ✨</div></div>
+    <div class="marquee"><div class="marquee-content">✨ Premium Organic Formulas ✨ Same Day Delivery in Nairobi ✨ Pure Ingredients Only ✨</div></div>
 
     <section id="catalog" class="py-16 px-6 max-w-7xl mx-auto">
         <div class="text-center mb-16">
-            <h2 class="royal-font text-6xl text-[#D4AF37]">Glow By Vee's Collection</h2>
-            <div class="h-2 w-60 bg-[#FF007F] mx-auto mt-8 rounded-full"></div>
+            <h2 class="royal-font text-5xl text-[#D4AF37]">The Collection</h2>
+            <div class="h-1 w-40 bg-[#FF007F] mx-auto mt-4 rounded-full"></div>
         </div>
-        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-20"></div>
+        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-20"></div>
 
-        <div class="text-center mb-10 border-t-4 border-gray-50 pt-16">
-            <h2 class="royal-font text-5xl text-[#FF007F]">Individual Products</h2>
-            <div class="mt-12 flex flex-col items-center">
-                <input type="text" id="product-search-input" oninput="filterProducts()" placeholder="Search Glow..." class="w-full max-w-2xl px-10 py-6 rounded-[30px] bg-gray-50 border-4 border-transparent focus:border-[#FF007F] outline-none text-xl font-bold shadow-lg">
-            </div>
-            <div id="category-filters" class="flex justify-center gap-6 mt-12 mb-16 flex-wrap"></div>
+        <div class="text-center mb-10 border-t-2 border-gray-50 pt-16">
+            <h2 class="royal-font text-4xl text-[#FF007F]">Individual Products</h2>
+            <div id="category-filters" class="flex justify-center gap-4 mt-8 mb-12 flex-wrap"></div>
         </div>
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20"></div>
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"></div>
     </section>
 
-    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[500px] bg-white z-[1000] shadow-2xl flex flex-col border-l-[10px] border-[#FF007F]">
-        <div class="p-10 border-b-4 flex justify-between items-center">
-            <h2 class="royal-font text-4xl text-[#FF007F]">The Bag</h2>
-            <button onclick="toggleCart()" class="text-6xl text-gray-300 hover:text-black">&times;</button>
+    <section id="about" class="py-20 bg-gray-50 px-6 text-center">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="royal-font text-5xl text-[#D4AF37] mb-8">About Vee</h2>
+            <p class="text-xl leading-relaxed text-gray-600 font-medium">
+                Glow By Vee was founded on the principle that luxury skincare should be pure, organic, and rooted in nature. We specialize in handcrafted elixirs that transform skin using the finest botanical ingredients found across the continent.
+            </p>
         </div>
-        <div id="cart-items-container" class="flex-1 overflow-y-auto p-10 space-y-6"></div>
-        <div class="p-10 border-t-4">
-            <div class="flex justify-between font-black text-3xl mb-8"><span>Total</span><span id="cart-total-val" class="text-[#FF007F]">KES 0</span></div>
-            <button onclick="alert('Proceeding to Checkout...')" class="glow-button w-full py-7 rounded-3xl text-white font-black text-2xl uppercase">Secure Checkout</button>
+    </section>
+
+    <section id="guide" class="py-20 px-6 max-w-7xl mx-auto">
+        <h2 class="royal-font text-5xl text-[#FF007F] text-center mb-12">Royal Skin Guide</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div class="p-10 bg-white border-4 border-pink-50 rounded-[40px]">
+                <h4 class="font-black text-2xl mb-4 text-[#D4AF37]">1. Cleanse</h4>
+                <p>Always start with a gentle wash to prepare your royal canvas.</p>
+            </div>
+            <div class="p-10 bg-white border-4 border-pink-50 rounded-[40px]">
+                <h4 class="font-black text-2xl mb-4 text-[#D4AF37]">2. Nourish</h4>
+                <p>Apply Glow By Vee serums while skin is slightly damp for maximum absorption.</p>
+            </div>
+        </div>
+    </section>
+
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-white shadow-2xl flex flex-col border-l-[8px] border-[#FF007F]">
+        <div class="p-8 border-b-2 flex justify-between items-center bg-gray-50">
+            <h2 class="royal-font text-3xl text-[#FF007F]">Your Bag</h2>
+            <button onclick="toggleCart()" class="text-5xl text-gray-300">&times;</button>
+        </div>
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-8 space-y-4"></div>
+        <div class="p-8 border-t-2">
+            <div class="flex justify-between font-black text-2xl mb-6"><span>Total</span><span id="cart-total-val" class="text-[#FF007F]">KES 0</span></div>
+            <button onclick="alert('M-Pesa Checkout...')" class="glow-button w-full py-5 rounded-2xl text-white font-black uppercase shadow-lg">Checkout Now</button>
         </div>
     </div>
 
@@ -143,13 +167,12 @@
                 const { data: cats } = await _supabase.from('categories').select('*').order('name');
                 const { data: prods } = await _supabase.from('products').select('*');
                 
-                // Fallback Product Data
-                categories = cats && cats.length ? cats : [{id: 1, name: "Facial Care"}, {id: 2, name: "Body Glow"}, {id: 3, name: "Special Oils"}];
-                let dbProducts = prods && prods.length ? prods : [
-                    {id: 101, category_id: 1, name: "Face Cream", price: 2500, image_url: "face-cream.jpg", description: "Royal face hydration."},
-                    {id: 102, category_id: 1, name: "Glow Serum", price: 3200, image_url: "serum.jpg", description: "Intense radiance boost."},
-                    {id: 103, category_id: 2, name: "Body Butter", price: 1800, image_url: "body-butter.jpg", description: "Velvety skin texture."},
-                    {id: 105, category_id: 3, name: "Radiance Oil", price: 4500, image_url: "oil.jpg", description: "Pure organic glow oil."}
+                categories = (cats && cats.length) ? cats : [{id: 1, name: "Facial Care"}, {id: 2, name: "Body Glow"}, {id: 3, name: "Special Oils"}];
+                let dbProducts = (prods && prods.length) ? prods : [
+                    {id: 101, category_id: 1, name: "Face Cream", price: 2500, image_url: "face-cream.jpg"},
+                    {id: 102, category_id: 1, name: "Glow Serum", price: 3200, image_url: "serum.jpg"},
+                    {id: 103, category_id: 2, name: "Body Butter", price: 1800, image_url: "body-butter.jpg"},
+                    {id: 105, category_id: 3, name: "Radiance Oil", price: 4500, image_url: "oil.jpg"}
                 ];
 
                 products = dbProducts.map(p => ({
@@ -158,7 +181,7 @@
 
                 renderCategories();
                 renderFilters();
-                renderProducts('All'); // Show all products immediately
+                renderProducts('All');
                 updateCartUI();
                 startCategorySlideshows();
             } catch (err) { console.error("Portal Error:", err); }
@@ -170,9 +193,9 @@
                 const catProducts = products.filter(x => x.category_id === cat.id);
                 if (!catProducts.length) return '';
                 const slidesHtml = catProducts.map((p, idx) => `<img src="${p.image_url}" class="cat-slide ${idx === 0 ? 'active' : ''}" data-cat="${cat.id}">`).join('');
-                return `<div class="group relative h-[500px] rounded-[50px] overflow-hidden shadow-2xl cursor-pointer hover:scale-105 transition-all" onclick="renderProducts('${cat.name}')">
+                return `<div class="group relative h-[350px] rounded-[40px] overflow-hidden shadow-xl cursor-pointer" onclick="renderProducts('${cat.name}')">
                     <div class="cat-slideshow">${slidesHtml}</div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent flex items-end p-12"><h3 class="royal-font text-white text-4xl">${cat.name}</h3></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-8"><h3 class="royal-font text-white text-2xl">${cat.name}</h3></div>
                 </div>`;
             }).join('');
         }
@@ -181,35 +204,21 @@
             const grid = document.getElementById('product-grid');
             const filtered = filter === 'All' ? products : products.filter(p => p.cat_name === filter);
             grid.innerHTML = filtered.map(p => `
-                <div class="bg-white p-10 rounded-[60px] shadow-2xl border-4 border-gray-50 hover:border-[#FF007F] transition-all">
-                    <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[40px] mb-8">
-                    <h3 class="royal-font text-3xl text-[#D4AF37] mb-2">${p.name}</h3>
-                    <div class="flex justify-between items-center mt-8">
-                        <span class="text-3xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
-                        <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-10 py-4 rounded-3xl font-black text-sm uppercase">Add</button>
+                <div class="bg-white p-8 rounded-[40px] shadow-lg border-2 border-gray-50 hover:border-[#FF007F] transition-all">
+                    <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[30px] mb-6">
+                    <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
+                    <div class="flex justify-between items-center mt-6">
+                        <span class="text-2xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
+                        <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-8 py-3 rounded-2xl font-black text-xs uppercase">Add</button>
                     </div>
                 </div>`).join('');
-        }
-
-        function filterProducts() {
-            const query = document.getElementById('product-search-input').value.toLowerCase();
-            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
-            const grid = document.getElementById('product-grid');
-            grid.innerHTML = filtered.map(p => `
-                <div class="bg-white p-10 rounded-[60px] shadow-2xl border-4 border-gray-50 hover:border-[#FF007F] transition-all">
-                    <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[40px] mb-8">
-                    <h3 class="royal-font text-3xl text-[#D4AF37] mb-2">${p.name}</h3>
-                    <div class="flex justify-between items-center mt-8">
-                        <span class="text-3xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
-                        <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-10 py-4 rounded-3xl font-black text-sm uppercase">Add</button>
-                    </div>
-                </div>`).join('');
+            if(filter !== 'All') window.location.href = "#product-grid";
         }
 
         function renderFilters() {
             const cont = document.getElementById('category-filters');
-            cont.innerHTML = `<button onclick="renderProducts('All')" class="px-8 py-3 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-bold">ALL</button>` + 
-                categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-8 py-3 rounded-full border-2 border-gray-100 hover:border-[#FF007F] font-bold">${c.name.toUpperCase()}</button>`).join('');
+            cont.innerHTML = `<button onclick="renderProducts('All')" class="px-6 py-2 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-bold text-sm">ALL</button>` + 
+                categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-6 py-2 rounded-full border-2 border-gray-100 hover:border-[#FF007F] font-bold text-sm uppercase">${c.name}</button>`).join('');
         }
 
         function addToBag(id, name, price) {
@@ -217,10 +226,10 @@
             updateCartUI();
             const toast = document.getElementById('success-toast');
             document.getElementById('toast-icon').innerText = '🛍️';
-            document.getElementById('toast-title').innerText = 'SUCCESS!';
-            document.getElementById('toast-msg').innerText = 'Added to Bag';
+            document.getElementById('toast-title').innerText = 'ADDED';
+            document.getElementById('toast-msg').innerText = name;
             toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2500);
+            setTimeout(() => toast.classList.remove('show'), 2000);
         }
 
         function updateCartUI() {
@@ -228,7 +237,7 @@
             document.getElementById('cart-counter').innerText = cart.length;
             document.getElementById('cart-total-val').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
             const cont = document.getElementById('cart-items-container');
-            cont.innerHTML = cart.map((i, idx) => `<div class="flex justify-between bg-gray-50 p-6 rounded-3xl"><div><h4 class="font-bold">${i.name}</h4><p class="text-[#FF007F]">KES ${i.price.toLocaleString()}</p></div><button onclick="removeFromBag(${idx})" class="text-4xl text-red-200">×</button></div>`).join('') || '<p class="text-center py-10">Bag Empty</p>';
+            cont.innerHTML = cart.map((i, idx) => `<div class="flex justify-between bg-gray-50 p-4 rounded-2xl"><div><h4 class="font-bold text-sm">${i.name}</h4><p class="text-[#FF007F] text-sm">KES ${i.price.toLocaleString()}</p></div><button onclick="removeFromBag(${idx})" class="text-3xl text-red-200">×</button></div>`).join('') || '<p class="text-center py-10 text-gray-400">Empty</p>';
         }
 
         function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
