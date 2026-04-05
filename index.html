@@ -50,7 +50,7 @@
         <div class="flex gap-4 md:gap-8 items-center">
             <div class="hidden lg:flex gap-10 royal-font font-black text-[#D4AF37] text-xl uppercase tracking-widest items-center">
                 <a href="#catalog" class="hover:text-[#FF007F] transition-all">SHOP</a>
-                <a href="#" onclick="alert('AI Analysis Coming Soon!')" class="hover:text-[#FF007F] transition-all">AI FEATURES</a>
+                <a href="#" onclick="alert('AI Features Coming Soon!')" class="hover:text-[#FF007F] transition-all">AI FEATURES</a>
                 <button onclick="document.getElementById('admin-auth-modal').classList.add('active')" class="hover:text-[#FF007F] transition-all">ADMIN</button>
                 <button onclick="document.getElementById('dashboard-modal').classList.add('active')" class="bg-pink-100 px-6 py-3 rounded-full text-[#FF007F] border-2 border-pink-200 hover:scale-105 transition-all">
                     👑 <span id="user-name-display">PORTAL</span>
@@ -126,7 +126,7 @@
         <div id="cart-items-container" class="flex-1 overflow-y-auto p-10 space-y-6"></div>
         <div class="p-10 border-t-4">
             <div class="flex justify-between font-black text-3xl mb-8"><span>Total</span><span id="cart-total-val" class="text-[#FF007F]">KES 0</span></div>
-            <button onclick="alert('Proceeding to M-Pesa...')" class="glow-button w-full py-7 rounded-3xl text-white font-black text-2xl uppercase">Secure Checkout</button>
+            <button onclick="alert('Proceeding to Checkout...')" class="glow-button w-full py-7 rounded-3xl text-white font-black text-2xl uppercase">Secure Checkout</button>
         </div>
     </div>
 
@@ -143,7 +143,7 @@
                 const { data: cats } = await _supabase.from('categories').select('*').order('name');
                 const { data: prods } = await _supabase.from('products').select('*');
                 
-                // DATA FALLBACK (Ensures items appear even if DB is empty)
+                // Fallback Product Data
                 categories = cats && cats.length ? cats : [{id: 1, name: "Facial Care"}, {id: 2, name: "Body Glow"}, {id: 3, name: "Special Oils"}];
                 let dbProducts = prods && prods.length ? prods : [
                     {id: 101, category_id: 1, name: "Face Cream", price: 2500, image_url: "face-cream.jpg", description: "Royal face hydration."},
@@ -158,7 +158,7 @@
 
                 renderCategories();
                 renderFilters();
-                renderProducts('All'); // TRIGGER ALL PRODUCTS ON LOAD
+                renderProducts('All'); // Show all products immediately
                 updateCartUI();
                 startCategorySlideshows();
             } catch (err) { console.error("Portal Error:", err); }
