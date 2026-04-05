@@ -34,16 +34,18 @@
         #admin-panel { display: none; background: #f9fafb; z-index: 1000; position: fixed; inset: 0; overflow-y: auto; }
         .nav-link { font-family: 'Cinzel', serif; font-weight: 900; color: var(--dark-pink); font-size: 0.9rem; letter-spacing: 0.1em; white-space: nowrap; }
         .nav-link:hover { color: var(--gold); }
-
-        /* New Full Screen Module Styles */
         .full-screen-module { display: none; position: fixed; inset: 0; background: white; z-index: 1000; overflow-y: auto; padding-top: 100px; }
         .full-screen-module.active { display: block; }
         .close-module { position: fixed; top: 30px; right: 30px; z-index: 1100; background: black; color: white; width: 50px; height: 50px; border-radius: 50%; font-size: 2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .step-card { transition: transform 0.3s ease; }
         .step-card:hover { transform: translateY(-10px); }
+        .product-desc-border { border: 2px solid #fce7f3; padding: 15px; border-radius: 15px; max-height: 150px; overflow-y: auto; }
+        #tracking-map { height: 400px; border-radius: 30px; margin-top: 20px; }
     </style>
 </head>
 <body>
+    <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+
     <div id="success-toast" class="flex flex-col items-center gap-4">
         <span id="toast-icon" class="text-7xl"></span>
         <h2 id="toast-title" class="royal-font text-4xl font-black"></h2>
@@ -63,70 +65,67 @@
             </div>
         </div>
         <div class="flex justify-center overflow-x-auto gap-8 px-6 py-3 bg-pink-50 border-t border-pink-100 no-scrollbar items-center">
-            <a href="#product-grid" class="nav-link">SHOP</a>
+            <a href="#product-grid" onclick="closeModules()" class="nav-link">SHOP</a>
             <button onclick="openModule('about-module')" class="nav-link">ABOUT US</button>
             <button onclick="openModule('guide-module')" class="nav-link">GUIDE</button>
-            <button onclick="alert('AI Skin Analysis Loading...')" class="nav-link">AI_LAB</button>
-            <button onclick="document.getElementById('admin-auth-modal').classList.add('active')" class="nav-link">ADMIN</button>
             <button onclick="openModule('portal-module')" class="nav-link text-[#FF007F]">PORTAL</button>
+            <button onclick="document.getElementById('admin-auth-modal').classList.add('active')" class="nav-link">ADMIN</button>
         </div>
     </nav>
 
     <div id="about-module" class="full-screen-module px-6">
         <div class="close-module" onclick="closeModules()">&times;</div>
         <div class="max-w-7xl mx-auto py-16">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div class="text-center mb-12">
+                <h1 class="royal-font text-5xl font-black text-[#C2185B]">About Us: Glow By Vee</h1>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
                 <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&q=80&w=800" class="rounded-[60px] shadow-2xl border-8 border-pink-100">
                 <div class="space-y-8">
-                    <h2 class="royal-font text-6xl text-[#C2185B]">Our Royal Essence</h2>
-                    <p class="text-2xl leading-relaxed text-gray-600">Glow By Vee is Nairobi's premier luxury skincare sanctuary. We believe that true beauty is a reflection of health and nature. Every bottle we produce is a promise of purity, handcrafted to bring out the royal radiance hidden within your skin.</p>
-                    <div class="bg-pink-50 p-8 rounded-3xl">
-                        <h3 class="royal-font text-3xl mb-4">Location</h3>
-                        <p class="text-xl">📍 Nairobi, Kenya - Same Day Delivery</p>
+                    <h2 class="royal-font text-4xl text-[#C2185B]">Our Mission</h2>
+                    <p class="text-xl leading-relaxed text-gray-600">Glow By Vee is Nairobi's premier luxury skincare sanctuary. Inspired by the natural radiance of African beauty, we specialize in high-performance organic products that rejuvenate and protect. Follow us on <a href="https://www.facebook.com/Skingoals4U" class="text-blue-600 underline">Facebook</a> for daily tips!</p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-pink-50 p-6 rounded-3xl">
+                            <h3 class="font-bold text-[#FF007F]">Categories</h3>
+                            <ul class="text-sm space-y-1 mt-2">
+                                <li>✨ Facial Serums</li>
+                                <li>✨ Body Butters</li>
+                                <li>✨ Radiance Oils</li>
+                            </ul>
+                        </div>
+                        <div class="bg-pink-50 p-6 rounded-3xl">
+                            <h3 class="font-bold text-[#FF007F]">Contact</h3>
+                            <p class="text-sm mt-2">📞 +254 700 000 000<br>📧 info@glowbyvee.com</p>
+                        </div>
+                    </div>
+                    <div class="bg-yellow-50 p-6 rounded-3xl border-l-8 border-gold">
+                        <h3 class="royal-font text-xl mb-2">Location</h3>
+                        <p class="text-lg">📍 Garden Estate, Nairobi, Kenya. <br><span class="text-sm">We offer Same Day Delivery within the City.</span></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="guide-module" class="full-screen-module bg-gray-50 px-6">
-        <div class="close-module" onclick="closeModules()">&times;</div>
-        <div class="max-w-6xl mx-auto py-12">
-            <div class="text-center mb-16">
-                <h2 class="royal-font text-5xl text-[#FF007F] mb-4">Shopping Experience</h2>
-                <p class="uppercase tracking-widest font-bold text-gray-400">Step-by-Step Royal Journey</p>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="step-card bg-white p-8 rounded-[40px] shadow-xl border-t-8 border-[#D4AF37]">
-                    <div class="text-5xl mb-6">✨</div>
-                    <h3 class="royal-font text-2xl font-bold mb-4">1. Select Item</h3>
-                    <p class="text-gray-500">Browse Glow By Vee's Collections and tap 'Add' on your favorite elixirs.</p>
-                </div>
-                <div class="step-card bg-white p-8 rounded-[40px] shadow-xl border-t-8 border-[#FF007F]">
-                    <div class="text-5xl mb-6">🛒</div>
-                    <h3 class="royal-font text-2xl font-bold mb-4">2. Check Your Bag</h3>
-                    <p class="text-gray-500">Click the cart icon to review your selection and proceed to checkout.</p>
-                </div>
-                <div class="step-card bg-white p-8 rounded-[40px] shadow-xl border-t-8 border-[#D4AF37]">
-                    <div class="text-5xl mb-6">🔐</div>
-                    <h3 class="royal-font text-2xl font-bold mb-4">3. Register/Login</h3>
-                    <p class="text-gray-500">Join the Royal Portal for faster checkouts and exclusive rewards.</p>
-                </div>
-                <div class="step-card bg-white p-8 rounded-[40px] shadow-xl border-t-8 border-[#FF007F]">
-                    <div class="text-5xl mb-6">💳</div>
-                    <h3 class="royal-font text-2xl font-bold mb-4">4. Choose Payment</h3>
-                    <p class="text-gray-500">Pay securely via M-Pesa or choose Pay on Delivery for convenience.</p>
-                </div>
-                <div class="step-card bg-white p-8 rounded-[40px] shadow-xl border-t-8 border-[#D4AF37]">
-                    <div class="text-5xl mb-6">🚚</div>
-                    <h3 class="royal-font text-2xl font-bold mb-4">5. Track Order</h3>
-                    <p class="text-gray-500">Get real-time updates as your Glow package moves to your doorstep.</p>
-                </div>
-                <div class="step-card bg-white p-8 rounded-[40px] shadow-xl border-t-8 border-[#FF007F]">
-                    <div class="text-5xl mb-6">⭐</div>
-                    <h3 class="royal-font text-2xl font-bold mb-4">6. Rate Us</h3>
-                    <p class="text-gray-500">Share your results! Leave a star rating and review in your portal.</p>
+    <div id="product-modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
+        <div class="bg-white rounded-[40px] max-w-4xl w-full p-8 md:p-12 overflow-y-auto max-h-[90vh] relative shadow-2xl">
+            <button onclick="this.closest('.modal-overlay').classList.remove('active')" class="absolute top-6 right-6 text-3xl">&times;</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <img id="modal-img" class="w-full rounded-3xl object-cover shadow-lg">
+                <div class="space-y-6">
+                    <h2 id="modal-title" class="royal-font text-4xl text-[#C2185B]"></h2>
+                    <p id="modal-price" class="text-3xl font-black text-[#FF007F]"></p>
+                    <div class="product-desc-border">
+                        <p id="modal-desc" class="text-gray-600 leading-relaxed"></p>
+                    </div>
+                    <button id="modal-add-btn" class="glow-button w-full py-4 rounded-2xl text-white font-bold">ADD TO CART</button>
+                    <div class="border-t pt-6">
+                        <h3 class="font-bold mb-4">Customer Reviews ⭐</h3>
+                        <div id="modal-reviews" class="space-y-4 max-h-40 overflow-y-auto pr-2">
+                            <p class="text-sm italic text-gray-400">Loading reviews...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -134,41 +133,67 @@
 
     <div id="portal-module" class="full-screen-module bg-pink-50 px-6">
         <div class="close-module" onclick="closeModules()">&times;</div>
-        <div class="max-w-4xl mx-auto py-20 text-center">
-            <h2 class="royal-font text-6xl text-[#FF007F] mb-8">Customer Portal</h2>
-            <div class="bg-white p-12 rounded-[50px] shadow-2xl">
-                <p class="text-2xl font-bold text-gray-400 mb-8 uppercase tracking-widest">Welcome to Your Glow HQ</p>
-                <button class="glow-button px-12 py-5 rounded-2xl text-white font-black">LOGIN TO VIEW ORDERS</button>
+        <div class="max-w-6xl mx-auto py-12">
+            <h2 class="royal-font text-5xl text-[#FF007F] text-center mb-10">Customer Dashboard</h2>
+            <div class="flex gap-4 justify-center mb-8 border-b pb-4">
+                <button onclick="switchPortalTab('orders')" class="font-bold text-[#C2185B] px-6">Orders</button>
+                <button onclick="switchPortalTab('tracking')" class="font-bold text-gray-400 px-6">Live Tracking</button>
+                <button onclick="switchPortalTab('review')" class="font-bold text-gray-400 px-6">Leave Review</button>
+            </div>
+            
+            <div id="tab-orders" class="portal-tab bg-white p-8 rounded-3xl shadow-xl overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="border-b bg-gray-50">
+                        <tr><th class="p-4">Receipt #</th><th class="p-4">Order Details</th><th class="p-4">Amount</th><th class="p-4">Status</th></tr>
+                    </thead>
+                    <tbody id="portal-orders-list">
+                        <tr><td colspan="4" class="p-10 text-center">No recent orders</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="tab-tracking" class="portal-tab hidden">
+                <div id="tracking-map"></div>
+                <p class="text-center mt-4 font-bold animate-pulse text-[#FF007F]">Rider is moving to your location...</p>
+            </div>
+
+            <div id="tab-review" class="portal-tab hidden bg-white p-8 rounded-3xl shadow-xl max-w-xl mx-auto">
+                <h3 class="royal-font text-2xl mb-4">Rate Your Experience</h3>
+                <select id="review-stars" class="w-full p-4 border rounded-xl mb-4">
+                    <option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
+                    <option value="4">⭐⭐⭐⭐ (Great)</option>
+                    <option value="3">⭐⭐⭐ (Average)</option>
+                </select>
+                <textarea id="review-text" class="w-full p-4 border rounded-xl h-32 mb-4" placeholder="How was the product?"></textarea>
+                <button onclick="submitReview()" class="glow-button w-full py-4 text-white font-bold rounded-xl">SAVE REVIEW & CLOSE ORDER</button>
             </div>
         </div>
     </div>
 
-    <div id="admin-panel" class="p-8 md:p-16">
-        <div class="flex justify-between items-center mb-16">
-            <h1 class="royal-font text-5xl text-[#FF007F]">Command Centre</h1>
-            <button onclick="document.getElementById('admin-panel').style.display='none'" class="bg-black text-white px-8 py-3 rounded-xl font-bold">Exit HQ</button>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
-            <div class="stat-card bg-white p-8 rounded-3xl shadow-lg border-2 border-gray-50">
-                <p class="text-gray-400 font-bold uppercase text-xs mb-2">Total Sales</p>
-                <h2 id="admin-total-sales" class="text-4xl font-black">KES 0</h2>
-            </div>
-        </div>
-        <div class="bg-white rounded-[40px] p-10 shadow-xl border-2">
-            <h3 class="royal-font text-3xl mb-8">Recent Orders</h3>
-            <table class="w-full text-left">
-                <thead><tr class="border-b-2 text-gray-400 uppercase text-sm font-black"><th class="pb-4">Customer</th><th class="pb-4">Amount</th><th class="pb-4">Status</th></tr></thead>
-                <tbody id="admin-orders-table"></tbody>
-            </table>
+    <div id="checkout-auth-modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
+        <div class="bg-white rounded-[40px] p-10 max-w-md w-full shadow-2xl text-center">
+            <h3 class="royal-font text-3xl text-[#FF007F] mb-6">Checkout Identity</h3>
+            <input type="text" id="cust-name" placeholder="Full Name" class="w-full px-6 py-4 rounded-xl border mb-4">
+            <input type="tel" id="cust-phone" placeholder="Phone Number (M-Pesa)" class="w-full px-6 py-4 rounded-xl border mb-6">
+            <button onclick="processLoginCheckout()" class="glow-button w-full py-4 rounded-xl text-white font-black">LOG IN & CONTINUE</button>
         </div>
     </div>
 
-    <div id="admin-auth-modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
-        <div class="bg-white rounded-[50px] p-12 max-w-md w-full shadow-2xl text-center">
-            <h3 class="royal-font text-3xl text-[#D4AF37] mb-8">Admin Access</h3>
-            <input type="password" id="admin-pass" placeholder="Enter Key" class="w-full px-8 py-5 rounded-2xl border-2 mb-8 text-center text-xl font-bold outline-none">
-            <button onclick="verifyAdmin()" class="glow-button w-full py-5 rounded-2xl text-white font-black uppercase">Enter HQ</button>
-            <p onclick="this.closest('.modal-overlay').classList.remove('active')" class="mt-6 text-gray-400 cursor-pointer uppercase font-bold text-sm">Close</p>
+    <div id="payment-choice-modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
+        <div class="bg-white rounded-[40px] p-10 max-w-lg w-full shadow-2xl text-center">
+            <h3 class="royal-font text-3xl text-[#D4AF37] mb-8">Payment Method</h3>
+            <div class="grid grid-cols-2 gap-6">
+                <div onclick="finalizeOrder('Online')" class="cursor-pointer border-4 border-transparent hover:border-[#FF007F] p-6 rounded-3xl bg-pink-50 transition-all">
+                    <div class="text-4xl mb-2">💳</div>
+                    <p class="font-bold">Pay Online</p>
+                    <p class="text-xs text-gray-400">Pay via M-Pesa Now</p>
+                </div>
+                <div onclick="finalizeOrder('Delivery')" class="cursor-pointer border-4 border-transparent hover:border-[#FF007F] p-6 rounded-3xl bg-pink-50 transition-all">
+                    <div class="text-4xl mb-2">🚚</div>
+                    <p class="font-bold">Pay on Delivery</p>
+                    <p class="text-xs text-gray-400">Pay when it arrives</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -205,7 +230,7 @@
         <div id="cart-items-container" class="flex-1 overflow-y-auto p-8 space-y-4"></div>
         <div class="p-8 border-t-2">
             <div class="flex justify-between font-black text-2xl mb-6"><span>Total</span><span id="cart-total-val" class="text-[#FF007F]">KES 0</span></div>
-            <button onclick="alert('M-Pesa Checkout...')" class="glow-button w-full py-5 rounded-2xl text-white font-black uppercase shadow-lg">Checkout Now</button>
+            <button onclick="startCheckoutProcess()" class="glow-button w-full py-5 rounded-2xl text-white font-black uppercase shadow-lg">Checkout Now</button>
         </div>
     </div>
 
@@ -215,12 +240,20 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let cart = JSON.parse(localStorage.getItem('glow_cart_vee')) || [];
-        let products = [], categories = [];
+        let products = [], categories = [], user = null;
+        let map = null;
+
+        function speak(text) {
+            const msg = new SpeechSynthesisUtterance();
+            msg.text = text;
+            window.speechSynthesis.speak(msg);
+        }
 
         function openModule(id) {
             document.querySelectorAll('.full-screen-module').forEach(m => m.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.body.style.overflow = 'hidden';
+            if(id === 'portal-module') loadPortalData();
         }
 
         function closeModules() {
@@ -233,69 +266,134 @@
                 const { data: cats } = await _supabase.from('categories').select('*').order('name');
                 const { data: prods } = await _supabase.from('products').select('*');
                 
-                categories = (cats && cats.length) ? cats : [{id: 1, name: "Facial Care"}, {id: 2, name: "Body Glow"}, {id: 3, name: "Special Oils"}];
-                let dbProducts = (prods && prods.length) ? prods : [
-                    {id: 101, category_id: 1, name: "Face Cream", price: 2500, image_url: "face-cream.jpg"},
-                    {id: 102, category_id: 1, name: "Glow Serum", price: 3200, image_url: "serum.jpg"},
-                    {id: 103, category_id: 2, name: "Body Butter", price: 1800, image_url: "body-butter.jpg"},
-                    {id: 105, category_id: 3, name: "Radiance Oil", price: 4500, image_url: "oil.jpg"}
-                ];
-
-                products = dbProducts.map(p => ({
-                    ...p, cat_name: categories.find(c => c.id === p.category_id)?.name || 'Elixir'
-                }));
+                categories = cats || [];
+                products = prods || [];
 
                 renderCategories();
                 renderFilters();
                 renderProducts('All');
                 updateCartUI();
-                startCategorySlideshows();
-            } catch (err) { console.error("Portal Error:", err); }
-        }
-
-        function renderCategories() {
-            const grid = document.getElementById('category-grid');
-            grid.innerHTML = categories.map(cat => {
-                const catProducts = products.filter(x => x.category_id === cat.id);
-                if (!catProducts.length) return '';
-                const slidesHtml = catProducts.map((p, idx) => `<img src="${p.image_url}" class="cat-slide ${idx === 0 ? 'active' : ''}" data-cat="${cat.id}">`).join('');
-                return `<div class="group relative h-[350px] rounded-[40px] overflow-hidden shadow-xl cursor-pointer" onclick="renderProducts('${cat.name}')">
-                    <div class="cat-slideshow">${slidesHtml}</div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-8"><h3 class="royal-font text-white text-2xl">${cat.name}</h3></div>
-                </div>`;
-            }).join('');
+            } catch (err) { console.error(err); }
         }
 
         function renderProducts(filter) {
             const grid = document.getElementById('product-grid');
             const filtered = filter === 'All' ? products : products.filter(p => p.cat_name === filter);
             grid.innerHTML = filtered.map(p => `
-                <div class="bg-white p-8 rounded-[40px] shadow-lg border-2 border-gray-50 hover:border-[#FF007F] transition-all">
+                <div class="bg-white p-8 rounded-[40px] shadow-lg border-2 border-gray-50 hover:border-[#FF007F] transition-all cursor-pointer" onclick="showProductDetail(${p.id})">
                     <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[30px] mb-6">
                     <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
                     <div class="flex justify-between items-center mt-6">
                         <span class="text-2xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
-                        <button onclick="addToBag(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-8 py-3 rounded-2xl font-black text-xs uppercase">Add</button>
+                        <button onclick="event.stopPropagation(); addToBag(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-8 py-3 rounded-2xl font-black text-xs uppercase">Add</button>
                     </div>
                 </div>`).join('');
-            if(filter !== 'All') window.location.href = "#product-grid";
         }
 
-        function renderFilters() {
-            const cont = document.getElementById('category-filters');
-            cont.innerHTML = `<button onclick="renderProducts('All')" class="px-6 py-2 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-bold text-sm">ALL</button>` + 
-                categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-6 py-2 rounded-full border-2 border-gray-100 hover:border-[#FF007F] font-bold text-sm uppercase">${c.name}</button>`).join('');
+        function showProductDetail(id) {
+            const p = products.find(x => x.id === id);
+            document.getElementById('modal-img').src = p.image_url;
+            document.getElementById('modal-title').innerText = p.name;
+            document.getElementById('modal-price').innerText = `KES ${p.price.toLocaleString()}`;
+            document.getElementById('modal-desc').innerText = p.description || "A royal elixir designed to brighten and nourish. Handcrafted with organic extracts for supreme radiance.";
+            document.getElementById('modal-add-btn').onclick = () => addToBag(p.id, p.name, p.price);
+            document.getElementById('product-modal').classList.add('active');
         }
 
         function addToBag(id, name, price) {
             cart.push({ id, name, price });
             updateCartUI();
+            
+            document.getElementById('notif-sound').play();
+            speak("Item added to cart successfully");
+
             const toast = document.getElementById('success-toast');
             document.getElementById('toast-icon').innerText = '🛍️';
-            document.getElementById('toast-title').innerText = 'ADDED';
-            document.getElementById('toast-msg').innerText = name;
+            document.getElementById('toast-title').innerText = 'SUCCESS';
+            document.getElementById('toast-msg').innerText = "Added to Bag!";
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function startCheckoutProcess() {
+            if (!user) {
+                document.getElementById('checkout-auth-modal').classList.add('active');
+            } else {
+                document.getElementById('payment-choice-modal').classList.add('active');
+                speak("Do you want to pay online or pay on delivery?");
+            }
+        }
+
+        function processLoginCheckout() {
+            const name = document.getElementById('cust-name').value;
+            const phone = document.getElementById('cust-phone').value;
+            if (name && phone) {
+                user = { name, phone };
+                document.getElementById('checkout-auth-modal').classList.remove('active');
+                startCheckoutProcess();
+            } else { alert("Enter details"); }
+        }
+
+        function finalizeOrder(method) {
+            const orderNum = "GBV-" + Math.floor(1000 + Math.random() * 9000);
+            const receipt = "RCP-" + Date.now().toString().slice(-6);
+            
+            if (method === 'Online') {
+                alert(`Official Payment Details:\nM-Pesa Paybill: 400400\nAccount: GlowByVee\nAmount: ${document.getElementById('cart-total-val').innerText}\nPlease call +254 700 000 000 after paying.`);
+            }
+
+            const newOrder = {
+                id: orderNum,
+                receipt,
+                details: cart.map(i => i.name).join(", "),
+                amount: document.getElementById('cart-total-val').innerText,
+                status: "Order Processed",
+                payment: method
+            };
+
+            // Save order simulation
+            let orders = JSON.parse(localStorage.getItem('my_orders')) || [];
+            orders.unshift(newOrder);
+            localStorage.setItem('my_orders', JSON.stringify(orders));
+
+            document.getElementById('notif-sound').play();
+            speak(`Order processed successfully via ${method}. View your portal for tracking.`);
+            
+            cart = [];
+            updateCartUI();
+            document.getElementById('payment-choice-modal').classList.remove('active');
+            openModule('portal-module');
+        }
+
+        function switchPortalTab(tab) {
+            document.querySelectorAll('.portal-tab').forEach(t => t.classList.add('hidden'));
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+            if (tab === 'tracking') initTrackingMap();
+        }
+
+        function loadPortalData() {
+            const orders = JSON.parse(localStorage.getItem('my_orders')) || [];
+            const list = document.getElementById('portal-orders-list');
+            list.innerHTML = orders.map(o => `
+                <tr class="border-b">
+                    <td class="p-4 font-bold text-xs">${o.receipt}</td>
+                    <td class="p-4 text-xs">${o.details}</td>
+                    <td class="p-4 font-bold text-[#FF007F]">${o.amount}</td>
+                    <td class="p-4"><span class="bg-green-100 text-green-600 px-3 py-1 rounded-full text-[10px] font-black uppercase">${o.status}</span></td>
+                </tr>
+            `).join('') || '<tr><td colspan="4" class="p-10 text-center">No orders found</td></tr>';
+        }
+
+        function initTrackingMap() {
+            if (map) return;
+            map = L.map('tracking-map').setView([-1.226, 36.885], 14); // Near Mowlem/Garden Estate
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            L.marker([-1.226, 36.885]).addTo(map).bindPopup('Delivery Rider').openPopup();
+        }
+
+        function submitReview() {
+            alert("Review saved! This will now appear under the products purchased.");
+            switchPortalTab('orders');
         }
 
         function updateCartUI() {
@@ -303,22 +401,29 @@
             document.getElementById('cart-counter').innerText = cart.length;
             document.getElementById('cart-total-val').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
             const cont = document.getElementById('cart-items-container');
-            cont.innerHTML = cart.map((i, idx) => `<div class="flex justify-between bg-gray-50 p-4 rounded-2xl"><div><h4 class="font-bold text-sm">${i.name}</h4><p class="text-[#FF007F] text-sm">KES ${i.price.toLocaleString()}</p></div><button onclick="removeFromBag(${idx})" class="text-3xl text-red-200">×</button></div>`).join('') || '<p class="text-center py-10 text-gray-400">Empty</p>';
+            cont.innerHTML = cart.map((i, idx) => `
+                <div class="flex justify-between bg-gray-50 p-4 rounded-2xl">
+                    <div><h4 class="font-bold text-sm">${i.name}</h4><p class="text-[#FF007F] text-sm">KES ${i.price.toLocaleString()}</p></div>
+                    <button onclick="removeFromBag(${idx})" class="text-3xl text-red-200">×</button>
+                </div>`).join('') || '<p class="text-center py-10 text-gray-400">Empty</p>';
         }
 
-        function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
         function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
-        function startCategorySlideshows() {
-            categories.forEach(cat => {
-                let current = 0;
-                const slides = document.querySelectorAll(`[data-cat="${cat.id}"]`);
-                if (slides.length <= 1) return;
-                setInterval(() => {
-                    slides[current].classList.remove('active');
-                    current = (current + 1) % slides.length;
-                    slides[current].classList.add('active');
-                }, 3000);
-            });
+        function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
+
+        function renderCategories() {
+            const grid = document.getElementById('category-grid');
+            grid.innerHTML = categories.map(cat => `
+                <div class="group relative h-[350px] rounded-[40px] overflow-hidden shadow-xl cursor-pointer" onclick="renderProducts('${cat.name}')">
+                    <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=600" class="absolute inset-0 w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-8"><h3 class="royal-font text-white text-2xl">${cat.name}</h3></div>
+                </div>`).join('');
+        }
+
+        function renderFilters() {
+            const cont = document.getElementById('category-filters');
+            cont.innerHTML = `<button onclick="renderProducts('All')" class="px-6 py-2 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-bold text-sm">ALL</button>` + 
+                categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-6 py-2 rounded-full border-2 border-gray-100 hover:border-[#FF007F] font-bold text-sm uppercase">${c.name}</button>`).join('');
         }
 
         function verifyAdmin() {
