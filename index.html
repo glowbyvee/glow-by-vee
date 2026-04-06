@@ -240,7 +240,7 @@ body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a;
 </div>
 </div>
 <div id="payment-choice-modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
-<div class="bg-white rounded-[40px] p-10 max-w-lg w-full shadow-2xl text-center">
+<div class="bg-white rounded-[40px] p-10 max-lg w-full shadow-2xl text-center">
 <h3 class="royal-font text-3xl text-[#D4AF37] mb-8">Payment Method</h3>
 <div class="grid grid-cols-2 gap-6">
 <div onclick="finalizeOrder('Online')" class="cursor-pointer border-4 border-transparent hover:border-[#FF007F] p-6 rounded-3xl bg-pink-50 transition-all">
@@ -431,6 +431,7 @@ cont.innerHTML = cart.map((i, idx) => `
 }
 function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
 function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
+
 function renderCategories() {
 const grid = document.getElementById('category-grid');
 grid.innerHTML = categories.map(cat => {
@@ -447,6 +448,7 @@ return `
 </div>`;
 }).join('');
 }
+
 function startCategorySlideshows() {
 setInterval(() => {
 document.querySelectorAll('.cat-slideshow').forEach(container => {
@@ -459,6 +461,7 @@ slides[nextIdx].classList.add('active');
 });
 }, 3000);
 }
+
 function renderFilters() {
 const cont = document.getElementById('category-filters');
 cont.innerHTML = `<button onclick="renderProducts('All')" class="px-6 py-2 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-bold text-sm">ALL</button>` +
