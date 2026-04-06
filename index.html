@@ -434,9 +434,10 @@ function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
 
 function renderCategories() {
 const grid = document.getElementById('category-grid');
+if (!grid) return;
 grid.innerHTML = categories.map(cat => {
 const catImages = products.filter(p => p.cat_name === cat.name).map(p => p.image_url);
-const slides = catImages.length > 0 ? catImages.map((img, i) => `<img src="${img}" class="cat-slide ${i===0?'active':''}">`).join('') : '<img src="placeholder.jpg" class="cat-slide active">';
+const slides = catImages.length > 0 ? catImages.map((img, i) => `<img src="${img}" class="cat-slide ${i===0?'active':''}">`).join('') : `<img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800" class="cat-slide active">`;
 return `
 <div class="group relative h-[400px] rounded-[40px] overflow-hidden shadow-2xl cursor-pointer transform hover:scale-[1.02] transition-all" onclick="renderProducts('${cat.name}')">
 <div class="cat-slideshow">${slides}</div>
@@ -454,6 +455,10 @@ document.querySelectorAll('.cat-slideshow').forEach(container => {
 const slides = container.querySelectorAll('.cat-slide');
 if(slides.length <= 1) return;
 let activeIdx = Array.from(slides).findIndex(s => s.classList.contains('active'));
+if (activeIdx === -1) {
+    if (slides[0]) slides[0].classList.add('active');
+    return;
+}
 slides[activeIdx].classList.remove('active');
 let nextIdx = (activeIdx + 1) % slides.length;
 slides[nextIdx].classList.add('active');
