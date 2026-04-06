@@ -232,7 +232,7 @@ body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a;
 </div>
 </div>
 <div id="checkout-auth-modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
-<div class="bg-white rounded-[40px] p-10 max-w-md w-full shadow-2xl text-center">
+<div class="bg-white rounded-[40px] p-10 max-md w-full shadow-2xl text-center">
 <h3 class="royal-font text-3xl text-[#FF007F] mb-6">Checkout Identity</h3>
 <input type="text" id="cust-name" placeholder="Full Name" class="w-full px-6 py-4 rounded-xl border mb-4">
 <input type="tel" id="cust-phone" placeholder="Phone Number (M-Pesa)" class="w-full px-6 py-4 rounded-xl border mb-6">
@@ -436,12 +436,15 @@ function renderCategories() {
 const grid = document.getElementById('category-grid');
 if (!grid) return;
 grid.innerHTML = categories.map(cat => {
-const catImages = products.filter(p => p.cat_name === cat.name).map(p => p.image_url);
+const categoryProducts = products.filter(p => p.cat_name === cat.name);
+const catImages = categoryProducts.map(p => p.image_url);
+const quantity = categoryProducts.length;
 const slides = catImages.length > 0 ? catImages.map((img, i) => `<img src="${img}" class="cat-slide ${i===0?'active':''}">`).join('') : `<img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800" class="cat-slide active">`;
 return `
 <div class="group relative h-[400px] rounded-[40px] overflow-hidden shadow-2xl cursor-pointer transform hover:scale-[1.02] transition-all" onclick="renderProducts('${cat.name}')">
 <div class="cat-slideshow">${slides}</div>
 <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 flex flex-col justify-end p-10">
+<span class="bg-[#FF007F] text-white text-[10px] font-black px-3 py-1 rounded-full w-fit mb-2 uppercase tracking-widest">${quantity} ITEMS AVAILABLE</span>
 <h3 class="royal-font text-white text-3xl font-bold">${cat.name}</h3>
 <p class="text-pink-400 font-bold uppercase text-xs tracking-widest mt-2">Explore Collection →</p>
 </div>
