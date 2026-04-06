@@ -63,7 +63,7 @@ body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a;
 </div>
 </div>
 <div class="flex justify-center overflow-x-auto gap-8 px-6 py-3 bg-pink-50 border-t border-pink-100 no-scrollbar items-center">
-<a href="#catalog" onclick="closeModules()" class="nav-link">SHOP</a>
+<a href="#product-grid" onclick="closeModules()" class="nav-link">SHOP</a>
 <button onclick="openModule('about-module')" class="nav-link">ABOUT US</button>
 <button onclick="openModule('guide-module')" class="nav-link">GUIDE</button>
 <button onclick="openModule('portal-module')" class="nav-link text-[#FF007F]">PORTAL</button>
@@ -95,6 +95,10 @@ body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a;
 <h3 class="font-bold text-[#FF007F]">Contact</h3>
 <p class="text-sm mt-2">📞 +254 700 000 000<br>📧 info@glowbyvee.com</p>
 </div>
+</div>
+<div class="bg-yellow-50 p-6 rounded-3xl border-l-8 border-gold">
+<h3 class="royal-font text-xl mb-2">Location</h3>
+<p class="text-lg">📍 Garden Estate, Nairobi, Kenya. <br><span class="text-sm">We offer Same Day Delivery within the City.</span></p>
 </div>
 </div>
 </div>
@@ -137,6 +141,12 @@ body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a;
 <p id="modal-desc" class="text-gray-600 leading-relaxed"></p>
 </div>
 <button id="modal-add-btn" class="glow-button w-full py-4 rounded-2xl text-white font-bold">ADD TO CART</button>
+<div class="border-t pt-6">
+<h3 class="font-bold mb-4">Customer Reviews ⭐</h3>
+<div id="modal-reviews" class="space-y-4 max-h-40 overflow-y-auto pr-2">
+<p class="text-sm italic text-gray-400">Great products! My skin has never felt better.</p>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -146,13 +156,34 @@ body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a;
 <div class="close-module" onclick="closeModules()">&times;</div>
 <div class="max-w-6xl mx-auto py-12">
 <h2 class="royal-font text-5xl text-[#FF007F] text-center mb-10">Customer Dashboard</h2>
+<div class="flex gap-4 justify-center mb-8 border-b pb-4">
+<button onclick="switchPortalTab('orders')" class="font-bold text-[#C2185B] px-6">Orders</button>
+<button onclick="switchPortalTab('tracking')" class="font-bold text-gray-400 px-6">Live Tracking</button>
+<button onclick="switchPortalTab('review')" class="font-bold text-gray-400 px-6">Leave Review</button>
+</div>
 <div id="tab-orders" class="portal-tab bg-white p-8 rounded-3xl shadow-xl overflow-x-auto">
 <table class="w-full text-left">
 <thead class="border-b bg-gray-50">
 <tr><th class="p-4">Receipt #</th><th class="p-4">Order Details</th><th class="p-4">Amount</th><th class="p-4">Status</th></tr>
 </thead>
-<tbody id="portal-orders-list"></tbody>
+<tbody id="portal-orders-list">
+<tr><td colspan="4" class="p-10 text-center">No recent orders</td></tr>
+</tbody>
 </table>
+</div>
+<div id="tab-tracking" class="portal-tab hidden">
+<div id="tracking-map"></div>
+<p class="text-center mt-4 font-bold animate-pulse text-[#FF007F]">Rider is moving to your location...</p>
+</div>
+<div id="tab-review" class="portal-tab hidden bg-white p-8 rounded-3xl shadow-xl max-w-xl mx-auto">
+<h3 class="royal-font text-2xl mb-4">Rate Your Experience</h3>
+<select id="review-stars" class="w-full p-4 border rounded-xl mb-4">
+<option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
+<option value="4">⭐⭐⭐⭐ (Great)</option>
+<option value="3">⭐⭐⭐ (Average)</option>
+</select>
+<textarea id="review-text" class="w-full p-4 border rounded-xl h-32 mb-4" placeholder="How was the product?"></textarea>
+<button onclick="submitReview()" class="glow-button w-full py-4 text-white font-bold rounded-xl">SAVE REVIEW & CLOSE ORDER</button>
 </div>
 </div>
 </div>
@@ -172,10 +203,64 @@ body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a;
 <button onclick="document.getElementById('admin-panel').style.display='none'" class="bg-black text-white px-6 py-2 rounded-full">Exit</button>
 </nav>
 <div class="p-10 grid grid-cols-1 md:grid-cols-4 gap-6">
-<div class="bg-white p-8 rounded-3xl shadow-sm border border-pink-100"><p class="text-gray-400 text-sm uppercase font-bold">Total Sales</p><h2 class="text-3xl font-black mt-2">KES 142,500</h2></div>
-<div class="bg-white p-8 rounded-3xl shadow-sm border border-pink-100"><p class="text-gray-400 text-sm uppercase font-bold">Pending Orders</p><h2 class="text-3xl font-black mt-2">12</h2></div>
-<div class="bg-white p-8 rounded-3xl shadow-sm border border-pink-100"><p class="text-gray-400 text-sm uppercase font-bold">Active Users</p><h2 class="text-3xl font-black mt-2">348</h2></div>
-<div class="bg-white p-8 rounded-3xl shadow-sm border border-pink-100"><p class="text-gray-400 text-sm uppercase font-bold">In Stock</p><h2 class="text-3xl font-black mt-2">89%</h2></div>
+<div class="bg-white p-8 rounded-3xl shadow-sm border border-pink-100">
+<p class="text-gray-400 text-sm uppercase font-bold">Total Sales</p>
+<h2 class="text-3xl font-black mt-2">KES 142,500</h2>
+</div>
+<div class="bg-white p-8 rounded-3xl shadow-sm border border-pink-100">
+<p class="text-gray-400 text-sm uppercase font-bold">Pending Orders</p>
+<h2 class="text-3xl font-black mt-2">12</h2>
+</div>
+<div class="bg-white p-8 rounded-3xl shadow-sm border border-pink-100">
+<p class="text-gray-400 text-sm uppercase font-bold">Active Users</p>
+<h2 class="text-3xl font-black mt-2">348</h2>
+</div>
+<div class="bg-white p-8 rounded-3xl shadow-sm border border-pink-100">
+<p class="text-gray-400 text-sm uppercase font-bold">In Stock</p>
+<h2 class="text-3xl font-black mt-2">89%</h2>
+</div>
+</div>
+<div class="px-10 pb-20">
+<div class="bg-white rounded-3xl shadow-xl overflow-hidden">
+<div class="bg-gray-50 p-6 border-b flex justify-between">
+<h3 class="font-bold">Recent Incoming Orders</h3>
+</div>
+<table class="w-full text-left">
+<thead class="bg-gray-50">
+<tr><th class="p-6">Client</th><th class="p-6">Amount</th><th class="p-6">Status</th><th class="p-6">Action</th></tr>
+</thead>
+<tbody id="admin-orders-table">
+<tr class="border-b"><td class="p-6">Stacy Wambui</td><td class="p-6 font-bold">KES 4,500</td><td><span class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs">New</span></td><td><button class="text-[#FF007F] font-bold">Dispatch</button></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div id="checkout-auth-modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
+<div class="bg-white rounded-[40px] p-10 max-md w-full shadow-2xl text-center">
+<h3 class="royal-font text-3xl text-[#FF007F] mb-6">Checkout Identity</h3>
+<input type="text" id="cust-name" placeholder="Full Name" class="w-full px-6 py-4 rounded-xl border mb-4">
+<input type="tel" id="cust-phone" placeholder="Phone Number (M-Pesa)" class="w-full px-6 py-4 rounded-xl border mb-6">
+<button onclick="processLoginCheckout()" class="glow-button w-full py-4 rounded-xl text-white font-black">LOG IN & CONTINUE</button>
+</div>
+</div>
+
+<div id="payment-choice-modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
+<div class="bg-white rounded-[40px] p-10 max-lg w-full shadow-2xl text-center">
+<h3 class="royal-font text-3xl text-[#D4AF37] mb-8">Payment Method</h3>
+<div class="grid grid-cols-2 gap-6">
+<div onclick="finalizeOrder('Online')" class="cursor-pointer border-4 border-transparent hover:border-[#FF007F] p-6 rounded-3xl bg-pink-50 transition-all">
+<div class="text-4xl mb-2">💳</div>
+<p class="font-bold">Pay Online</p>
+<p class="text-xs text-gray-400">Pay via M-Pesa Now</p>
+</div>
+<div onclick="finalizeOrder('Delivery')" class="cursor-pointer border-4 border-transparent hover:border-[#FF007F] p-6 rounded-3xl bg-pink-50 transition-all">
+<div class="text-4xl mb-2">🚚</div>
+<p class="font-bold">Pay on Delivery</p>
+<p class="text-xs text-gray-400">Pay when it arrives</p>
+</div>
+</div>
 </div>
 </div>
 
@@ -195,14 +280,12 @@ body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a;
 <h2 class="royal-font text-5xl text-[#D4AF37]">Glow By Vee's Collections</h2>
 <div class="h-1 w-40 bg-[#FF007F] mx-auto mt-4 rounded-full"></div>
 </div>
-
 <div id="category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-20"></div>
 
 <div class="text-center mb-10 border-t-2 border-gray-50 pt-16">
 <h2 class="royal-font text-4xl text-[#FF007F]">Individual Products</h2>
 <div id="category-filters" class="flex justify-center gap-4 mt-8 mb-12 flex-wrap"></div>
 </div>
-
 <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"></div>
 </section>
 
@@ -220,136 +303,216 @@ body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a;
 
 <script>
 const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VohHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 let cart = JSON.parse(localStorage.getItem('glow_cart_vee')) || [];
 let products = [], categories = [], user = null;
+let map = null;
+
+function speak(text) {
+const msg = new SpeechSynthesisUtterance();
+msg.text = text;
+window.speechSynthesis.speak(msg);
+}
+
+function openModule(id) {
+document.querySelectorAll('.full-screen-module').forEach(m => m.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+document.body.style.overflow = 'hidden';
+if(id === 'portal-module') loadPortalData();
+}
+
+function closeModules() {
+document.querySelectorAll('.full-screen-module').forEach(m => m.classList.remove('active'));
+document.body.style.overflow = 'auto';
+}
 
 async function initCatalog() {
-    try {
-        const { data: cats } = await _supabase.from('categories').select('*').order('name');
-        const { data: prods } = await _supabase.from('products').select('*');
-        categories = cats || [];
-        products = prods || [];
-        
-        renderCategories(); // Renders the Collections Section with slideshows
-        renderFilters();
-        renderProducts('All'); // Renders the Individual Products section
-        updateCartUI();
-        startCategorySlideshows();
-    } catch (err) { console.error("Initialization Error:", err); }
+try {
+const { data: cats } = await _supabase.from('categories').select('*').order('name');
+const { data: prods } = await _supabase.from('products').select('*');
+categories = cats || [];
+products = prods || [];
+renderCategories();
+renderFilters();
+renderProducts('All');
+updateCartUI();
+startCategorySlideshows();
+} catch (err) { console.error(err); }
 }
 
 function renderCategories() {
-    const grid = document.getElementById('category-grid');
-    if (!grid) return;
-    grid.innerHTML = categories.map(cat => {
-        const categoryProducts = products.filter(p => p.cat_name === cat.name);
-        const catImages = categoryProducts.map(p => p.image_url);
-        const quantity = categoryProducts.length;
-        
-        // Create slideshow images from individual products in this category
-        const slides = catImages.length > 0 
-            ? catImages.map((img, i) => `<img src="${img}" class="cat-slide ${i===0?'active':''}" alt="${cat.name}">`).join('') 
-            : `<img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800" class="cat-slide active">`;
-
-        return `
-        <div class="group relative h-[400px] rounded-[40px] overflow-hidden shadow-2xl cursor-pointer transform hover:scale-[1.02] transition-all" onclick="renderProducts('${cat.name}')">
-            <div class="cat-slideshow">${slides}</div>
-            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 flex flex-col justify-end p-10">
-                <span class="bg-[#FF007F] text-white text-[10px] font-black px-3 py-1 rounded-full w-fit mb-2 uppercase tracking-widest">${quantity} ITEMS AVAILABLE</span>
-                <h3 class="royal-font text-white text-3xl font-bold">${cat.name}</h3>
-                <p class="text-pink-400 font-bold uppercase text-xs tracking-widest mt-2">Explore Collection →</p>
-            </div>
-        </div>`;
-    }).join('');
-}
-
-function renderProducts(filter) {
-    const grid = document.getElementById('product-grid');
-    if (!grid) return;
-    const filtered = filter === 'All' ? products : products.filter(p => p.cat_name === filter);
-    grid.innerHTML = filtered.map(p => `
-    <div class="bg-white p-8 rounded-[40px] shadow-lg border-2 border-gray-50 hover:border-[#FF007F] transition-all cursor-pointer" onclick="showProductDetail(${p.id})">
-        <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[30px] mb-6">
-        <h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
-        <div class="flex justify-between items-center mt-6">
-            <span class="text-2xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
-            <button onclick="event.stopPropagation(); addToBag(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-8 py-3 rounded-2xl font-black text-xs uppercase">Add</button>
-        </div>
-    </div>`).join('');
-    
-    // Smooth scroll to products if filtering
-    if(filter !== 'All') window.location.hash = 'product-grid';
-}
-
-function startCategorySlideshows() {
-    setInterval(() => {
-        document.querySelectorAll('.cat-slideshow').forEach(container => {
-            const slides = container.querySelectorAll('.cat-slide');
-            if(slides.length <= 1) return;
-            let activeIdx = Array.from(slides).findIndex(s => s.classList.contains('active'));
-            slides[activeIdx].classList.remove('active');
-            let nextIdx = (activeIdx + 1) % slides.length;
-            slides[nextIdx].classList.add('active');
-        });
-    }, 3000);
+const grid = document.getElementById('category-grid');
+if (!grid) return;
+grid.innerHTML = categories.map(cat => {
+const categoryProducts = products.filter(p => p.cat_name === cat.name);
+const catImages = categoryProducts.map(p => p.image_url);
+const quantity = categoryProducts.length;
+const slides = catImages.length > 0 ? catImages.map((img, i) => `<img src="${img}" class="cat-slide ${i===0?'active':''}">`).join('') : `<img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800" class="cat-slide active">`;
+return `
+<div class="group relative h-[400px] rounded-[40px] overflow-hidden shadow-2xl cursor-pointer transform hover:scale-[1.02] transition-all" onclick="renderProducts('${cat.name}'); window.location.href='#product-grid';">
+<div class="cat-slideshow">${slides}</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 flex flex-col justify-end p-10">
+<span class="bg-[#FF007F] text-white text-[10px] font-black px-3 py-1 rounded-full w-fit mb-2 uppercase tracking-widest">${quantity} ITEMS AVAILABLE</span>
+<h3 class="royal-font text-white text-3xl font-bold">${cat.name}</h3>
+<p class="text-pink-400 font-bold uppercase text-xs tracking-widest mt-2">Explore Collection →</p>
+</div>
+</div>`;
+}).join('');
 }
 
 function renderFilters() {
-    const cont = document.getElementById('category-filters');
-    if(!cont) return;
-    cont.innerHTML = `<button onclick="renderProducts('All')" class="px-6 py-2 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-bold text-sm">ALL</button>` +
-    categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-6 py-2 rounded-full border-2 border-gray-100 hover:border-[#FF007F] font-bold text-sm uppercase">${c.name}</button>`).join('');
+const cont = document.getElementById('category-filters');
+if (!cont) return;
+cont.innerHTML = `<button onclick="renderProducts('All')" class="px-6 py-2 rounded-full border-2 border-[#FF007F] text-[#FF007F] font-bold text-sm">ALL</button>` +
+categories.map(c => `<button onclick="renderProducts('${c.name}')" class="px-6 py-2 rounded-full border-2 border-gray-100 hover:border-[#FF007F] font-bold text-sm uppercase">${c.name}</button>`).join('');
+}
+
+function renderProducts(filter) {
+const grid = document.getElementById('product-grid');
+if (!grid) return;
+const filtered = filter === 'All' ? products : products.filter(p => p.cat_name === filter);
+grid.innerHTML = filtered.map(p => `
+<div class="bg-white p-8 rounded-[40px] shadow-lg border-2 border-gray-50 hover:border-[#FF007F] transition-all cursor-pointer" onclick="showProductDetail(${p.id})">
+<img src="${p.image_url}" class="w-full aspect-square object-cover rounded-[30px] mb-6">
+<h3 class="royal-font text-2xl text-[#D4AF37] mb-2">${p.name}</h3>
+<div class="flex justify-between items-center mt-6">
+<span class="text-2xl font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
+<button onclick="event.stopPropagation(); addToBag(${p.id}, '${p.name}', ${p.price})" class="bg-[#FF007F] text-white px-8 py-3 rounded-2xl font-black text-xs uppercase">Add</button>
+</div>
+</div>`).join('');
+}
+
+function startCategorySlideshows() {
+setInterval(() => {
+document.querySelectorAll('.cat-slideshow').forEach(container => {
+const slides = container.querySelectorAll('.cat-slide');
+if(slides.length <= 1) return;
+let activeIdx = Array.from(slides).findIndex(s => s.classList.contains('active'));
+if (activeIdx === -1) {
+if (slides[0]) slides[0].classList.add('active');
+return;
+}
+slides[activeIdx].classList.remove('active');
+let nextIdx = (activeIdx + 1) % slides.length;
+slides[nextIdx].classList.add('active');
+});
+}, 3000);
 }
 
 function showProductDetail(id) {
-    const p = products.find(x => x.id === id);
-    if(!p) return;
-    document.getElementById('modal-img').src = p.image_url;
-    document.getElementById('modal-title').innerText = p.name;
-    document.getElementById('modal-price').innerText = `KES ${p.price.toLocaleString()}`;
-    document.getElementById('modal-desc').innerText = p.description || "A royal elixir designed to brighten and nourish.";
-    document.getElementById('modal-add-btn').onclick = () => addToBag(p.id, p.name, p.price);
-    document.getElementById('product-modal').classList.add('active');
+const p = products.find(x => x.id === id);
+if(!p) return;
+document.getElementById('modal-img').src = p.image_url;
+document.getElementById('modal-title').innerText = p.name;
+document.getElementById('modal-price').innerText = `KES ${p.price.toLocaleString()}`;
+document.getElementById('modal-desc').innerText = p.description || "A royal elixir designed to brighten and nourish. Handcrafted with organic extracts for supreme radiance.";
+document.getElementById('modal-add-btn').onclick = () => addToBag(p.id, p.name, p.price);
+document.getElementById('product-modal').classList.add('active');
 }
 
 function addToBag(id, name, price) {
-    cart.push({ id, name, price });
-    updateCartUI();
-    document.getElementById('notif-sound').play();
-    const toast = document.getElementById('success-toast');
-    document.getElementById('toast-icon').innerText = '🛍️';
-    document.getElementById('toast-title').innerText = 'SUCCESS';
-    document.getElementById('toast-msg').innerText = "Added to Bag!";
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2000);
+cart.push({ id, name, price });
+updateCartUI();
+document.getElementById('notif-sound').play();
+speak("Item added to cart successfully");
+const toast = document.getElementById('success-toast');
+document.getElementById('toast-icon').innerText = '🛍️';
+document.getElementById('toast-title').innerText = 'SUCCESS';
+document.getElementById('toast-msg').innerText = "Added to Bag!";
+toast.classList.add('show');
+setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
 function updateCartUI() {
-    localStorage.setItem('glow_cart_vee', JSON.stringify(cart));
-    document.getElementById('cart-counter').innerText = cart.length;
-    document.getElementById('cart-total-val').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
-    const cont = document.getElementById('cart-items-container');
-    cont.innerHTML = cart.map((i, idx) => `
-    <div class="flex justify-between bg-gray-50 p-4 rounded-2xl">
-        <div><h4 class="font-bold text-sm">${i.name}</h4><p class="text-[#FF007F] text-sm">KES ${i.price.toLocaleString()}</p></div>
-        <button onclick="removeFromBag(${idx})" class="text-3xl text-red-200">×</button>
-    </div>`).join('') || '<p class="text-center py-10 text-gray-400">Empty</p>';
+localStorage.setItem('glow_cart_vee', JSON.stringify(cart));
+document.getElementById('cart-counter').innerText = cart.length;
+document.getElementById('cart-total-val').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
+const cont = document.getElementById('cart-items-container');
+cont.innerHTML = cart.map((i, idx) => `
+<div class="flex justify-between bg-gray-50 p-4 rounded-2xl">
+<div><h4 class="font-bold text-sm">${i.name}</h4><p class="text-[#FF007F] text-sm">KES ${i.price.toLocaleString()}</p></div>
+<button onclick="removeFromBag(${idx})" class="text-3xl text-red-200">×</button>
+</div>`).join('') || '<p class="text-center py-10 text-gray-400">Empty</p>';
 }
 
-function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
 function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
-function openModule(id) { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; }
-function closeModules() { document.querySelectorAll('.full-screen-module').forEach(m => m.classList.remove('active')); document.body.style.overflow = 'auto'; }
+function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
+
+function startCheckoutProcess() {
+if (!user) {
+document.getElementById('checkout-auth-modal').classList.add('active');
+} else {
+document.getElementById('payment-choice-modal').classList.add('active');
+speak("Do you want to pay online or pay on delivery?");
+}
+}
+
+function processLoginCheckout() {
+const name = document.getElementById('cust-name').value;
+const phone = document.getElementById('cust-phone').value;
+if (name && phone) {
+user = { name, phone };
+document.getElementById('checkout-auth-modal').classList.remove('active');
+startCheckoutProcess();
+} else { alert("Enter details"); }
+}
+
+function finalizeOrder(method) {
+const orderNum = "GBV-" + Math.floor(1000 + Math.random() * 9000);
+const receipt = "RCP-" + Date.now().toString().slice(-6);
+if (method === 'Online') {
+alert(`Official Payment Details:\nM-Pesa Paybill: 400400\nAccount: GlowByVee\nAmount: ${document.getElementById('cart-total-val').innerText}\nPlease call +254 700 000 000 after paying.`);
+}
+const newOrder = { id: orderNum, receipt, details: cart.map(i => i.name).join(", "), amount: document.getElementById('cart-total-val').innerText, status: "Order Processed", payment: method };
+let orders = JSON.parse(localStorage.getItem('my_orders')) || [];
+orders.unshift(newOrder);
+localStorage.setItem('my_orders', JSON.stringify(orders));
+document.getElementById('notif-sound').play();
+speak(`Order processed successfully via ${method}. View your portal for tracking.`);
+cart = [];
+updateCartUI();
+document.getElementById('payment-choice-modal').classList.remove('active');
+openModule('portal-module');
+}
+
+function switchPortalTab(tab) {
+document.querySelectorAll('.portal-tab').forEach(t => t.classList.add('hidden'));
+document.getElementById(`tab-${tab}`).classList.remove('hidden');
+if (tab === 'tracking') initTrackingMap();
+}
+
+function loadPortalData() {
+const orders = JSON.parse(localStorage.getItem('my_orders')) || [];
+const list = document.getElementById('portal-orders-list');
+list.innerHTML = orders.map(o => `
+<tr class="border-b">
+<td class="p-4 font-bold text-xs">${o.receipt}</td>
+<td class="p-4 text-xs">${o.details}</td>
+<td class="p-4 font-bold text-[#FF007F]">${o.amount}</td>
+<td class="p-4"><span class="bg-green-100 text-green-600 px-3 py-1 rounded-full text-[10px] font-black uppercase">${o.status}</span></td>
+</tr>
+`).join('') || '<tr><td colspan="4" class="p-10 text-center">No orders found</td></tr>';
+}
+
+function initTrackingMap() {
+if (map) return;
+map = L.map('tracking-map').setView([-1.226, 36.885], 14);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+L.marker([-1.226, 36.885]).addTo(map).bindPopup('Delivery Rider').openPopup();
+}
+
+function submitReview() {
+alert("Review saved! Thank you.");
+switchPortalTab('orders');
+}
 
 function verifyAdmin() {
-    if (document.getElementById('admin-pass').value === "Glow254") {
-        document.getElementById('admin-auth-modal').classList.remove('active');
-        document.getElementById('admin-panel').style.display = 'block';
-        document.body.style.overflow = 'hidden';
-    } else { alert("Access Denied"); }
+if (document.getElementById('admin-pass').value === "Glow254") {
+document.getElementById('admin-auth-modal').classList.remove('active');
+document.getElementById('admin-panel').style.display = 'block';
+document.body.style.overflow = 'hidden';
+} else { alert("Access Denied"); }
 }
 
 window.onload = initCatalog;
