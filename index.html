@@ -435,7 +435,6 @@ function removeFromBag(idx) { cart.splice(idx, 1); updateCartUI(); }
 function renderCategories() {
 const grid = document.getElementById('category-grid');
 grid.innerHTML = categories.map(cat => {
-// Filter products where cat_name matches the category name to get all category images
 const catImages = products.filter(p => p.cat_name === cat.name).map(p => p.image_url);
 const slides = catImages.length > 0 ? catImages.map((img, i) => `<img src="${img}" class="cat-slide ${i===0?'active':''}">`).join('') : '<img src="placeholder.jpg" class="cat-slide active">';
 return `
