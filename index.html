@@ -23,13 +23,13 @@
         @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
         #cart-counter { position: absolute; top: -10px; right: -15px; background: var(--fuchsia); color: white; border-radius: 999px; padding: 4px 10px; font-size: 14px; font-weight: bold; border: 2px solid white; }
         
-        /* Updated Slideshow Styles */
-        .category-card { position: relative; height: 420px; border-radius: 40px; overflow: hidden; background: #fafafa; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        /* Updated Slideshow Styles - Reduced area for many categories */
+        .category-card { position: relative; height: 280px; border-radius: 30px; overflow: hidden; background: #fafafa; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         .slideshow-wrapper { position: absolute; inset: 0; width: 100%; height: 100%; }
         .slide { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out; transform: scale(1.05); transition: opacity 1.5s ease-in-out, transform 6s linear; }
         .slide.active { opacity: 1; z-index: 1; transform: scale(1); }
-        .category-info { position: absolute; bottom: 0; width: 100%; padding: 30px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); color: white; z-index: 10; text-align: left; }
-        .explore-btn { font-size: 0.75rem; font-weight: 900; color: white; opacity: 0.8; letter-spacing: 0.1em; margin-top: 5px; display: block; }
+        .category-info { position: absolute; bottom: 0; width: 100%; padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; z-index: 10; text-align: left; }
+        .explore-btn { font-size: 0.7rem; font-weight: 900; color: white; opacity: 0.8; letter-spacing: 0.1em; margin-top: 5px; display: block; }
 
         #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); z-index: 1000; }
         #cart-sidebar.open { transform: translateX(0); }
@@ -95,24 +95,24 @@
         </div>
     </div>
 
-    <section class="relative h-[35vh] flex items-center justify-center text-center overflow-hidden">
+    <section class="relative h-[25vh] flex items-center justify-center text-center overflow-hidden">
         <div class="absolute inset-0 bg-cover bg-center bg-fixed" style="background-image: url('hero-premium.jpg');">
             <div class="absolute inset-0 bg-black/40"></div>
         </div>
         <div class="relative z-10 px-6">
-            <h1 class="royal-font text-4xl md:text-7xl text-white leading-none">ROYAL<br><span class="text-[#FF007F]">GLOW</span></h1>
+            <h1 class="royal-font text-3xl md:text-6xl text-white leading-none">ROYAL<br><span class="text-[#FF007F]">GLOW</span></h1>
         </div>
     </section>
 
     <div class="marquee"><div class="marquee-content">✨ Premium Organic Formulas ✨ Same Day Delivery in Nairobi ✨ Pure Ingredients Only ✨</div></div>
 
     <section id="catalog" class="py-16 px-6 max-w-7xl mx-auto">
-        <div class="text-center mb-16">
-            <h2 class="royal-font text-5xl text-[#D4AF37]">Glow By Vee's Collections</h2>
-            <div class="h-1 w-40 bg-[#FF007F] mx-auto mt-4 rounded-full"></div>
+        <div class="text-center mb-10">
+            <h2 class="royal-font text-4xl text-[#D4AF37]">Glow By Vee's Collections</h2>
+            <div class="h-1 w-20 bg-[#FF007F] mx-auto mt-4 rounded-full"></div>
         </div>
         
-        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-20"></div>
+        <div id="category-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-20"></div>
 
         <div class="text-center mb-10 border-t-2 border-gray-50 pt-16">
             <h2 class="royal-font text-4xl text-[#FF007F] mb-6">Individual Products</h2>
@@ -222,7 +222,7 @@
                         `).join('')}
                     </div>
                     <div class="category-info">
-                        <h3 class="royal-font text-3xl font-bold text-[#F5F5F5] leading-tight tracking-wide mb-1 uppercase">
+                        <h3 class="royal-font text-2xl font-bold text-[#F5F5F5] leading-tight tracking-wide mb-1 uppercase">
                             ${catName}
                         </h3>
                         <a href="#product-grid" class="explore-btn">EXPLORE COLLECTION →</a>
@@ -242,7 +242,7 @@
                 slides[currentIndex].classList.remove('active');
                 currentIndex = (currentIndex + 1) % slides.length;
                 slides[currentIndex].classList.add('active');
-            }, 4000); // Cinematic interval: 4 seconds
+            }, 4000); 
         }
 
         function renderCategoryChips() {
