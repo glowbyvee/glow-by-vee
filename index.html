@@ -24,12 +24,12 @@
         #cart-counter { position: absolute; top: -10px; right: -15px; background: var(--fuchsia); color: white; border-radius: 999px; padding: 4px 10px; font-size: 14px; font-weight: bold; border: 2px solid white; }
         
         /* Updated Slideshow Styles */
-        .category-card { position: relative; height: 350px; border-radius: 30px; overflow: hidden; background: #fafafa; shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .category-card { position: relative; height: 420px; border-radius: 40px; overflow: hidden; background: #fafafa; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
         .slideshow-wrapper { position: absolute; inset: 0; width: 100%; height: 100%; }
-        .slide { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s ease-in-out; }
+        .slide { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out; }
         .slide.active { opacity: 1; z-index: 1; }
-        .category-info { position: absolute; bottom: 0; width: 100%; padding: 25px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; z-index: 10; text-align: left; }
-        .explore-btn { font-size: 0.75rem; font-weight: 900; color: #ff69b4; letter-spacing: 0.1em; margin-top: 5px; display: block; }
+        .category-info { position: absolute; bottom: 0; width: 100%; padding: 30px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); color: white; z-index: 10; text-align: left; }
+        .explore-btn { font-size: 0.75rem; font-weight: 900; color: white; opacity: 0.8; letter-spacing: 0.1em; margin-top: 5px; display: block; }
 
         #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); z-index: 1000; }
         #cart-sidebar.open { transform: translateX(0); }
@@ -112,7 +112,7 @@
             <div class="h-1 w-40 bg-[#FF007F] mx-auto mt-4 rounded-full"></div>
         </div>
         
-        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20"></div>
+        <div id="category-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-20"></div>
 
         <div class="text-center mb-10 border-t-2 border-gray-50 pt-16">
             <h2 class="royal-font text-4xl text-[#FF007F] mb-6">Individual Products</h2>
@@ -186,38 +186,33 @@
         let products = [], categories = [], activeFilter = 'All', cart = [];
 
         async function initCatalog() {
-            // Fetch categories and products from Supabase
             const { data: catData } = await _supabase.from('categories').select('*');
             const { data: prodData } = await _supabase.from('products').select('*');
             
             categories = catData || [];
             products = prodData || [];
 
-            renderCategorySlideshows(); // Runs the updated function below
+            renderCategorySlideshows(); 
             renderCategoryChips();
             renderProducts();
         }
 
-        // --- START OF UPDATED DYNAMIC CATEGORY SLIDESHOW CODE ---
         async function renderCategorySlideshows() {
             const container = document.getElementById('category-grid'); 
-            container.innerHTML = ''; // Clear existing placeholders
+            container.innerHTML = ''; 
 
-            // Group products by their category name from the products array fetched in init
             const groupedCategories = products.reduce((acc, product) => {
-                if (!acc[product.cat_name]) {
-                    acc[product.cat_name] = [];
+                if (!acc[product.category]) {
+                    acc[product.category] = [];
                 }
-                acc[product.cat_name].push(product.image_url);
+                acc[product.category].push(product.image_url);
                 return acc;
             }, {});
 
-            // Generate HTML for each Category Card with a Slideshow
             Object.keys(groupedCategories).forEach(catName => {
                 const imageUrls = groupedCategories[catName];
-                
                 const categoryCard = document.createElement('div');
-                categoryCard.className = 'category-card group cursor-pointer shadow-xl';
+                categoryCard.className = 'category-card group cursor-pointer';
                 categoryCard.onclick = () => setFilter(catName);
                 
                 categoryCard.innerHTML = `
@@ -227,13 +222,13 @@
                         `).join('')}
                     </div>
                     <div class="category-info">
-                        <h3 class="royal-font text-2xl font-bold">${catName.toUpperCase()}</h3>
+                        <h3 class="royal-font text-3xl font-bold text-[#FF007F] leading-tight tracking-wide mb-1 uppercase">
+                            ${catName}
+                        </h3>
                         <a href="#product-grid" class="explore-btn">EXPLORE COLLECTION →</a>
                     </div>
                 `;
                 container.appendChild(categoryCard);
-
-                // Start the Slideshow Logic for this specific card
                 startSlideshow(categoryCard);
             });
         }
@@ -247,9 +242,8 @@
                 slides[currentIndex].classList.remove('active');
                 currentIndex = (currentIndex + 1) % slides.length;
                 slides[currentIndex].classList.add('active');
-            }, 3000); // Rotates every 3 seconds
+            }, 25000); // Trigger every 25 seconds
         }
-        // --- END OF UPDATED DYNAMIC CATEGORY SLIDESHOW CODE ---
 
         function renderCategoryChips() {
             const cont = document.getElementById('category-chips');
@@ -270,7 +264,7 @@
             const grid = document.getElementById('product-grid');
             const filtered = products.filter(p => {
                 const matchesSearch = p.name.toLowerCase().includes(query);
-                const matchesCat = activeFilter === 'All' || p.cat_name === activeFilter;
+                const matchesCat = activeFilter === 'All' || p.category === activeFilter;
                 return matchesSearch && matchesCat;
             });
 
