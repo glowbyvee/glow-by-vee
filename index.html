@@ -22,9 +22,15 @@
         .marquee-content { display: inline-block; animation: scroll 40s linear infinite; padding-left: 100%; font-size: 1.2rem; font-weight: 700; color: var(--fuchsia); }
         @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
         #cart-counter { position: absolute; top: -10px; right: -15px; background: var(--fuchsia); color: white; border-radius: 999px; padding: 4px 10px; font-size: 14px; font-weight: bold; border: 2px solid white; }
-        .cat-slideshow { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; background: #fafafa; }
-        .cat-slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 1.5s ease-in-out; object-fit: cover; }
-        .cat-slide.active { opacity: 1; z-index: 1; }
+        
+        /* Updated Slideshow Styles */
+        .category-card { position: relative; height: 350px; border-radius: 30px; overflow: hidden; background: #fafafa; shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .slideshow-wrapper { position: absolute; inset: 0; width: 100%; height: 100%; }
+        .slide { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s ease-in-out; }
+        .slide.active { opacity: 1; z-index: 1; }
+        .category-info { position: absolute; bottom: 0; width: 100%; padding: 25px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; z-index: 10; text-align: left; }
+        .explore-btn { font-size: 0.75rem; font-weight: 900; color: #ff69b4; letter-spacing: 0.1em; margin-top: 5px; display: block; }
+
         #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); z-index: 1000; }
         #cart-sidebar.open { transform: translateX(0); }
         .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; z-index: 1500; }
@@ -180,54 +186,71 @@
         let products = [], categories = [], activeFilter = 'All', cart = [];
 
         async function initCatalog() {
+            // Fetch categories and products from Supabase
             const { data: catData } = await _supabase.from('categories').select('*');
             const { data: prodData } = await _supabase.from('products').select('*');
+            
             categories = catData || [];
             products = prodData || [];
 
-            renderCategorySlideshows();
+            renderCategorySlideshows(); // Runs the updated function below
             renderCategoryChips();
             renderProducts();
-            startSlideshowTimer();
         }
 
-        // D) Category Slideshow Logic
-        function renderCategorySlideshows() {
-            const grid = document.getElementById('category-grid');
-            grid.innerHTML = categories.map(cat => {
-                const catItems = products.filter(p => p.cat_name === cat.name);
-                const slides = catItems.map((p, i) => 
-                    `<img src="${p.image_url}" class="cat-slide absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === 0 ? 'opacity-100 active' : 'opacity-0'}" data-cat="${cat.name}">`
-                ).join('');
+        // --- START OF UPDATED DYNAMIC CATEGORY SLIDESHOW CODE ---
+        async function renderCategorySlideshows() {
+            const container = document.getElementById('category-grid'); 
+            container.innerHTML = ''; // Clear existing placeholders
 
-                return `
-                    <div class="relative h-80 rounded-3xl overflow-hidden shadow-xl group cursor-pointer" onclick="setFilter('${cat.name}')">
-                        <div class="slideshow-container h-full w-full bg-gray-100">${slides}</div>
-                        <div class="absolute inset-0 bg-black/40 flex flex-col justify-end p-6 z-10">
-                            <h3 class="royal-font text-white text-2xl font-bold">${cat.name}</h3>
-                            <p class="text-pink-200 text-xs uppercase tracking-widest">Click to view items</p>
-                        </div>
-                    </div>`;
-            }).join('');
+            // Group products by their category name from the products array fetched in init
+            const groupedCategories = products.reduce((acc, product) => {
+                if (!acc[product.cat_name]) {
+                    acc[product.cat_name] = [];
+                }
+                acc[product.cat_name].push(product.image_url);
+                return acc;
+            }, {});
+
+            // Generate HTML for each Category Card with a Slideshow
+            Object.keys(groupedCategories).forEach(catName => {
+                const imageUrls = groupedCategories[catName];
+                
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'category-card group cursor-pointer shadow-xl';
+                categoryCard.onclick = () => setFilter(catName);
+                
+                categoryCard.innerHTML = `
+                    <div class="slideshow-wrapper">
+                        ${imageUrls.map((url, index) => `
+                            <img src="${url}" class="slide ${index === 0 ? 'active' : ''}" data-cat="${catName}">
+                        `).join('')}
+                    </div>
+                    <div class="category-info">
+                        <h3 class="royal-font text-2xl font-bold">${catName.toUpperCase()}</h3>
+                        <a href="#product-grid" class="explore-btn">EXPLORE COLLECTION →</a>
+                    </div>
+                `;
+                container.appendChild(categoryCard);
+
+                // Start the Slideshow Logic for this specific card
+                startSlideshow(categoryCard);
+            });
         }
 
-        // Timer for 20-second transitions (D)
-        function startSlideshowTimer() {
+        function startSlideshow(card) {
+            const slides = card.querySelectorAll('.slide');
+            if (slides.length <= 1) return;
+
+            let currentIndex = 0;
             setInterval(() => {
-                categories.forEach(cat => {
-                    const slides = document.querySelectorAll(`.cat-slide[data-cat="${cat.name}"]`);
-                    if (slides.length <= 1) return;
-                    let active = Array.from(slides).findIndex(s => s.classList.contains('active'));
-                    slides[active].classList.remove('active', 'opacity-100');
-                    slides[active].classList.add('opacity-0');
-                    let next = (active + 1) % slides.length;
-                    slides[next].classList.add('active', 'opacity-100');
-                    slides[next].classList.remove('opacity-0');
-                });
-            }, 20000); 
+                slides[currentIndex].classList.remove('active');
+                currentIndex = (currentIndex + 1) % slides.length;
+                slides[currentIndex].classList.add('active');
+            }, 3000); // Rotates every 3 seconds
         }
+        // --- END OF UPDATED DYNAMIC CATEGORY SLIDESHOW CODE ---
 
-        // E, F, G) Filter & Search Logic
         function renderCategoryChips() {
             const cont = document.getElementById('category-chips');
             cont.innerHTML = `<span onclick="setFilter('All')" class="cursor-pointer hover:text-[#FF007F]">ALL ITEMS</span>` + 
@@ -262,7 +285,6 @@
                 </div>`).join('');
         }
 
-        // H, I, J) Modal Actions
         function openProductDetail(id) {
             const p = products.find(x => x.id === id);
             document.getElementById('modal-img').src = p.image_url;
@@ -281,18 +303,14 @@
         function handleAddToCart(product) {
             cart.push(product);
             updateCartUI();
-            
-            // J) Play Sound
             document.getElementById('notif-sound').play();
 
-            // J) Show Confirmation
             const toast = document.getElementById('success-toast');
             document.getElementById('toast-icon').innerText = "✅";
             document.getElementById('toast-title').innerText = "Added!";
             document.getElementById('toast-msg').innerText = "Item Successfully Added to Cart";
             toast.classList.add('show');
 
-            // J) Auto Close Logic
             setTimeout(() => {
                 toast.classList.remove('show');
                 closeProductModal();
