@@ -124,8 +124,7 @@
                                 <th class="py-3">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="inventory-table-body">
-                            </tbody>
+                        <tbody id="inventory-table-body"></tbody>
                     </table>
                 </div>
             </div>
@@ -240,7 +239,6 @@
         const ADMIN_KEY = "GLOW_QUEEN_2026_SECURE";
         let products = [], categories = [], activeFilter = 'All', cart = [];
 
-        // --- Core Functions ---
         async function initCatalog() {
             const { data: catData } = await _supabase.from('categories').select('*');
             const { data: prodData } = await _supabase.from('products').select('*');
@@ -250,7 +248,6 @@
             setupLiveTracking();
         }
 
-        // --- Smart Checkout & Payment Logic ---
         async function processCheckout() {
             const details = {
                 name: document.getElementById('cust-name').value,
@@ -262,10 +259,8 @@
         }
 
         async function handleCheckout(cartItems, customerDetails) {
-            // 1. Check if user exists
             let { data: user } = await _supabase.from('profiles').select('*').eq('phone_number', customerDetails.phone).single();
 
-            // 2. Auto-Signup
             if (!user) {
                 const { data: newUser } = await _supabase.from('profiles').insert([{ 
                     phone_number: customerDetails.phone, full_name: customerDetails.name, role: 'customer' 
@@ -273,7 +268,6 @@
                 user = newUser;
             }
 
-            // 3. Place Order
             const { data: order } = await _supabase.from('orders').insert([{
                 customer_id: user.id,
                 total_amount: cartItems.reduce((s, i) => s + i.price, 0),
@@ -281,9 +275,7 @@
                 status: 'open'
             }]).select().single();
 
-            // 4. Notification
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-            audio.play();
+            document.getElementById('notif-sound').play();
 
             if (customerDetails.method === 'Online') {
                 showMpesaPrompt(order.receipt_number || order.id);
@@ -297,12 +289,10 @@
             alert(`Please pay to +254 703 859881. Receipt: ${receipt}. Call admin to confirm!`);
         }
 
-        // --- Live Order Tracking ---
         function setupLiveTracking() {
             _supabase.channel('live-orders').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, payload => {
                 const updatedOrder = payload.new;
                 updateStatusVisual(updatedOrder.status);
-                if(updatedOrder.status === 'delivered') promptReview(updatedOrder.id);
             }).subscribe();
         }
 
@@ -311,7 +301,6 @@
             if(visual) visual.innerText = `Status: ${status.toUpperCase()}`;
         }
 
-        // --- Admin Security & Panel ---
         function accessAdmin() {
             let input = prompt("Enter Admin Security Key:");
             if(input === ADMIN_KEY) {
@@ -352,7 +341,7 @@
                         <p class="text-sm text-gray-500">Status: ${o.status}</p>
                     </div>
                     <div class="flex gap-2">
-                        <select onchange="assignDelivery(${o.id}, this.value)" class="text-xs border p-1 rounded">
+                        <select onchange="assignDelivery('${o.id}', this.value)" class="text-xs border p-1 rounded">
                             <option>Assign Delivery...</option>
                             <option value="Rider_1">Rider 1 (KBD 123)</option>
                         </select>
@@ -367,7 +356,6 @@
             renderAdminOrders();
         }
 
-        // --- Analytics Chart ---
         function initCharts() {
             const ctx = document.getElementById('salesChart').getContext('2d');
             new Chart(ctx, {
@@ -383,7 +371,6 @@
             });
         }
 
-        // --- Helper UI Functions ---
         function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
         function closeModules() { document.querySelectorAll('.full-screen-module').forEach(m => m.classList.remove('active')); }
         function openModule(id) { closeModules(); document.getElementById(id).classList.add('active'); }
@@ -395,6 +382,7 @@
                 acc[p.category].push(p.image_url);
                 return acc;
             }, {});
+            container.innerHTML = "";
             Object.keys(grouped).forEach(cat => {
                 const card = document.createElement('div');
                 card.className = 'category-card group cursor-pointer';
