@@ -23,10 +23,9 @@
         @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
         #cart-counter { position: absolute; top: -10px; right: -15px; background: var(--fuchsia); color: white; border-radius: 999px; padding: 4px 10px; font-size: 14px; font-weight: bold; border: 2px solid white; }
         
-        /* Updated Slideshow Styles - Reduced area for many categories */
         .category-card { position: relative; height: 280px; border-radius: 30px; overflow: hidden; background: #fafafa; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         .slideshow-wrapper { position: absolute; inset: 0; width: 100%; height: 100%; }
-        .slide { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out; transform: scale(1.05); transition: opacity 1.5s ease-in-out, transform 6s linear; }
+        .slide { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out; transform: scale(1.05); }
         .slide.active { opacity: 1; z-index: 1; transform: scale(1); }
         .category-info { position: absolute; bottom: 0; width: 100%; padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; z-index: 10; text-align: left; }
         .explore-btn { font-size: 0.7rem; font-weight: 900; color: white; opacity: 0.8; letter-spacing: 0.1em; margin-top: 5px; display: block; }
@@ -46,11 +45,13 @@
         .step-card { transition: transform 0.3s ease; border: 2px solid #fce7f3; }
         .step-card:hover { transform: translateY(-10px); border-color: var(--fuchsia); }
         .product-desc-border { border: 2px solid #fce7f3; padding: 15px; border-radius: 15px; max-height: 150px; overflow-y: auto; }
-        #tracking-map { height: 400px; border-radius: 30px; margin-top: 20px; }
+        #tracking-map { height: 400px; border-radius: 30px; margin-top: 20px; background: #eee; }
+        .low-stock { background-color: #fee2e2 !important; border: 2px solid #ef4444 !important; }
     </style>
 </head>
 <body>
     <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+    <audio id="success-chime" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
     
     <div id="success-toast" class="flex flex-col items-center gap-4">
         <span id="toast-icon" class="text-7xl"></span>
@@ -75,9 +76,50 @@
             <button onclick="openModule('about-module')" class="nav-link">ABOUT US</button>
             <button onclick="openModule('guide-module')" class="nav-link">GUIDE</button>
             <button onclick="openModule('portal-module')" class="nav-link text-[#FF007F]">PORTAL</button>
-            <button onclick="document.getElementById('admin-auth-modal').classList.add('active')" class="nav-link">ADMIN</button>
+            <button onclick="accessAdmin()" class="nav-link">ADMIN</button>
         </div>
     </nav>
+
+    <div id="portal-module" class="full-screen-module px-6">
+        <div class="close-module" onclick="closeModules()">&times;</div>
+        <div class="max-w-4xl mx-auto py-16">
+            <h2 class="royal-font text-4xl text-[#C2185B] text-center mb-8">Live Order Tracker</h2>
+            <div id="status-visual" class="text-center p-4 mb-4 bg-pink-100 rounded-2xl font-bold uppercase tracking-widest text-[#FF007F]">
+                Waiting for order...
+            </div>
+            <div id="tracking-map"></div>
+        </div>
+    </div>
+
+    <div id="admin-panel" class="p-8">
+        <div class="flex justify-between items-center mb-10">
+            <h1 class="royal-font text-4xl font-black text-[#C2185B]">Queen's Dashboard</h1>
+            <button onclick="document.getElementById('admin-panel').style.display='none'" class="bg-black text-white px-6 py-2 rounded-full">Exit</button>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-3xl shadow-xl">
+                <h3 class="font-bold text-xl mb-4 text-[#D4AF37]">Inventory & Reorder Report</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="p-2">Product</th>
+                                <th class="p-2">Stock</th>
+                                <th class="p-2">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl shadow-xl">
+                <h3 class="font-bold text-xl mb-4 text-[#D4AF37]">Sales Volume Summary</h3>
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+    </div>
 
     <div id="about-module" class="full-screen-module px-6">
         <div class="close-module" onclick="closeModules()">&times;</div>
@@ -86,101 +128,7 @@
                 <h1 class="royal-font text-6xl font-black text-[#C2185B]">About Us ✨</h1>
                 <p class="text-[#D4AF37] font-bold tracking-widest uppercase mt-2">Glow By Vee: Royal Radiance Defined</p>
             </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start mb-20">
-                <div class="relative">
-                    <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&q=80&w=800" class="rounded-[60px] shadow-2xl border-8 border-pink-100">
-                    <div class="absolute -bottom-6 -right-6 bg-white p-6 rounded-3xl shadow-xl border-t-4 border-[#FF007F]">
-                        <p class="text-[#C2185B] font-black text-center">📍 Nairobi, Kenya<br><span class="text-gray-400 text-sm font-normal">Our Physical Store</span></p>
-                    </div>
-                </div>
-                <div class="space-y-8">
-                    <section>
-                        <h2 class="royal-font text-3xl text-[#C2185B] border-b-2 border-pink-100 pb-2 mb-4">Our Company 🏢</h2>
-                        <p class="text-xl leading-relaxed text-gray-600 italic">Glow By Vee is more than a skincare brand; it's a movement dedicated to celebrating the natural brilliance of your skin. Founded in Nairobi, we bridge the gap between luxury dermatology and organic purity, ensuring you achieve your skin goals with safe, effective products.</p>
-                    </section>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-pink-50 p-6 rounded-3xl">
-                            <h3 class="royal-font text-xl text-[#C2185B] mb-2">Our Vision 🌟</h3>
-                            <p class="text-sm text-gray-600">To be Africa's leading sanctuary for organic luxury, where every person feels like royalty in their own skin through sustainable and authentic beauty practices.</p>
-                        </div>
-                        <div class="bg-pink-50 p-6 rounded-3xl">
-                            <h3 class="royal-font text-xl text-[#C2185B] mb-2">Our Mission 🎯</h3>
-                            <p class="text-sm text-gray-600">To provide high-performance, chemical-free skincare solutions that heal, protect, and rejuvenate naturally, backed by professional guidance and genuine results.</p>
-                        </div>
-                    </div>
-
-                    <section>
-                        <h2 class="royal-font text-3xl text-[#C2185B] border-b-2 border-pink-100 pb-2 mb-4">Our Collections 🛍️</h2>
-                        <div class="flex flex-wrap gap-3">
-                            <span class="bg-white border-2 border-[#FF007F] text-[#FF007F] px-4 py-2 rounded-full font-bold">Organic Soaps</span>
-                            <span class="bg-white border-2 border-[#FF007F] text-[#FF007F] px-4 py-2 rounded-full font-bold">Glow Serums</span>
-                            <span class="bg-white border-2 border-[#FF007F] text-[#FF007F] px-4 py-2 rounded-full font-bold">Body Butters</span>
-                            <span class="bg-white border-2 border-[#FF007F] text-[#FF007F] px-4 py-2 rounded-full font-bold">Facial Oils</span>
-                            <span class="bg-white border-2 border-[#FF007F] text-[#FF007F] px-4 py-2 rounded-full font-bold">Exfoliating Scrubs</span>
-                        </div>
-                    </section>
-
-                    <section class="bg-gray-900 text-white p-8 rounded-[40px]">
-                        <h2 class="royal-font text-2xl text-[#D4AF37] mb-4">Contact Official 📞</h2>
-                        <div class="space-y-3">
-                            <p class="flex items-center gap-3"><span>📞</span> +254 742 278 190 (Glow Support)</p>
-                            <p class="flex items-center gap-3"><span>📍</span> Vision Plaza, Mombasa Road, Nairobi</p>
-                            <p class="flex items-center gap-3"><span>🔵</span> <a href="https://www.facebook.com/Skingoals4U" class="underline decoration-[#FF007F]">facebook.com/Skingoals4U</a></p>
-                        </div>
-                    </section>
-                </div>
             </div>
-        </div>
-    </div>
-
-    <div id="guide-module" class="full-screen-module px-6">
-        <div class="close-module" onclick="closeModules()">&times;</div>
-        <div class="max-w-7xl mx-auto py-16">
-            <div class="text-center mb-16">
-                <h1 class="royal-font text-5xl font-black text-[#C2185B]">How to Shop 🛍️</h1>
-                <p class="text-gray-500 mt-4 text-xl">Your step-by-step guide to a seamless royal experience</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="step-card p-8 rounded-[40px] bg-white shadow-lg">
-                    <div class="text-5xl mb-6">🔍</div>
-                    <h3 class="royal-font text-2xl text-[#C2185B] mb-4">1. Search & Discover</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">Browse our homepage collections or use the smart search bar to find specific items like "Serums" or "Soaps".</p>
-                </div>
-                <div class="step-card p-8 rounded-[40px] bg-white shadow-lg">
-                    <div class="text-5xl mb-6">📝</div>
-                    <h3 class="royal-font text-2xl text-[#C2185B] mb-4">2. View Details</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">Click any product to read its detailed benefits, usage instructions, and authentic customer reviews.</p>
-                </div>
-                <div class="step-card p-8 rounded-[40px] bg-white shadow-lg">
-                    <div class="text-5xl mb-6">🛒</div>
-                    <h3 class="royal-font text-2xl text-[#C2185B] mb-4">3. Add to Bag</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">Once satisfied, click "ADD TO CART". Your total will be updated in real-time in the floating bag icon.</p>
-                </div>
-                <div class="step-card p-8 rounded-[40px] bg-white shadow-lg">
-                    <div class="text-5xl mb-6">💳</div>
-                    <h3 class="royal-font text-2xl text-[#C2185B] mb-4">4. Secure Checkout</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">Open your bag and click "Checkout". Enter your delivery location and select your preferred payment model.</p>
-                </div>
-                <div class="step-card p-8 rounded-[40px] bg-white shadow-lg">
-                    <div class="text-5xl mb-6">🚚</div>
-                    <h3 class="royal-font text-2xl text-[#C2185B] mb-4">5. Track & Receive</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">After placing an order, use our Live Portal to track your rider in real-time until they reach your doorstep.</p>
-                </div>
-                <div class="step-card p-8 rounded-[40px] bg-white shadow-lg">
-                    <div class="text-5xl mb-6">⭐</div>
-                    <h3 class="royal-font text-2xl text-[#C2185B] mb-4">6. Rate Experience</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">Help the Glow Community! Drop a review of the product and our service quality on the product page.</p>
-                </div>
-            </div>
-            
-            <div class="mt-16 bg-pink-50 rounded-[50px] p-12 text-center border-4 border-dashed border-pink-200">
-                
-                <p class="mt-6 font-bold text-[#C2185B]">Our system is optimized for mobile speed and security.</p>
-            </div>
-        </div>
     </div>
 
     <section class="relative h-[60vh] flex items-center justify-center text-center overflow-hidden">
@@ -200,20 +148,7 @@
             <h2 class="royal-font text-4xl text-[#D4AF37]">Glow By Vee's Collections</h2>
             <div class="h-1 w-20 bg-[#FF007F] mx-auto mt-4 rounded-full"></div>
         </div>
-        
         <div id="category-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-20"></div>
-
-        <div class="text-center mb-10 border-t-2 border-gray-50 pt-16">
-            <h2 class="royal-font text-4xl text-[#FF007F] mb-6">Individual Products</h2>
-            
-            <div class="max-w-md mx-auto mb-8">
-                <input type="text" id="product-search" oninput="filterProducts()" placeholder="Search products (e.g. 'Serum', 'Glow')..." 
-                       class="w-full px-6 py-4 rounded-full border-2 border-pink-100 focus:border-[#FF007F] outline-none shadow-sm">
-            </div>
-
-            <div id="category-chips" class="flex justify-center gap-6 mb-12 flex-wrap font-bold text-[#C2185B]"></div>
-        </div>
-
         <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8"></div>
     </section>
 
@@ -225,45 +160,15 @@
         <div id="cart-items-container" class="flex-1 overflow-y-auto p-8 space-y-4"></div>
         <div class="p-8 border-t-2">
             <div class="flex justify-between font-black text-2xl mb-6"><span>Total</span><span id="cart-total-val" class="text-[#FF007F]">KES 0</span></div>
-            <button onclick="alert('Checkout initiated')" class="glow-button w-full py-5 rounded-2xl text-white font-black uppercase shadow-lg">Checkout Now</button>
-        </div>
-    </div>
-
-    <div id="product-modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
-        <div class="bg-white rounded-[40px] max-w-4xl w-full p-8 md:p-12 overflow-y-auto max-h-[90vh] relative shadow-2xl">
-            <button onclick="closeProductModal()" class="absolute top-6 right-6 text-3xl">&times;</button>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <img id="modal-img" class="w-full aspect-square rounded-3xl object-cover shadow-lg border-4 border-pink-50">
-                
-                <div class="flex flex-col">
-                    <h2 id="modal-title" class="royal-font text-4xl text-[#C2185B] mb-4"></h2>
-                    
-                    <div class="product-desc-border mb-6 border-2 border-pink-100 p-4 rounded-2xl bg-pink-50/30">
-                        <p id="modal-desc" class="text-gray-600 leading-relaxed italic"></p>
-                    </div>
-
-                    <div class="mb-6">
-                        <p id="modal-price" class="text-3xl font-black text-[#FF007F] mb-2"></p>
-                        <div class="bg-white p-4 rounded-xl border border-gray-100">
-                            <p class="font-bold text-sm text-gray-400 uppercase mb-2">Customer Reviews</p>
-                            <div class="text-yellow-400 text-xl mb-1">⭐⭐⭐⭐⭐ <span class="text-gray-400 text-sm">(4.9/5)</span></div>
-                            <p class="text-xs text-gray-500">"Absolutely transformed my skin texture within a week!" - Verified Buyer</p>
-                        </div>
-                    </div>
-
-                    <button id="modal-add-btn" class="glow-button w-full py-5 rounded-2xl text-white font-black text-xl shadow-xl transform active:scale-95 transition-transform">
-                        ADD TO CART
-                    </button>
-                </div>
+            <div class="space-y-4">
+                <input type="text" id="cust-name" placeholder="Your Full Name" class="w-full p-4 border rounded-xl">
+                <input type="text" id="cust-phone" placeholder="Phone (e.g. 0712...)" class="w-full p-4 border rounded-xl">
+                <select id="pay-method" class="w-full p-4 border rounded-xl">
+                    <option value="Online">Pay Online (M-Pesa)</option>
+                    <option value="Delivery">Pay On Delivery</option>
+                </select>
+                <button onclick="startCheckout()" class="glow-button w-full py-5 rounded-2xl text-white font-black uppercase shadow-lg">Confirm Order</button>
             </div>
-        </div>
-    </div>
-
-    <div id="admin-auth-modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
-        <div class="bg-white rounded-[40px] p-10 max-w-md w-full shadow-2xl text-center">
-            <h3 class="royal-font text-3xl text-[#FF007F] mb-6">Staff Access</h3>
-            <input type="password" id="admin-pass" placeholder="Enter Admin Pin" class="w-full px-6 py-4 rounded-xl border mb-6 text-center text-2xl tracking-widest">
-            <button onclick="verifyAdmin()" class="glow-button w-full py-4 rounded-xl text-white font-black">UNLOCK DASHBOARD</button>
         </div>
     </div>
 
@@ -272,141 +177,144 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let products = [], categories = [], activeFilter = 'All', cart = [];
+        let products = [], categories = [], cart = [];
+        const ADMIN_KEY = "GLOW_QUEEN_2026_SECURE";
 
+        // --- 1. SMART CHECKOUT LOGIC ---
+        async function startCheckout() {
+            const name = document.getElementById('cust-name').value;
+            const phone = document.getElementById('cust-phone').value;
+            const method = document.getElementById('pay-method').value;
+
+            if(!name || !phone) return alert("Please enter name and phone!");
+
+            // Check/Auto-Signup
+            let { data: user } = await _supabase.from('profiles').select('*').eq('phone_number', phone).single();
+            if (!user) {
+                const { data: newUser } = await _supabase.from('profiles').insert([{ phone_number: phone, full_name: name, role: 'customer' }]).select().single();
+                user = newUser;
+            }
+
+            // Create Order
+            const total = cart.reduce((s, i) => s + i.selling_price, 0);
+            const { data: order } = await _supabase.from('orders').insert([{
+                customer_id: user.id,
+                total_amount: total,
+                payment_method: method,
+                status: 'open'
+            }]).select().single();
+
+            document.getElementById('success-chime').play();
+
+            if (method === 'Online') {
+                showMpesaPrompt(order.receipt_number);
+            } else {
+                alert("Order Placed! Track it in the Portal.");
+                openModule('portal-module');
+                initTracking(order.id);
+            }
+            cart = [];
+            updateCartUI();
+            toggleCart();
+        }
+
+        function showMpesaPrompt(receipt) {
+            alert(`QUEEN'S PAYMENT: Please pay KES to +254 703 859881. \nUse Receipt: ${receipt} as reference. Call Admin to confirm!`);
+        }
+
+        // --- 2. LIVE TRACKING ---
+        let map, marker;
+        function initTracking(orderId) {
+            if(!map) {
+                map = L.map('tracking-map').setView([-1.286389, 36.817223], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                marker = L.marker([-1.286389, 36.817223]).addTo(map);
+            }
+
+            _supabase.channel('live-orders')
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` }, payload => {
+                    const ord = payload.new;
+                    if(ord.lat && ord.lng) marker.setLatLng([ord.lat, ord.lng]);
+                    document.getElementById('status-visual').innerText = `Status: ${ord.status}`;
+                    if(ord.status === 'delivered') alert("Your Royal Glow has arrived!");
+                }).subscribe();
+        }
+
+        // --- 3. ADMIN SECURITY & FUNCTIONS ---
+        function accessAdmin() {
+            let input = prompt("Enter Admin Security Key:");
+            if(input === ADMIN_KEY) {
+                document.getElementById('admin-panel').style.display = 'block';
+                loadAdminData();
+            } else {
+                alert("Unauthorized!");
+            }
+        }
+
+        async function loadAdminData() {
+            const { data: prods } = await _supabase.from('products').select('*');
+            const tbody = document.getElementById('inventory-table-body');
+            tbody.innerHTML = prods.map(p => `
+                <tr class="${p.stock_quantity <= p.reorder_level ? 'low-stock' : ''}">
+                    <td class="p-2">${p.name}</td>
+                    <td class="p-2 font-bold">${p.stock_quantity}</td>
+                    <td class="p-2"><button class="text-xs bg-gray-200 p-1 rounded">Edit</button></td>
+                </tr>
+            `).join('');
+
+            renderCharts(prods);
+        }
+
+        function renderCharts(data) {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(p => p.name),
+                    datasets: [{
+                        label: 'Stock Levels',
+                        data: data.map(p => p.stock_quantity),
+                        backgroundColor: '#FF007F'
+                    }]
+                }
+            });
+        }
+
+        // --- CATALOG LOGIC (Your existing code adapted for selling_price) ---
         async function initCatalog() {
             const { data: catData } = await _supabase.from('categories').select('*');
             const { data: prodData } = await _supabase.from('products').select('*');
-            
-            categories = catData || [];
-            products = prodData || [];
-
-            renderCategorySlideshows(); 
-            renderCategoryChips();
+            categories = catData || []; products = prodData || [];
             renderProducts();
         }
-
-        async function renderCategorySlideshows() {
-            const container = document.getElementById('category-grid'); 
-            container.innerHTML = ''; 
-
-            const groupedCategories = products.reduce((acc, product) => {
-                if (!acc[product.category]) {
-                    acc[product.category] = [];
-                }
-                acc[product.category].push(product.image_url);
-                return acc;
-            }, {});
-
-            Object.keys(groupedCategories).forEach(catName => {
-                const imageUrls = groupedCategories[catName];
-                const categoryCard = document.createElement('div');
-                categoryCard.className = 'category-card group cursor-pointer';
-                categoryCard.onclick = () => setFilter(catName);
-                
-                categoryCard.innerHTML = `
-                    <div class="slideshow-wrapper">
-                        ${imageUrls.map((url, index) => `
-                            <img src="${url}" class="slide ${index === 0 ? 'active' : ''}" data-cat="${catName}">
-                        `).join('')}
-                    </div>
-                    <div class="category-info">
-                        <h3 class="royal-font text-2xl font-bold text-[#F5F5F5] leading-tight tracking-wide mb-1 uppercase">
-                            ${catName}
-                        </h3>
-                        <a href="#product-grid" class="explore-btn">EXPLORE COLLECTION →</a>
-                    </div>
-                `;
-                container.appendChild(categoryCard);
-                startSlideshow(categoryCard);
-            });
-        }
-
-        function startSlideshow(card) {
-            const slides = card.querySelectorAll('.slide');
-            if (slides.length <= 1) return;
-
-            let currentIndex = 0;
-            setInterval(() => {
-                slides[currentIndex].classList.remove('active');
-                currentIndex = (currentIndex + 1) % slides.length;
-                slides[currentIndex].classList.add('active');
-            }, 4000); 
-        }
-
-        function renderCategoryChips() {
-            const cont = document.getElementById('category-chips');
-            cont.innerHTML = `<span onclick="setFilter('All')" class="cursor-pointer hover:text-[#FF007F]">ALL ITEMS</span>` + 
-                categories.map(c => `<span onclick="setFilter('${c.name}')" class="cursor-pointer hover:text-[#FF007F] uppercase">${c.name}</span>`).join(' • ');
-        }
-
-        function setFilter(name) {
-            activeFilter = name;
-            renderProducts();
-            window.location.href = '#product-grid';
-        }
-
-        function filterProducts() { renderProducts(); }
 
         function renderProducts() {
-            const query = document.getElementById('product-search').value.toLowerCase();
             const grid = document.getElementById('product-grid');
-            const filtered = products.filter(p => {
-                const matchesSearch = p.name.toLowerCase().includes(query);
-                const matchesCat = activeFilter === 'All' || p.category === activeFilter;
-                return matchesSearch && matchesCat;
-            });
-
-            grid.innerHTML = filtered.map(p => `
-                <div class="bg-white p-6 rounded-[30px] shadow-md border hover:border-[#FF007F] transition-all cursor-pointer" onclick="openProductDetail(${p.id})">
+            grid.innerHTML = products.map(p => `
+                <div class="bg-white p-6 rounded-[30px] shadow-md border hover:border-[#FF007F] transition-all cursor-pointer">
                     <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-2xl mb-4">
                     <h4 class="royal-font text-xl text-gray-800">${p.name}</h4>
                     <div class="flex justify-between items-center mt-4">
-                        <span class="font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
-                        <button class="bg-[#FF007F] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase">View Details</button>
+                        <span class="font-black text-[#FF007F]">KES ${p.selling_price}</span>
+                        <button onclick="addToCartById(${p.id})" class="bg-[#FF007F] text-white px-4 py-2 rounded-lg text-xs font-bold">ADD TO BAG</button>
                     </div>
                 </div>`).join('');
         }
 
-        function openProductDetail(id) {
+        function addToCartById(id) {
             const p = products.find(x => x.id === id);
-            document.getElementById('modal-img').src = p.image_url;
-            document.getElementById('modal-title').innerText = p.name;
-            document.getElementById('modal-desc').innerText = p.description || "Premium extract for royal skin.";
-            document.getElementById('modal-price').innerText = `KES ${p.price.toLocaleString()}`;
-            const btn = document.getElementById('modal-add-btn');
-            btn.onclick = () => handleAddToCart(p);
-            document.getElementById('product-modal').classList.add('active');
-        }
-
-        function closeProductModal() {
-            document.getElementById('product-modal').classList.remove('active');
-        }
-
-        function handleAddToCart(product) {
-            cart.push(product);
+            cart.push(p);
             updateCartUI();
             document.getElementById('notif-sound').play();
-
-            const toast = document.getElementById('success-toast');
-            document.getElementById('toast-icon').innerText = "✅";
-            document.getElementById('toast-title').innerText = "Added!";
-            document.getElementById('toast-msg').innerText = "Item Successfully Added to Cart";
-            toast.classList.add('show');
-
-            setTimeout(() => {
-                toast.classList.remove('show');
-                closeProductModal();
-            }, 2000);
         }
 
         function updateCartUI() {
             document.getElementById('cart-counter').innerText = cart.length;
-            document.getElementById('cart-total-val').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
+            document.getElementById('cart-total-val').innerText = `KES ${cart.reduce((s, i) => s + i.selling_price, 0).toLocaleString()}`;
             const cont = document.getElementById('cart-items-container');
             cont.innerHTML = cart.map((i, idx) => `
                 <div class="flex justify-between bg-gray-50 p-4 rounded-2xl">
-                    <div><h4 class="font-bold text-sm">${i.name}</h4><p class="text-[#FF007F] text-sm">KES ${i.price.toLocaleString()}</p></div>
+                    <div><h4 class="font-bold text-sm">${i.name}</h4><p class="text-[#FF007F] text-sm">KES ${i.selling_price}</p></div>
                     <button onclick="removeFromBag(${idx})" class="text-3xl text-red-200">×</button>
                 </div>`).join('') || '<p class="text-center py-10 text-gray-400">Your bag is empty</p>';
         }
@@ -415,7 +323,6 @@
         function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
         function closeModules() { document.querySelectorAll('.full-screen-module').forEach(m => m.classList.remove('active')); }
         function openModule(id) { document.getElementById(id).classList.add('active'); }
-        function verifyAdmin() { if (document.getElementById('admin-pass').value === "Glow254") { alert("Access Granted"); } }
 
         window.onload = initCatalog;
     </script>
