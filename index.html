@@ -17,19 +17,14 @@
 body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; overflow-x: hidden; font-size: 18px; scroll-behavior: smooth; }
 .royal-font { font-family: 'Cinzel', serif; }
 .glow-button { background: linear-gradient(135deg, var(--fuchsia) 0%, #ff69b4 50%, var(--gold) 100%); background-size: 200% 200%; animation: shimmer 3s ease infinite; }
-@keyframes shimmer { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%;
-} }
+@keyframes shimmer { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 .marquee { white-space: nowrap; overflow: hidden; background: #fdf2f8; padding: 20px 0; border-bottom: 2px solid var(--gold); }
 .marquee-content { display: inline-block; animation: scroll 40s linear infinite; padding-left: 100%; font-size: 1.2rem; font-weight: 700; color: var(--fuchsia); }
 @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
-#cart-counter { position: absolute; top: -10px; right: -15px; background: var(--fuchsia); color: white; border-radius: 999px; padding: 4px 10px; font-size: 14px;
-font-weight: bold; border: 2px solid white; }
-
-.category-card { position: relative; height: 280px; border-radius: 30px; overflow: hidden; background: #fafafa;
-box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+#cart-counter { position: absolute; top: -10px; right: -15px; background: var(--fuchsia); color: white; border-radius: 999px; padding: 4px 10px; font-size: 14px; font-weight: bold; border: 2px solid white; }
+.category-card { position: relative; height: 280px; border-radius: 30px; overflow: hidden; background: #fafafa; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
 .slideshow-wrapper { position: absolute; inset: 0; width: 100%; height: 100%; }
-.slide { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out; transform: scale(1.05);
-transition: opacity 1.5s ease-in-out, transform 6s linear; }
+.slide { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s ease-in-out; transform: scale(1.05); transition: opacity 1.5s ease-in-out, transform 6s linear; }
 .slide.active { opacity: 1; z-index: 1; transform: scale(1); }
 .category-info { position: absolute; bottom: 0; width: 100%; padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; z-index: 10; text-align: left; }
 .explore-btn { font-size: 0.7rem; font-weight: 900; color: white; opacity: 0.8; letter-spacing: 0.1em; margin-top: 5px; display: block; }
@@ -37,545 +32,650 @@ transition: opacity 1.5s ease-in-out, transform 6s linear; }
 #cart-sidebar.open { transform: translateX(0); }
 .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; z-index: 1500; }
 .modal-overlay.active { display: flex; }
-#success-toast { visibility: hidden; min-width: 320px; background: white; color: var(--fuchsia); text-align: center; border-radius: 40px; padding: 40px; position: fixed; z-index: 2000;
-left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.7); box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6);
-border: 5px solid var(--fuchsia); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+#success-toast { visibility: hidden; min-width: 320px; background: white; color: var(--fuchsia); text-align: center; border-radius: 40px; padding: 40px; position: fixed; z-index: 2000; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.7); box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6); border: 5px solid var(--fuchsia); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 #success-toast.show { visibility: visible; opacity: 1; transform: translate(-50%, -50%) scale(1); }
-#admin-panel { display: none; background: #f9fafb; z-index: 1000; position: fixed; inset: 0; overflow-y: auto; }
-.nav-link { font-family: 'Cinzel', serif; font-weight: 900; color: var(--dark-pink); font-size: 0.9rem; letter-spacing: 0.1em; white-space: nowrap; }
+.nav-link { font-family: 'Cinzel', serif; font-weight: 900; color: var(--dark-pink); font-size: 0.9rem; letter-spacing: 0.1em; white-space: nowrap; cursor: pointer; }
 .nav-link:hover { color: var(--gold); }
 .full-screen-module { display: none; position: fixed; inset: 0; background: white; z-index: 1000; overflow-y: auto; padding-top: 100px; }
 .full-screen-module.active { display: block; }
-.close-module { position: fixed; top: 30px; right: 30px; z-index: 1100; background: black; color: white; width: 50px; height: 50px; border-radius: 50%;
-font-size: 2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.close-module { position: fixed; top: 30px; right: 30px; z-index: 1100; background: black; color: white; width: 50px; height: 50px; border-radius: 50%; font-size: 2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .step-card { transition: transform 0.3s ease; border: 2px solid #fce7f3; }
 .step-card:hover { transform: translateY(-10px); border-color: var(--fuchsia); }
 .product-desc-border { border: 2px solid #fce7f3; padding: 15px; border-radius: 15px; max-height: 150px; overflow-y: auto; }
 #tracking-map { height: 400px; border-radius: 30px; margin-top: 20px; background: #eee; }
 .stock-alert { background-color: #fee2e2 !important; border-left: 8px solid #ef4444; }
-
-/* New Guide Specific Styles */
 .flow-line { width: 4px; background: var(--fuchsia); height: 50px; margin: 0 auto; position: relative; }
 .flow-arrow { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 15px solid var(--fuchsia); margin: 0 auto; }
 .glow-badge { background: var(--gold); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 900; text-transform: uppercase; }
+
+/* NEW UI ADDITIONS */
+.review-section { border: 2px solid var(--gold); padding: 15px; border-radius: 15px; background: #fffaf0; margin-top: 15px; }
+.portal-tab-btn { padding: 10px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+.portal-tab-btn.active { background: var(--fuchsia); color: white; }
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
 <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
 <div id="success-toast" class="flex flex-col items-center gap-4">
-<span id="toast-icon" class="text-7xl"></span>
-<h2 id="toast-title" class="royal-font text-4xl font-black"></h2>
-<p id="toast-msg" class="font-bold text-2xl uppercase tracking-widest"></p>
+    <span id="toast-icon" class="text-7xl"></span>
+    <h2 id="toast-title" class="royal-font text-4xl font-black"></h2>
+    <p id="toast-msg" class="font-bold text-2xl uppercase tracking-widest"></p>
 </div>
+
 <nav class="sticky top-0 bg-white z-[150] shadow-xl border-b-8 border-[#FF007F]">
-<div class="flex justify-between items-center px-6 py-4 md:px-16">
-<div class="flex items-center gap-3 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-<div class="h-10 w-10 md:h-14 md:w-14 bg-contain bg-no-repeat" style="background-image: url('logo.jpg');"></div>
-<span class="royal-font text-xl md:text-4xl font-black text-[#FF007F]">Glow By Vee</span>
-</div>
-<div class="flex items-center gap-6">
-<div class="relative cursor-pointer" onclick="toggleCart()">
-<span class="text-3xl md:text-4xl">🛒</span><span id="cart-counter">0</span>
-</div>
-</div>
-</div>
-<div class="flex justify-center overflow-x-auto gap-8 px-6 py-3 bg-pink-50 border-t border-pink-100 no-scrollbar items-center">
-<a href="#product-grid" onclick="closeModules()" class="nav-link">SHOP</a>
-<button onclick="openModule('about-module')" class="nav-link">ABOUT US</button>
-<button onclick="openModule('guide-module')" class="nav-link">GUIDE</button>
-<button onclick="openModule('portal-module')" class="nav-link text-[#FF007F]">PORTAL</button>
-<button onclick="accessAdmin()" class="nav-link">ADMIN</button>
-</div>
+    <div class="flex justify-between items-center px-6 py-4 md:px-16">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+            <div class="h-10 w-10 md:h-14 md:w-14 bg-contain bg-no-repeat" style="background-image: url('logo.jpg');"></div>
+            <span class="royal-font text-xl md:text-4xl font-black text-[#FF007F]">Glow By Vee</span>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="relative cursor-pointer" onclick="toggleCart()">
+                <span class="text-3xl md:text-4xl">🛒</span><span id="cart-counter">0</span>
+            </div>
+        </div>
+    </div>
+    <div class="flex justify-center overflow-x-auto gap-8 px-6 py-3 bg-pink-50 border-t border-pink-100 no-scrollbar items-center">
+        <a href="#catalog" onclick="closeModules()" class="nav-link">SHOP</a>
+        <button onclick="openModule('about-module')" class="nav-link">ABOUT US</button>
+        <button onclick="openModule('guide-module')" class="nav-link">GUIDE</button>
+        <button onclick="openModule('portal-module')" class="nav-link text-[#FF007F]">PORTAL</button>
+        <button onclick="openModule('delivery-auth-module')" class="nav-link">ORDER DELIVERY</button>
+        <button onclick="accessAdmin()" class="nav-link">ADMIN</button>
+    </div>
 </nav>
+
 <div id="portal-module" class="full-screen-module px-6">
-<div class="close-module" onclick="closeModules()">&times;</div>
-<div class="max-w-4xl mx-auto py-16">
-<h2 class="royal-font text-4xl text-[#C2185B] mb-8 text-center">Order Status & Tracking</h2>
-<div id="status-visual" class="p-6 bg-pink-50 rounded-2xl mb-6 text-center font-bold text-2xl text-[#FF007F]">
-Waiting for order...
+    <div class="close-module" onclick="closeModules()">&times;</div>
+    <div class="max-w-6xl mx-auto py-10">
+        <h2 class="royal-font text-4xl text-[#C2185B] mb-8 text-center">Customer Portal</h2>
+        <div class="flex gap-4 justify-center mb-8 overflow-x-auto p-2">
+            <div onclick="switchPortalTab('open')" id="tab-open" class="portal-tab-btn active">Open Orders</div>
+            <div onclick="switchPortalTab('processed')" id="tab-processed" class="portal-tab-btn">Processed</div>
+            <div onclick="switchPortalTab('tracking')" id="tab-tracking" class="portal-tab-btn">Live Tracking</div>
+            <div onclick="switchPortalTab('delivered')" id="tab-delivered" class="portal-tab-btn">Delivered</div>
+        </div>
+        
+        <div id="portal-content-area" class="bg-white p-6 rounded-3xl shadow-xl min-h-[400px]">
+            </div>
+    </div>
 </div>
-<div id="tracking-map"></div>
+
+<div id="delivery-auth-module" class="full-screen-module px-6">
+    <div class="close-module" onclick="closeModules()">&times;</div>
+    <div class="max-w-md mx-auto py-20">
+        <h2 class="royal-font text-3xl text-center mb-8">Delivery Access</h2>
+        <div class="space-y-4 bg-gray-50 p-8 rounded-3xl border-2 border-pink-100">
+            <input type="text" id="del-login-name" placeholder="Name" class="w-full p-4 rounded-xl border">
+            <input type="password" id="del-login-pass" placeholder="Password (Glow_delivery_2026)" class="w-full p-4 rounded-xl border">
+            <button onclick="authDelivery()" class="glow-button w-full py-4 text-white font-bold rounded-xl">LOGIN / REGISTER</button>
+        </div>
+    </div>
 </div>
+
+<div id="delivery-dashboard" class="full-screen-module px-6">
+    <div class="close-module" onclick="closeModules()">&times;</div>
+    <div class="max-w-7xl mx-auto py-10">
+        <h2 class="royal-font text-4xl mb-6">Delivery Management</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-3xl shadow border">
+                <h4 class="font-bold text-gray-400 uppercase text-xs">Progress</h4>
+                <div class="w-full bg-gray-200 h-4 rounded-full mt-2">
+                    <div id="delivery-progress-bar" class="bg-green-500 h-4 rounded-full" style="width: 0%"></div>
+                </div>
+                <p id="del-stats-text" class="text-sm mt-2 font-bold">0/0 Delivered</p>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow border">
+                <h4 class="font-bold text-gray-400 uppercase text-xs">GPS Status</h4>
+                <p class="text-green-500 font-black animate-pulse mt-2">● LIVE UPDATING</p>
+            </div>
+            <button onclick="downloadDeliveryReport()" class="bg-black text-white p-6 rounded-3xl font-bold uppercase">Download Activity PDF</button>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-3xl shadow border">
+                <h3 class="font-bold mb-4">Assigned Tasks</h3>
+                <div id="delivery-tasks-list" class="space-y-4"></div>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow border">
+                <h3 class="font-bold mb-4">Return Items</h3>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="return-receipt" placeholder="Receipt #" class="border p-2 rounded flex-1">
+                    <button onclick="processReturn()" class="bg-red-500 text-white px-4 rounded font-bold">RETURN</button>
+                </div>
+                <div id="returns-history" class="text-sm"></div>
+            </div>
+        </div>
+    </div>
 </div>
+
 <div id="admin-panel" class="full-screen-module p-6">
-<div class="close-module" onclick="document.getElementById('admin-panel').classList.remove('active')">&times;</div>
-<div class="max-w-7xl mx-auto py-10">
-<h1 class="royal-font text-5xl font-black text-[#C2185B] mb-10">Admin Dashboard</h1>
+    <div class="close-module" onclick="document.getElementById('admin-panel').classList.remove('active')">&times;</div>
+    <div class="max-w-7xl mx-auto py-10">
+        <div class="flex justify-between items-center mb-10">
+            <h1 class="royal-font text-5xl font-black text-[#C2185B]">Admin Dashboard</h1>
+            <div class="flex gap-4">
+                <button onclick="openAddProductModal()" class="bg-[#FF007F] text-white px-6 py-2 rounded-xl font-bold">ADD PRODUCT</button>
+                <button onclick="openAddRiderModal()" class="bg-black text-white px-6 py-2 rounded-xl font-bold">ADD RIDER</button>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <div class="bg-white p-6 rounded-3xl shadow-xl border">
+                <h3 class="font-bold mb-4">Performance Analytics</h3>
+                <canvas id="salesChart"></canvas>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-xl border">
+                <h3 class="font-bold mb-4">Business Intelligence</h3>
+                <div id="analytics-data" class="grid grid-cols-2 gap-4">
+                   <div class="p-4 bg-pink-50 rounded-2xl text-center">
+                       <p class="text-xs uppercase">Total Sales</p>
+                       <p id="stat-total-sales" class="text-2xl font-black">KES 0</p>
+                   </div>
+                   <div class="p-4 bg-gray-50 rounded-2xl text-center">
+                        <p class="text-xs uppercase">Customers</p>
+                        <p id="stat-cust-count" class="text-2xl font-black">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white p-8 rounded-3xl shadow-xl mb-12">
+            <h2 class="royal-font text-2xl mb-6">Inventory Management</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b-2">
+                            <th class="py-3">Product</th>
+                            <th class="py-3">Buying Price</th>
+                            <th class="py-3">Selling Price</th>
+                            <th class="py-3">Stock</th>
+                            <th class="py-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="bg-white p-8 rounded-3xl shadow-xl">
+            <h2 class="royal-font text-2xl mb-6">Customer Orders</h2>
+            <div id="admin-orders-list" class="space-y-4"></div>
+        </div>
+    </div>
+</div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-<div class="bg-white p-6 rounded-3xl shadow-xl border">
-<h3 class="font-bold mb-4">Sales & Stock Analytics</h3>
-<canvas id="salesChart"></canvas>
-</div>
-<div class="bg-white p-6 rounded-3xl shadow-xl border">
-<h3 class="font-bold mb-4">Repeat Customers & Returns</h3>
-<div id="special-reports" class="space-y-4">
-<p class="text-sm">Repeat Customers: <span id="repeat-count" class="font-bold">0</span></p>
-<div id="returns-summary" class="bg-gray-50 p-4 rounded-xl">
-<h4 class="text-xs font-black uppercase text-gray-400">Daily Returns Log</h4>
-<p class="text-sm mt-2 italic text-gray-500">No returns today.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="bg-white p-8 rounded-3xl shadow-xl mb-12">
-<h2 class="royal-font text-2xl mb-6">Inventory & Reorder Report</h2>
-<div class="overflow-x-auto">
-<table class="w-full text-left">
-<thead>
-<tr class="border-b-2">
-<th class="py-3">Product</th>
-<th class="py-3">Stock</th>
-<th class="py-3">Reorder Level</th>
-<th class="py-3">Action</th>
-</tr>
-</thead>
-<tbody id="inventory-table-body"></tbody>
-</table>
-</div>
-</div>
-<div class="bg-white p-8 rounded-3xl shadow-xl">
-<h2 class="royal-font text-2xl mb-6">Active Orders</h2>
-<div id="admin-orders-list" class="space-y-4"></div>
-</div>
-</div>
-</div>
 <div id="about-module" class="full-screen-module px-6">
-<div class="close-module" onclick="closeModules()">&times;</div>
-<div class="max-w-7xl mx-auto py-16">
-<div class="text-center mb-12">
-<h1 class="royal-font text-6xl font-black text-[#C2185B]">About Us ✨</h1>
-<p class="text-[#D4AF37] font-bold tracking-widest uppercase mt-2">Glow By Vee: Royal Radiance Defined</p>
-</div>
-
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start mb-20">
-<div class="relative">
-<div class="category-card h-[500px] w-full shadow-2xl border-8 border-pink-100 rounded-[60px]">
-    <div class="slideshow-wrapper">
-        <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&q=80&w=800" class="slide active">
-        <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800" class="slide">
-        <img src="https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&q=80&w=800" class="slide">
+    <div class="close-module" onclick="closeModules()">&times;</div>
+    <div class="max-w-7xl mx-auto py-16">
+        <div class="text-center mb-12">
+            <h1 class="royal-font text-6xl font-black text-[#C2185B]">About Us ✨</h1>
+            <p class="text-[#D4AF37] font-bold tracking-widest uppercase mt-2">Glow By Vee: Royal Radiance Defined</p>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            <div class="relative">
+                <div class="category-card h-[500px] w-full shadow-2xl border-8 border-pink-100 rounded-[60px]">
+                    <div class="slideshow-wrapper">
+                        <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&q=80&w=800" class="slide active">
+                        <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800" class="slide">
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-8">
+                <section><h2 class="royal-font text-3xl text-[#C2185B] border-b-2 border-pink-100 pb-2 mb-4">Our Essence 🏢</h2><p class="text-xl leading-relaxed text-gray-600">Glow By Vee is a premium, high-end dermatological skincare brand dedicated to celebrating the natural brilliance of your skin.</p></section>
+                <section class="bg-gray-900 text-white p-8 rounded-[40px] shadow-2xl">
+                    <h2 class="royal-font text-2xl text-[#D4AF37] mb-4">Visit Our Glow-Station 📍</h2>
+                    <p>Tom Mboya Street, Dynamic Mall, Stall ML-40, Nairobi, Kenya</p>
+                    <p class="mt-2 text-[#FF007F] font-bold">+254 703 859881</p>
+                </section>
+            </div>
+        </div>
     </div>
 </div>
-<div class="absolute -bottom-10 -right-10 bg-[#FF007F] text-white p-8 rounded-[40px] shadow-xl royal-font hidden md:block z-20">
-<p class="text-4xl">100%</p>
-<p class="text-sm">Organic & Pure</p>
-</div>
-</div>
-<div class="space-y-8">
-<section>
-<h2 class="royal-font text-3xl text-[#C2185B] border-b-2 border-pink-100 pb-2 mb-4">Our Essence 🏢</h2>
-<p class="text-xl leading-relaxed text-gray-600">
-Glow By Vee is a premium, high-end dermatological skincare brand dedicated to celebrating the natural brilliance of your skin.
-We merge traditional African beauty secrets with modern science to provide consistent, "mind-blowing" results for the modern woman. 👑
-</p>
-</section>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<section class="bg-pink-50 p-6 rounded-[30px] border-l-8 border-[#FF007F]">
-<h3 class="royal-font text-xl text-[#C2185B] mb-2">Our Vision 🔭</h3>
-<p class="text-sm text-gray-600">To be the leading global sanctuary for organic radiance, empowering women to embrace their "Skin Goals" through royal-standard dermatological care.</p>
-</section>
-<section class="bg-pink-50 p-6 rounded-[30px] border-l-8 border-[#D4AF37]">
-<h3 class="royal-font text-xl text-[#C2185B] mb-2">Our Mission 🎯</h3>
-<p class="text-sm text-gray-600">To provide curated, chemical-free skincare solutions that deliver visible glow, ensuring every woman feels like royalty in her own skin.</p>
-</section>
-</div>
-<section class="bg-gray-900 text-white p-8 rounded-[40px] shadow-2xl">
-<h2 class="royal-font text-2xl text-[#D4AF37] mb-4">Visit Our Glow-Station 📍</h2>
-<div class="space-y-4">
-<div class="flex items-center gap-4">
-<span class="text-2xl">📍</span>
-<div>
-<p class="font-bold">Main Store:</p>
-<p class="text-gray-400">Tom Mboya Street, Dynamic Mall, Stall ML-40, Nairobi, Kenya</p>
-</div>
-</div>
-<div class="flex items-center gap-4">
-<span class="text-2xl">📞</span>
-<div>
-<p class="font-bold">Official Contacts:</p>
-<p class="text-gray-400">+254 703 859881 | +254 742 278 190</p>
-</div>
-</div>
-<div class="flex items-center gap-4">
-<span class="text-2xl">📧</span>
-<p class="text-gray-400">gbyvee@gmail.com</p>
-</div>
-</div>
-</section>
-</div>
-</div>
-<div class="mb-20">
-<h2 class="royal-font text-4xl text-center text-[#C2185B] mb-12">Our Royal Collections 🛍️</h2>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-<div class="bg-white p-8 rounded-[40px] shadow-lg border-t-8 border-[#FF007F] hover:transform hover:scale-105 transition-all">
-<span class="text-5xl mb-4 block">✨</span>
-<h3 class="royal-font text-2xl mb-4 text-[#C2185B]">Glow-Up Packages</h3>
-<p class="text-gray-600 text-sm">Curated sets designed for full facial and body rejuvenation. Perfect for consistent "Skin Goals" results.</p>
-<ul class="mt-4 space-y-2 text-xs font-bold text-[#FF007F]">
-<li>✓ Radiant Glow Kit</li>
-<li>✓ Evening Glow Set</li>
-</ul>
-</div>
-<div class="bg-white p-8 rounded-[40px] shadow-lg border-t-8 border-[#D4AF37] hover:transform hover:scale-105 transition-all">
-<span class="text-5xl mb-4 block">🧪</span>
-<h3 class="royal-font text-2xl mb-4 text-[#C2185B]">Power Serums</h3>
-<p class="text-gray-600 text-sm">High-concentration formulas targeting aging, hydration, and uneven skin tones with modern actives.</p>
-<ul class="mt-4 space-y-2 text-xs font-bold text-[#FF007F]">
-<li>✓ Vitamin C Brightening Serum</li>
-<li>✓ Hyaluronic Acid Hydrator</li>
-</ul>
-</div>
-<div class="bg-white p-8 rounded-[40px] shadow-lg border-t-8 border-[#FF007F] hover:transform hover:scale-105 transition-all">
-<span class="text-5xl mb-4 block">🧼</span>
-<h3 class="royal-font text-2xl mb-4 text-[#C2185B]">Traditional Potions</h3>
-<p class="text-gray-600 text-sm">Harnessing African heritage with potent organic ingredients for deep cleansing and natural repair.</p>
-<ul class="mt-4 space-y-2 text-xs font-bold text-[#FF007F]">
-<li>✓ Somali Qasil Powder</li>
-<li>✓ Magical Black Oshaprapra Soap</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="text-center">
-<button onclick="closeModules()" class="glow-button px-12 py-5 rounded-full text-white font-black uppercase shadow-2xl tracking-widest">Start Your Glow Journey Now</button>
-</div>
-</div>
-</div>
 <div id="guide-module" class="full-screen-module px-6">
-<div class="close-module" onclick="closeModules()">&times;</div>
-<div class="max-w-7xl mx-auto py-16">
-<div class="text-center mb-16">
-<h1 class="royal-font text-6xl font-black text-[#C2185B]">Shopping Guide 🛍️</h1>
-<p class="text-[#D4AF37] font-bold tracking-widest uppercase mt-4">Your Roadmap to Royal Radiance</p>
-</div>
-
-<div class="mb-24 bg-pink-50 p-10 rounded-[60px] border-4 border-dashed border-pink-200">
-    <h2 class="royal-font text-3xl text-center text-[#C2185B] mb-12 uppercase">System Flow Chart</h2>
-    <div class="flex flex-col items-center">
-        <div class="bg-white p-6 rounded-3xl shadow-lg w-full max-w-sm text-center border-2 border-[#FF007F]">
-            <span class="text-3xl">🔍</span>
-            <h4 class="font-black text-[#C2185B] mt-2">Discover Products</h4>
-        </div>
-        <div class="flow-line"></div><div class="flow-arrow"></div>
-        <div class="bg-white p-6 rounded-3xl shadow-lg w-full max-w-sm text-center border-2 border-[#FF007F]">
-            <span class="text-3xl">🛒</span>
-            <h4 class="font-black text-[#C2185B] mt-2">Add to Cart</h4>
-        </div>
-        <div class="flow-line"></div><div class="flow-arrow"></div>
-        <div class="bg-white p-6 rounded-3xl shadow-lg w-full max-w-sm text-center border-2 border-[#FF007F]">
-            <span class="text-3xl">📝</span>
-            <h4 class="font-black text-[#C2185B] mt-2">Login & Shipping</h4>
-        </div>
-        <div class="flow-line"></div><div class="flow-arrow"></div>
-        <div class="bg-white p-6 rounded-3xl shadow-lg w-full max-w-sm text-center border-2 border-[#FF007F]">
-            <span class="text-3xl">💳</span>
-            <h4 class="font-black text-[#C2185B] mt-2">Payment Choice</h4>
-        </div>
-        <div class="flow-line"></div><div class="flow-arrow"></div>
-        <div class="bg-white p-6 rounded-3xl shadow-lg w-full max-w-sm text-center border-2 border-[#FF007F]">
-            <span class="text-3xl">🚚</span>
-            <h4 class="font-black text-[#C2185B] mt-2">Track & Receive</h4>
+    <div class="close-module" onclick="closeModules()">&times;</div>
+    <div class="max-w-7xl mx-auto py-16">
+        <h1 class="royal-font text-6xl font-black text-[#C2185B] text-center mb-16">Shopping Guide 🛍️</h1>
+        <div class="flex flex-col items-center gap-4">
+            <div class="bg-pink-50 p-6 rounded-3xl w-full max-w-sm text-center border-2 border-[#FF007F]">🔍 Discover Products</div>
+            <div class="flow-line"></div><div class="flow-arrow"></div>
+            <div class="bg-pink-50 p-6 rounded-3xl w-full max-w-sm text-center border-2 border-[#FF007F]">🛒 Add to Cart</div>
+            <div class="flow-line"></div><div class="flow-arrow"></div>
+            <div class="bg-pink-50 p-6 rounded-3xl w-full max-w-sm text-center border-2 border-[#FF007F]">💳 Checkout & Pay</div>
         </div>
     </div>
 </div>
 
-<div class="space-y-20 mb-20">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <img src="https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&q=80&w=800" class="rounded-[40px] shadow-2xl">
-        <div class="space-y-4">
-            <span class="glow-badge">Step 01</span>
-            <h2 class="royal-font text-4xl text-[#C2185B]">Search & Select ✨</h2>
-            <p class="text-gray-600 text-lg">Browse our collections or use the search bar to find your "Skin Goals." Click on any product to open the <b>detailed view</b>. Here, you can read the organic ingredients list and see customer reviews that testify to our "mind-blowing" results.</p>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div class="space-y-4 order-2 md:order-1">
-            <span class="glow-badge">Step 02</span>
-            <h2 class="royal-font text-4xl text-[#C2185B]">Bag Your Radiance 🛍️</h2>
-            <p class="text-gray-600 text-lg">Once you've read the testimonials and verified the descriptions, click <b>"ADD TO CART"</b>. Your shopping bag will track your total in KES. You can review items at any time by clicking the cart icon.</p>
-        </div>
-        <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800" class="rounded-[40px] shadow-2xl order-1 md:order-2">
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <img src="https://images.unsplash.com/photo-1590650516494-0c8e4a4dd67e?auto=format&fit=crop&q=80&w=800" class="rounded-[40px] shadow-2xl">
-        <div class="space-y-4">
-            <span class="glow-badge">Step 03</span>
-            <h2 class="royal-font text-4xl text-[#C2185B]">Checkout & Logistics 📍</h2>
-            <p class="text-gray-600 text-lg">Enter your Full Name and Phone Number. Our portal automatically handles your profile login/signup. Choose your business model: 
-                <br><br>
-                <b>• Pay via M-Pesa:</b> Instant secure processing.<br>
-                <b>• Pay on Delivery:</b> Pay when the rider arrives at your doorstep in Nairobi.
-            </p>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div class="space-y-4 order-2 md:order-1">
-            <span class="glow-badge">Step 04</span>
-            <h2 class="royal-font text-4xl text-[#C2185B]">Track & Shine 🚚</h2>
-            <p class="text-gray-600 text-lg">After placing the order, head to the <b>PORTAL</b>. You will see a real-time status update. Once received, share your glow story! Leave a review on our socials to join our community of satisfied Queens.</p>
-        </div>
-        <img src="https://images.unsplash.com/photo-1566224396798-b8a762efdbca?auto=format&fit=crop&q=80&w=800" class="rounded-[40px] shadow-2xl order-1 md:order-2">
-    </div>
-</div>
-
-<div class="text-center">
-<button onclick="closeModules()" class="glow-button px-12 py-5 rounded-full text-white font-black uppercase shadow-2xl tracking-widest">I'm Ready to Shop</button>
-</div>
-</div>
-</div>
 <section class="relative h-[60vh] flex items-center justify-center text-center overflow-hidden">
-<div class="absolute inset-0 bg-no-repeat" style="background-image: url('hero-premium.jpg'); background-size: cover; background-position: center 25%;">
-<div class="absolute inset-0 bg-black/50"></div>
-</div>
-<div class="relative z-10 px-6">
-<h1 class="royal-font text-5xl md:text-8xl text-white leading-none">ROYAL<br><span class="text-[#FF007F]">GLOW</span></h1>
-<p class="royal-font text-[#D4AF37] text-lg md:text-2xl mt-4 tracking-[0.3em] font-bold">WHERE ROYALTY MEETS RADIANCE</p>
-</div>
+    <div class="absolute inset-0 bg-no-repeat" style="background-image: url('hero-premium.jpg'); background-size: cover; background-position: center 25%;"><div class="absolute inset-0 bg-black/50"></div></div>
+    <div class="relative z-10 px-6">
+        <h1 class="royal-font text-5xl md:text-8xl text-white leading-none">ROYAL<br><span class="text-[#FF007F]">GLOW</span></h1>
+        <p class="royal-font text-[#D4AF37] text-lg md:text-2xl mt-4 tracking-[0.3em] font-bold uppercase">Where Royalty Meets Radiance</p>
+    </div>
 </section>
+
 <div class="marquee"><div class="marquee-content">✨ Premium Organic Formulas ✨ Same Day Delivery in Nairobi ✨ Pure Ingredients Only ✨ Vitamin C Serums ✨ Somali Qasil Powder ✨</div></div>
+
 <section id="catalog" class="py-16 px-6 max-w-7xl mx-auto">
-<h2 class="royal-font text-center text-4xl font-black text-[#C2185B] mb-10">Glow By Vee's Collections</h2>
-<div id="category-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-20"></div>
-<div class="text-center mb-10">
-<input type="text" id="product-search" oninput="filterProducts()" placeholder="Search products..." class="w-full max-w-md px-6 py-4 rounded-full border-2 border-pink-100">
-<div id="category-chips" class="flex justify-center gap-6 mt-8 flex-wrap font-bold text-[#C2185B]"></div>
-</div>
-<div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8"></div>
+    <h2 class="royal-font text-center text-4xl font-black text-[#C2185B] mb-10">Glow By Vee's Collections</h2>
+    <div id="category-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-20"></div>
+    <div class="text-center mb-10">
+        <input type="text" id="product-search" oninput="filterProducts()" placeholder="Search products..." class="w-full max-w-md px-6 py-4 rounded-full border-2 border-pink-100">
+        <div id="category-chips" class="flex justify-center gap-6 mt-8 flex-wrap font-bold text-[#C2185B]"></div>
+    </div>
+    <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8"></div>
 </section>
+
 <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-white shadow-2xl flex flex-col border-l-[8px] border-[#FF007F]">
-<div class="p-8 border-b-2 flex justify-between items-center bg-gray-50">
-<h2 class="royal-font text-3xl text-[#FF007F]">Your Bag</h2>
-<button onclick="toggleCart()" class="text-5xl text-gray-300">&times;</button>
+    <div class="p-8 border-b-2 flex justify-between items-center bg-gray-50">
+        <h2 class="royal-font text-3xl text-[#FF007F]">Your Bag</h2>
+        <button onclick="toggleCart()" class="text-5xl text-gray-300">&times;</button>
+    </div>
+    <div id="cart-items-container" class="flex-1 overflow-y-auto p-8 space-y-4"></div>
+    <div class="p-8 border-t-2">
+        <div class="flex justify-between font-black text-2xl mb-6"><span>Total</span><span id="cart-total-val" class="text-[#FF007F]">KES 0</span></div>
+        <div class="space-y-2 mb-4">
+            <input id="cust-phone" type="text" onblur="checkCustomerStatus()" placeholder="Phone (e.g. 0703...)" class="w-full border p-2 rounded">
+            <div id="new-cust-fields" class="hidden space-y-2">
+                <input id="cust-name" type="text" placeholder="Full Name" class="w-full border p-2 rounded">
+            </div>
+            <select id="pay-method" class="w-full border p-2 rounded">
+                <option value="Delivery">Pay on Delivery (POD)</option>
+                <option value="Online">Pay Online (Mpesa)</option>
+            </select>
+        </div>
+        <button onclick="processCheckout()" class="glow-button w-full py-5 rounded-2xl text-white font-black uppercase shadow-lg">Place Order</button>
+    </div>
 </div>
-<div id="cart-items-container" class="flex-1 overflow-y-auto p-8 space-y-4"></div>
-<div class="p-8 border-t-2">
-<div class="flex justify-between font-black text-2xl mb-6"><span>Total</span><span id="cart-total-val" class="text-[#FF007F]">KES 0</span></div>
-<div class="space-y-2 mb-4">
-<input id="cust-name" type="text" placeholder="Full Name" class="w-full border p-2 rounded">
-<input id="cust-phone" type="text" placeholder="Phone (e.g. 0703...)" class="w-full border p-2 rounded">
-<select id="pay-method" class="w-full border p-2 rounded">
-<option value="Delivery">Pay on Delivery</option>
-<option value="Online">Pay via Mpesa Now</option>
-</select>
-</div>
-<button onclick="processCheckout()" class="glow-button w-full py-5 rounded-2xl text-white font-black uppercase shadow-lg">Place Order</button>
-</div>
-</div>
+
 <div id="product-modal" class="modal-overlay fixed inset-0 items-center justify-center p-4">
-<div class="bg-white rounded-[40px] max-w-4xl w-full p-8 md:p-12 overflow-y-auto max-h-[90vh] relative shadow-2xl">
-<button onclick="closeProductModal()" class="absolute top-6 right-6 text-3xl">&times;</button>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-<img id="modal-img" class="w-full aspect-square rounded-3xl object-cover">
-<div>
-<h2 id="modal-title" class="royal-font text-4xl text-[#C2185B] mb-4"></h2>
-<div class="product-desc-border mb-6">
-<p id="modal-desc" class="text-gray-600 italic"></p>
+    <div class="bg-white rounded-[40px] max-w-4xl w-full p-8 md:p-12 overflow-y-auto max-h-[90vh] relative shadow-2xl">
+        <button onclick="closeProductModal()" class="absolute top-6 right-6 text-3xl">&times;</button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <img id="modal-img" class="w-full aspect-square rounded-3xl object-cover">
+            <div>
+                <h2 id="modal-title" class="royal-font text-4xl text-[#C2185B] mb-4"></h2>
+                <div class="product-desc-border mb-6">
+                    <p id="modal-desc" class="text-gray-600 italic"></p>
+                </div>
+                <p id="modal-price" class="text-3xl font-black text-[#FF007F] mb-6"></p>
+                <div id="product-reviews-display" class="review-section mb-6">
+                    <h4 class="font-black text-xs uppercase mb-2">Customer Testimonials</h4>
+                    <div id="reviews-list" class="space-y-2 max-h-[100px] overflow-y-auto text-xs"></div>
+                </div>
+                <button id="modal-add-btn" class="glow-button w-full py-5 rounded-2xl text-white font-black text-xl">ADD TO CART</button>
+            </div>
+        </div>
+    </div>
 </div>
-<p id="modal-price" class="text-3xl font-black text-[#FF007F] mb-6"></p>
-<button id="modal-add-btn" class="glow-button w-full py-5 rounded-2xl text-white font-black text-xl">ADD TO CART</button>
-</div>
-</div>
-</div>
-</div>
+
 <script>
+// SUPABASE CREDENTIALS
 const SUPABASE_URL = "https://znanyxsycuhhykciwigi.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuYW55eHN5Y3VoaHlrY2l3aWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDg2ODcsImV4cCI6MjA5MDcyNDY4N30.yD3lulYttBU90u3jt4LUVVUeW53vGT9Em9W2YaZFkdA";
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const ADMIN_KEY = "GLOW_QUEEN_2026_SECURE";
-let products = [], categories = [], activeFilter = 'All', cart = [];
+const DELIVERY_KEY = "Glow_delivery_2026";
+
+let products = [], categories = [], cart = [], activeFilter = 'All';
+let currentCustomer = null;
+let currentRider = null;
+let map, marker;
+
+// INITIALIZATION
 async function initCatalog() {
-const { data: catData } = await _supabase.from('categories').select('*');
-const { data: prodData } = await _supabase.from('products').select('*');
-categories = catData || [];
-products = prodData || [];
-renderCategorySlideshows(); renderCategoryChips(); renderProducts();
-setupLiveTracking();
-// Initialize any additional slideshows added manually
-document.querySelectorAll('.category-card').forEach(card => startSlideshow(card));
+    const { data: catData } = await _supabase.from('categories').select('*');
+    const { data: prodData } = await _supabase.from('products').select('*');
+    categories = catData || [];
+    products = prodData || [];
+    renderCategorySlideshows(); 
+    renderCategoryChips(); 
+    renderProducts();
+    document.querySelectorAll('.category-card').forEach(card => startSlideshow(card));
 }
+
+// CHECKOUT & CUSTOMER LOGIC
+async function checkCustomerStatus() {
+    const phone = document.getElementById('cust-phone').value;
+    if(!phone) return;
+    const { data } = await _supabase.from('profiles').select('*').eq('phone_number', phone).single();
+    if(data) {
+        currentCustomer = data;
+        document.getElementById('new-cust-fields').classList.add('hidden');
+    } else {
+        document.getElementById('new-cust-fields').classList.remove('hidden');
+    }
+}
+
 async function processCheckout() {
-const details = {
-name: document.getElementById('cust-name').value,
-phone: document.getElementById('cust-phone').value,
-method: document.getElementById('pay-method').value
-};
-if(!details.phone) return alert("Phone required");
-await handleCheckout(cart, details);
+    const phone = document.getElementById('cust-phone').value;
+    const name = document.getElementById('cust-name').value;
+    const method = document.getElementById('pay-method').value;
+
+    if(!phone) return alert("Enter phone number");
+    if(!currentCustomer && !name) return alert("Enter full name");
+
+    // Auto-Register
+    if(!currentCustomer) {
+        const { data } = await _supabase.from('profiles').insert([{ 
+            phone_number: phone, 
+            full_name: name, 
+            role: 'customer' 
+        }]).select().single();
+        currentCustomer = data;
+    }
+
+    const receiptNum = "GBV-" + Math.floor(100000 + Math.random() * 900000);
+    const { data: order } = await _supabase.from('orders').insert([{
+        customer_id: currentCustomer.id,
+        total_amount: cart.reduce((s, i) => s + i.price, 0),
+        payment_method: method,
+        status: 'open',
+        receipt_number: receiptNum,
+        items_description: cart.map(i => i.name).join(', ')
+    }]).select().single();
+
+    playNotif();
+    showToast("✅", "Order Placed!", `Receipt: ${receiptNum}`);
+    
+    if(method === 'Online') {
+        alert(`Payment required to +254 703 859881. Receipt: ${receiptNum}`);
+    } else {
+        alert(`POD Confirmed! Send KES ${order.total_amount} to Glow By Vee (+254 703 859881) once delivered.`);
+    }
+
+    cart = [];
+    updateCartUI();
+    toggleCart();
+    openModule('portal-module');
+    loadPortalData();
 }
-async function handleCheckout(cartItems, customerDetails) {
-let { data: user } = await _supabase.from('profiles').select('*').eq('phone_number', customerDetails.phone).single();
-if (!user) {
-const { data: newUser } = await _supabase.from('profiles').insert([{
-phone_number: customerDetails.phone, full_name: customerDetails.name, role: 'customer'
-}]).select().single();
-user = newUser;
+
+// PORTAL MANAGEMENT
+let activePortalTab = 'open';
+function switchPortalTab(t) {
+    activePortalTab = t;
+    document.querySelectorAll('.portal-tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`tab-${t}`).classList.add('active');
+    loadPortalData();
 }
-const { data: order } = await _supabase.from('orders').insert([{
-customer_id: user.id,
-total_amount: cartItems.reduce((s, i) => s + i.price, 0),
-payment_method: customerDetails.method,
-status: 'open'
-}]).select().single();
-document.getElementById('notif-sound').play();
-if (customerDetails.method === 'Online') {
-showMpesaPrompt(order.receipt_number || order.id);
-} else {
-alert("Order Placed! Redirecting to tracking...");
-openModule('portal-module');
+
+async function loadPortalData() {
+    if(!currentCustomer) return document.getElementById('portal-content-area').innerHTML = "Please shop first to view portal.";
+    
+    const { data: orders } = await _supabase.from('orders').select('*').eq('customer_id', currentCustomer.id);
+    const area = document.getElementById('portal-content-area');
+    
+    if(activePortalTab === 'tracking') {
+        area.innerHTML = `<div id="tracking-map"></div><div id="tracking-info" class="mt-4 p-4 bg-pink-50 rounded-xl"></div>`;
+        initMap();
+        return;
+    }
+
+    let filtered = orders.filter(o => {
+        if(activePortalTab === 'open') return o.status === 'open';
+        if(activePortalTab === 'processed') return o.status === 'processed';
+        if(activePortalTab === 'delivered') return o.status === 'delivered';
+    });
+
+    area.innerHTML = `<table class="w-full text-left">
+        <thead><tr class="border-b font-bold"><th>Receipt</th><th>Description</th><th>Amount</th><th>Action</th></tr></thead>
+        <tbody>${filtered.map(o => `
+            <tr class="border-b py-2">
+                <td>${o.receipt_number}</td>
+                <td class="text-xs">${o.items_description}</td>
+                <td>KES ${o.total_amount}</td>
+                <td>${o.status === 'delivered' ? `<button onclick="promptReview('${o.id}')" class="text-pink-500 font-bold">Review</button>` : o.status}</td>
+            </tr>
+        `).join('')}</tbody>
+    </table>`;
 }
+
+function promptReview(orderId) {
+    const star = prompt("Rate 1-5 stars:");
+    const text = prompt("Write your glow testimonial:");
+    if(star && text) {
+        _supabase.from('reviews').insert([{ order_id: orderId, rating: star, comment: text }]).then(() => {
+            alert("Testimonial added to product feed!");
+            loadPortalData();
+        });
+    }
 }
-function showMpesaPrompt(receipt) {
-alert(`Please pay to +254 703 859881. Receipt: ${receipt}. Call admin to confirm!`);
+
+// DELIVERY PORTAL LOGIC
+async function authDelivery() {
+    const name = document.getElementById('del-login-name').value;
+    const pass = document.getElementById('del-login-pass').value;
+    if(pass !== DELIVERY_KEY) return alert("Wrong Access Key");
+
+    let { data: rider } = await _supabase.from('profiles').select('*').eq('full_name', name).eq('role', 'delivery').single();
+    if(!rider) {
+        const { data } = await _supabase.from('profiles').insert([{ full_name: name, role: 'delivery' }]).select().single();
+        rider = data;
+    }
+    currentRider = rider;
+    openModule('delivery-dashboard');
+    loadDeliveryDashboard();
+    startGpsTracking();
 }
-function setupLiveTracking() {
-_supabase.channel('live-orders').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, payload => {
-const updatedOrder = payload.new;
-updateStatusVisual(updatedOrder.status);
-}).subscribe();
+
+async function loadDeliveryDashboard() {
+    const { data: tasks } = await _supabase.from('orders').select('*, profiles(full_name, phone_number)').eq('assigned_rider_id', currentRider.id);
+    const list = document.getElementById('delivery-tasks-list');
+    const deliveredCount = tasks.filter(t => t.status === 'delivered').length;
+    
+    document.getElementById('delivery-progress-bar').style.width = (deliveredCount/tasks.length * 100) + "%";
+    document.getElementById('del-stats-text').innerText = `${deliveredCount}/${tasks.length} Delivered`;
+
+    list.innerHTML = tasks.filter(t => t.status !== 'delivered').map(t => `
+        <div class="p-4 border rounded-2xl bg-white shadow-sm flex justify-between items-center">
+            <div>
+                <p class="font-bold">${t.profiles.full_name} (${t.profiles.phone_number})</p>
+                <p class="text-xs">Receipt: ${t.receipt_number} | Amount: KES ${t.total_amount}</p>
+                <p class="text-xs italic">${t.items_description}</p>
+            </div>
+            <button onclick="markDelivered('${t.id}')" class="bg-green-500 text-white px-4 py-2 rounded-xl font-bold">TOGGLE DELIVERED</button>
+        </div>
+    `).join('') || "No active tasks.";
 }
-function updateStatusVisual(status) {
-const visual = document.getElementById('status-visual');
-if(visual) visual.innerText = `Status: ${status.toUpperCase()}`;
+
+async function markDelivered(id) {
+    await _supabase.from('orders').update({ status: 'delivered' }).eq('id', id);
+    playNotif();
+    loadDeliveryDashboard();
 }
+
+function startGpsTracking() {
+    navigator.geolocation.watchPosition(pos => {
+        _supabase.from('profiles').update({ 
+            lat: pos.coords.latitude, 
+            lng: pos.coords.longitude 
+        }).eq('id', currentRider.id);
+    });
+}
+
+// MAP TRACKING
+function initMap() {
+    if(map) map.remove();
+    map = L.map('tracking-map').setView([-1.286389, 36.817223], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    
+    _supabase.channel('tracking').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, payload => {
+        if(payload.new.role === 'delivery') {
+            const { lat, lng, full_name } = payload.new;
+            if(marker) map.removeLayer(marker);
+            marker = L.marker([lat, lng]).addTo(map).bindPopup(`${full_name} is approaching!`).openPopup();
+            map.setView([lat, lng]);
+            document.getElementById('tracking-info').innerHTML = `<b>Courier:</b> ${full_name}<br><b>Status:</b> On the way with your Glow!`;
+        }
+    }).subscribe();
+}
+
+// ADMIN FUNCTIONS
 function accessAdmin() {
-let input = prompt("Enter Admin Security Key:");
-if(input === ADMIN_KEY) {
-showAdminPortal();
-} else {
-alert("Unauthorized Access!");
+    let input = prompt("Enter Admin Security Key:");
+    if(input === ADMIN_KEY) showAdminPortal();
+    else alert("Unauthorized Access!");
 }
-}
+
 function showAdminPortal() {
-document.getElementById('admin-panel').classList.add('active');
-renderInventoryTable();
-renderAdminOrders();
-initCharts();
+    document.getElementById('admin-panel').classList.add('active');
+    renderInventoryTable();
+    renderAdminOrders();
+    updateAdminStats();
 }
-function renderInventoryTable() {
-const tbody = document.getElementById('inventory-table-body');
-tbody.innerHTML = products.map(p => {
-const isLow = p.stock_quantity <= (p.reorder_level || 5);
-return `
-<tr class="${isLow ? 'stock-alert' : ''} border-b">
-<td class="py-2">${p.name}</td>
-<td class="py-2">${p.stock_quantity}</td>
-<td class="py-2">${p.reorder_level || 5}</td>
-<td class="py-2">${isLow ? '<b class="text-red-600 text-xs">REORDER NOW</b>' : 'OK'}</td>
-</tr>`;
-}).join('');
-}
+
 async function renderAdminOrders() {
-const { data: activeOrders } = await _supabase.from('orders').select('*, profiles(full_name)').neq('status', 'delivered');
-const cont = document.getElementById('admin-orders-list');
-cont.innerHTML = activeOrders.map(o => `
-<div class="p-4 border rounded-xl flex justify-between items-center bg-white">
-<div>
-<p class="font-bold">#${o.id.substring(0,8)} - ${o.profiles?.full_name}</p>
-<p class="text-sm text-gray-500">Status: ${o.status}</p>
-</div>
-<div class="flex gap-2">
-<select onchange="assignDelivery('${o.id}', this.value)" class="text-xs border p-1 rounded">
-<option>Assign Delivery...</option>
-<option value="Rider_1">Rider 1 (KBD 123)</option>
-</select>
-<button onclick="toggleOrderOn('${o.id}')" class="bg-green-500 text-white px-3 py-1 rounded text-xs font-bold">PROCESS ON</button>
-</div>
-</div>
-`).join('');
+    const { data: riders } = await _supabase.from('profiles').select('*').eq('role', 'delivery');
+    const { data: activeOrders } = await _supabase.from('orders').select('*, profiles(full_name, phone_number)').neq('status', 'delivered');
+    const cont = document.getElementById('admin-orders-list');
+    
+    cont.innerHTML = activeOrders.map(o => `
+        <div class="p-4 border rounded-xl flex justify-between items-center bg-white shadow-sm">
+            <div>
+                <p class="font-bold">${o.receipt_number} - ${o.profiles.full_name}</p>
+                <p class="text-xs">${o.items_description}</p>
+                <span class="text-[10px] bg-pink-100 text-pink-600 px-2 py-1 rounded font-bold">${o.status.toUpperCase()}</span>
+            </div>
+            <div class="flex gap-2">
+                <select onchange="assignRider('${o.id}', this.value)" class="text-xs border p-1 rounded">
+                    <option>Assign Rider...</option>
+                    ${riders.map(r => `<option value="${r.id}">${r.full_name}</option>`).join('')}
+                </select>
+                <button onclick="approveOrder('${o.id}')" class="bg-blue-500 text-white px-3 py-1 rounded text-xs font-bold">PROCESS ON</button>
+            </div>
+        </div>
+    `).join('');
 }
-async function toggleOrderOn(orderId) {
-await _supabase.from('orders').update({ status: 'processed' }).eq('id', orderId);
-renderAdminOrders();
+
+async function approveOrder(id) {
+    await _supabase.from('orders').update({ status: 'processed' }).eq('id', id);
+    renderAdminOrders();
 }
-function initCharts() {
-const ctx = document.getElementById('salesChart').getContext('2d');
-new Chart(ctx, {
-type: 'bar',
-data: {
-labels: products.slice(0,5).map(p => p.name),
-datasets: [{
-label: 'Stock Levels',
-data: products.slice(0,5).map(p => p.stock_quantity),
-backgroundColor: '#FF007F'
-}]
+
+async function assignRider(orderId, riderId) {
+    await _supabase.from('orders').update({ assigned_rider_id: riderId }).eq('id', orderId);
+    alert("Rider Assigned!");
 }
-});
+
+// HELPER UI
+function playNotif() { document.getElementById('notif-sound').play(); }
+function showToast(icon, title, msg) {
+    const t = document.getElementById('success-toast');
+    document.getElementById('toast-icon').innerText = icon;
+    document.getElementById('toast-title').innerText = title;
+    document.getElementById('toast-msg').innerText = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4000);
 }
+
 function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
 function closeModules() { document.querySelectorAll('.full-screen-module').forEach(m => m.classList.remove('active')); }
 function openModule(id) { closeModules(); document.getElementById(id).classList.add('active'); }
-function renderCategorySlideshows() {
-const container = document.getElementById('category-grid');
-const grouped = products.reduce((acc, p) => {
-if (!acc[p.category]) acc[p.category] = [];
-acc[p.category].push(p.image_url);
-return acc;
-}, {});
-container.innerHTML = "";
-Object.keys(grouped).forEach(cat => {
-const card = document.createElement('div');
-card.className = 'category-card group cursor-pointer';
-card.onclick = () => { activeFilter = cat; renderProducts(); window.location.href='#product-grid'; };
-card.innerHTML = `<div class="slideshow-wrapper">${grouped[cat].map((url, i) => `<img src="${url}" class="slide ${i===0?'active':''}">`).join('')}</div>
-<div class="category-info"><h3 class="royal-font text-2xl uppercase">${cat}</h3><span class="explore-btn">EXPLORE →</span></div>`;
-container.appendChild(card);
-startSlideshow(card);
-});
-}
-function startSlideshow(card) {
-const slides = card.querySelectorAll('.slide');
-let idx = 0;
-if(slides.length > 1) setInterval(() => {
-slides[idx].classList.remove('active');
-idx = (idx + 1) % slides.length;
-slides[idx].classList.add('active');
-}, 4000);
-}
-function renderCategoryChips() {
-const cont = document.getElementById('category-chips');
-cont.innerHTML = `<span onclick="setFilter('All')" class="cursor-pointer hover:text-[#FF007F]">ALL ITEMS</span>` +
-categories.map(c => ` • <span onclick="setFilter('${c.name}')" class="cursor-pointer hover:text-[#FF007F] uppercase">${c.name}</span>`).join('');
-}
-function setFilter(n) { activeFilter = n; renderProducts(); }
+
+// CORE RENDER LOGIC
 function renderProducts() {
-const query = document.getElementById('product-search').value.toLowerCase();
-const grid = document.getElementById('product-grid');
-const filtered = products.filter(p => (activeFilter === 'All' || p.category === activeFilter) && p.name.toLowerCase().includes(query));
-grid.innerHTML = filtered.map(p => `
-<div class="bg-white p-6 rounded-[30px] shadow-md border hover:border-[#FF007F] transition-all cursor-pointer" onclick="openProductDetail(${p.id})">
-<img src="${p.image_url}" class="w-full aspect-square object-cover rounded-2xl mb-4">
-<h4 class="royal-font text-xl text-gray-800">${p.name}</h4>
-<div class="flex justify-between items-center mt-4">
-<span class="font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
-<button class="bg-[#FF007F] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase">View</button>
-</div>
-</div>`).join('');
+    const query = document.getElementById('product-search').value.toLowerCase();
+    const grid = document.getElementById('product-grid');
+    const filtered = products.filter(p => (activeFilter === 'All' || p.category === activeFilter) && p.name.toLowerCase().includes(query));
+    grid.innerHTML = filtered.map(p => `
+        <div class="bg-white p-6 rounded-[30px] shadow-md border hover:border-[#FF007F] transition-all cursor-pointer" onclick="openProductDetail(${p.id})">
+            <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-2xl mb-4">
+            <h4 class="royal-font text-xl text-gray-800">${p.name}</h4>
+            <div class="flex justify-between items-center mt-4">
+                <span class="font-black text-[#FF007F]">KES ${p.price.toLocaleString()}</span>
+                <button class="bg-[#FF007F] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase">View</button>
+            </div>
+        </div>`).join('');
 }
-function openProductDetail(id) {
-const p = products.find(x => x.id === id);
-document.getElementById('modal-img').src = p.image_url;
-document.getElementById('modal-title').innerText = p.name;
-document.getElementById('modal-desc').innerText = p.description || "Premium extracts.";
-document.getElementById('modal-price').innerText = `KES ${p.price.toLocaleString()}`;
-document.getElementById('modal-add-btn').onclick = () => { cart.push(p); updateCartUI(); closeProductModal(); };
-document.getElementById('product-modal').classList.add('active');
+
+async function openProductDetail(id) {
+    const p = products.find(x => x.id === id);
+    const { data: reviews } = await _supabase.from('reviews').select('*').limit(5); // Link to specific product in real DB
+    
+    document.getElementById('modal-img').src = p.image_url;
+    document.getElementById('modal-title').innerText = p.name;
+    document.getElementById('modal-desc').innerText = p.description || "Premium extracts.";
+    document.getElementById('modal-price').innerText = `KES ${p.price.toLocaleString()}`;
+    
+    document.getElementById('reviews-list').innerHTML = reviews.map(r => `
+        <div class="border-b pb-1">
+            <p class="font-bold text-[#D4AF37]">${'⭐'.repeat(r.rating)}</p>
+            <p>${r.comment}</p>
+        </div>
+    `).join('') || "No reviews yet. Be the first!";
+
+    document.getElementById('modal-add-btn').onclick = () => { 
+        cart.push(p); 
+        updateCartUI(); 
+        closeProductModal(); 
+        playNotif();
+        showToast("🛍️", "Success!", "Item Added to Cart!");
+    };
+    document.getElementById('product-modal').classList.add('active');
 }
+
 function closeProductModal() { document.getElementById('product-modal').classList.remove('active'); }
+
 function updateCartUI() {
-document.getElementById('cart-counter').innerText = cart.length;
-document.getElementById('cart-total-val').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
-document.getElementById('cart-items-container').innerHTML = cart.map((i, idx) => `
-<div class="flex justify-between bg-gray-50 p-4 rounded-2xl">
-<div><h4 class="font-bold text-sm">${i.name}</h4><p class="text-[#FF007F]">KES ${i.price.toLocaleString()}</p></div>
-<button onclick="cart.splice(${idx},1);updateCartUI()" class="text-2xl text-red-300">×</button>
-</div>`).join('') || '<p class="text-center py-10">Empty</p>';
+    document.getElementById('cart-counter').innerText = cart.length;
+    document.getElementById('cart-total-val').innerText = `KES ${cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
+    document.getElementById('cart-items-container').innerHTML = cart.map((i, idx) => `
+        <div class="flex justify-between bg-gray-50 p-4 rounded-2xl">
+            <div><h4 class="font-bold text-sm">${i.name}</h4><p class="text-[#FF007F]">KES ${i.price.toLocaleString()}</p></div>
+            <button onclick="cart.splice(${idx},1);updateCartUI()" class="text-2xl text-red-300">×</button>
+        </div>`).join('') || '<p class="text-center py-10">Empty Bag</p>';
 }
+
+function renderCategorySlideshows() {
+    const container = document.getElementById('category-grid');
+    const grouped = products.reduce((acc, p) => {
+        if (!acc[p.category]) acc[p.category] = [];
+        acc[p.category].push(p.image_url);
+        return acc;
+    }, {});
+    container.innerHTML = "";
+    Object.keys(grouped).forEach(cat => {
+        const card = document.createElement('div');
+        card.className = 'category-card group cursor-pointer';
+        card.onclick = () => { activeFilter = cat; renderProducts(); window.location.href='#catalog'; };
+        card.innerHTML = `<div class="slideshow-wrapper">${grouped[cat].map((url, i) => `<img src="${url}" class="slide ${i===0?'active':''}">`).join('')}</div>
+        <div class="category-info"><h3 class="royal-font text-2xl uppercase">${cat}</h3><span class="explore-btn">EXPLORE →</span></div>`;
+        container.appendChild(card);
+        startSlideshow(card);
+    });
+}
+
+function startSlideshow(card) {
+    const slides = card.querySelectorAll('.slide');
+    let idx = 0;
+    if(slides.length > 1) setInterval(() => {
+        slides[idx].classList.remove('active');
+        idx = (idx + 1) % slides.length;
+        slides[idx].classList.add('active');
+    }, 4000);
+}
+
+function renderCategoryChips() {
+    const cont = document.getElementById('category-chips');
+    cont.innerHTML = `<span onclick="setFilter('All')" class="cursor-pointer hover:text-[#FF007F]">ALL ITEMS</span>` +
+    categories.map(c => ` • <span onclick="setFilter('${c.name}')" class="cursor-pointer hover:text-[#FF007F] uppercase">${c.name}</span>`).join('');
+}
+
+function setFilter(n) { activeFilter = n; renderProducts(); }
+
+function renderInventoryTable() {
+    const tbody = document.getElementById('inventory-table-body');
+    tbody.innerHTML = products.map(p => {
+        const isLow = p.stock_quantity <= (p.reorder_level || 5);
+        return `<tr class="${isLow ? 'stock-alert' : ''} border-b py-2">
+            <td>${p.name}</td>
+            <td>KES ${p.buying_price || 0}</td>
+            <td>KES ${p.price}</td>
+            <td>${p.stock_quantity}</td>
+            <td>${isLow ? '<b class="text-red-600">REORDER</b>' : 'OK'}</td>
+        </tr>`;
+    }).join('');
+}
+
 window.onload = initCatalog;
 </script>
 </body>
